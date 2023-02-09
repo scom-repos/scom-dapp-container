@@ -1,10 +1,15 @@
 import { WalletPlugin } from "@ijstech/eth-wallet";
 
+interface IDappContainerContent {
+  module: IPageBlockData;
+  properties: any;
+  tag?: any;
+}
+
 interface IDappContainerData {
   networks: number[];
   wallets: WalletPlugin[];
-  module: IPageBlockData;
-  content: any;
+  content: IDappContainerContent;
   tag?: any;
 }
 
@@ -29,6 +34,7 @@ interface ISemanticVersion {
 
 export {
   IPageBlockData,
+  IDappContainerContent,
   IDappContainerData,
   ICodeInfoFileContent
 }

@@ -19,11 +19,11 @@ export class DappContainerBody extends Module {
   }
 
   async setData(data: IDappContainerData) {
-    if (data.module) {
-      let module = await this.loadModule(data.module);
+    if (data.content && data.content.module) {
+      let module = await this.loadModule(data.content.module);
       if (module) {
-        await module.setData(data.content);
-        if (data.tag) module.setTag(data.tag);
+        await module.setData(data.content.properties);
+        if (data.content.tag) module.setTag(data.content.tag);
       }
     }
   }
