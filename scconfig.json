@@ -1,0 +1,26 @@
+{
+  "env": "testnet",
+  "main": "@modules/main",
+  "assets": "@modules/assets",
+  "moduleDir": "modules",
+  "modules": {
+    "@modules/assets": {
+      "path": "assets"
+    },
+    "@modules/main": {
+      "path": "main"
+    },
+    "@modules/interface": {
+      "path": "interface"
+    },
+    "@modules/utils": {
+      "path": "utils"
+    },
+    "@modules/store": {
+      "path": "store"
+    }
+  },
+  "dependencies": {
+    "@ijstech/eth-contract": "*"
+  }
+}
