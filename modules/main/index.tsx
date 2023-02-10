@@ -42,6 +42,15 @@ export class DappContainer extends Module {
     this.gridMain.visible = true;
   }
 
+  getActions() {
+    let module = this.dappContainerBody.getModule();
+    let actions;
+    if (module && module.getActions) {
+      actions = module.getActions();
+    }
+    return actions;
+  }
+
   getTag() {
     return this.tag;
   }
