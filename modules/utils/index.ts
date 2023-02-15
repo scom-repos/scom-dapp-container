@@ -72,7 +72,7 @@ const getModule = async (options: IGetModuleOptions) => {
       const scconfigRes = await fetch(`${options.localPath}/scconfig.json`);
       const scconfig = await scconfigRes.json();
       scconfig.rootDir = options.localPath;
-      module = await application.newModule(scconfig.main, scconfig, true);
+      module = await application.newModule(scconfig.main, scconfig);
   }
   else {
     const response = await fetchFileContentByCid(options.ipfscid);
@@ -83,7 +83,7 @@ const getModule = async (options: IGetModuleOptions) => {
     const main: string = scConfig.main;
     if (main.startsWith("@")) {
       scConfig.rootDir = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-      module = await application.newModule(main, scConfig, true);
+      module = await application.newModule(main, scConfig);
     } else {
       const root = `${IPFS_SCOM_URL}/${codeCID}/dist`;
       const mainScriptPath = main.replace('{root}', root);
