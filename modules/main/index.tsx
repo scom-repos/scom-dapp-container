@@ -1,8 +1,8 @@
 import { customModule, GridLayout, Module, Panel, Styles } from "@ijstech/components";
-import { IDappContainerData } from "@modules/interface";
+import { IDappContainerData } from "@pageblock-dapp-container/interface";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
-import { updateStore } from "@modules/store";
+import { updateStore } from "@pageblock-dapp-container/store";
 import { DappContainerHeader } from "./header";
 import { Wallet } from "@ijstech/eth-wallet";
 export { DappContainerBody } from './body';

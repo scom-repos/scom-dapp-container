@@ -3,7 +3,7 @@ import {
 } from '@ijstech/components';
 import { walletList } from './walletList';
 import {Erc20, ISendTxEventsOptions, IWallet, Wallet, WalletPlugin } from '@ijstech/eth-wallet';
-import { IDappContainerData } from '@modules/interface';
+import { IDappContainerData } from '@pageblock-dapp-container/interface';
 
 export interface INetwork {
   chainId: number;

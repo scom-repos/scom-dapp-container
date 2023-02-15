@@ -1,22 +1,22 @@
 {
   "env": "testnet",
-  "main": "@modules/main",
-  "assets": "@modules/assets",
+  "main": "@pageblock-dapp-container/main",
+  "assets": "@pageblock-dapp-container/assets",
   "moduleDir": "modules",
   "modules": {
-    "@modules/assets": {
+    "@pageblock-dapp-container/assets": {
       "path": "assets"
     },
-    "@modules/main": {
+    "@pageblock-dapp-container/main": {
       "path": "main"
     },
-    "@modules/interface": {
+    "@pageblock-dapp-container/interface": {
       "path": "interface"
     },
-    "@modules/utils": {
+    "@pageblock-dapp-container/utils": {
       "path": "utils"
     },
-    "@modules/store": {
+    "@pageblock-dapp-container/store": {
       "path": "store"
     }
   },

@@ -6,7 +6,7 @@ import {
   Styles,
   application
 } from '@ijstech/components';
-import Assets from '@modules/assets';
+import Assets from '@pageblock-dapp-container/assets';
 
 declare global {
   namespace JSX {

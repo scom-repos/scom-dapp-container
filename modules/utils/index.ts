@@ -1,6 +1,6 @@
 import { application, Module } from '@ijstech/components';
 import { BigNumber } from '@ijstech/eth-wallet';
-import { ICodeInfoFileContent } from '@modules/interface';
+import { ICodeInfoFileContent } from '@pageblock-dapp-container/interface';
 import { match, MatchFunction } from './pathToRegexp';
 
 const IPFS_SCOM_URL = "https://ipfs.scom.dev/ipfs";

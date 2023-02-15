@@ -16,9 +16,9 @@ import {
   Container,
 } from '@ijstech/components';
 import { Wallet, WalletPlugin, WalletPluginConfig } from '@ijstech/eth-wallet';
-import { formatNumber } from '@modules/utils';
+import { formatNumber } from '@pageblock-dapp-container/utils';
 import styleClass from './header.css';
-import Assets from '@modules/assets';
+import Assets from '@pageblock-dapp-container/assets';
 import {
   INetwork,
   EventId,
@@ -34,7 +34,7 @@ import {
   getDefaultChainId,
   viewOnExplorerByAddress,
   getSupportedWallets
-} from '@modules/store';
+} from '@pageblock-dapp-container/store';
 
 const Theme = Styles.Theme.ThemeVars;
 

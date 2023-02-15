@@ -1,6 +1,6 @@
 import { application, ControlElement, customElements, Module, Panel } from "@ijstech/components";
-import { IDappContainerData, IPageBlockData } from "@modules/interface";
-import { getModule } from "@modules/utils";
+import { IDappContainerData, IPageBlockData } from "@pageblock-dapp-container/interface";
+import { getModule } from "@pageblock-dapp-container/utils";
 
 declare global {
   namespace JSX {
