@@ -32,9 +32,14 @@ interface ISemanticVersion {
   patch: number;
 }
 
+enum EVENT {
+  'UPDATE_TAG' = 'UPDATE_TAG'
+}
+
 export {
   IPageBlockData,
   IDappContainerContent,
   IDappContainerData,
-  ICodeInfoFileContent
+  ICodeInfoFileContent,
+  EVENT
 }

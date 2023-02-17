@@ -1,5 +1,5 @@
-import { customModule, GridLayout, Module, Panel, Styles } from "@ijstech/components";
-import { IDappContainerData } from "@pageblock-dapp-container/interface";
+import { application, customModule, GridLayout, Module, Panel, Styles } from "@ijstech/components";
+import { EVENT, IDappContainerData } from "@pageblock-dapp-container/interface";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { updateStore } from "@pageblock-dapp-container/store";
@@ -21,6 +21,7 @@ export class DappContainer extends Module {
 
   async init() {
     super.init();
+    application.EventBus.register(this, EVENT.UPDATE_TAG, this.setTag);
   }
 
   async getData() {
@@ -55,8 +56,20 @@ export class DappContainer extends Module {
     return this.tag;
   }
 
-  async setTag(value: any) {
+  setTag(value: any) {
     this.tag = value;
+    this.updateTheme();
+  }
+
+  private updateTheme() {
+    if (this.tag?.fontColor)
+      this.style.setProperty('--text-primary', this.tag.fontColor);
+    if (this.tag?.backgroundColor)
+      this.style.setProperty('--background-main', this.tag.backgroundColor);
+    if (this.tag?.inputFontColor)
+      this.style.setProperty('--input-font_color', this.tag.inputFontColor);
+    if (this.tag?.inputBackgroundColor)
+      this.style.setProperty('--input-background', this.tag.inputBackgroundColor);
   }
   
   async renderPageByConfig() {

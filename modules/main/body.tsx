@@ -1,5 +1,5 @@
 import { application, ControlElement, customElements, Module, Panel } from "@ijstech/components";
-import { IDappContainerData, IPageBlockData } from "@pageblock-dapp-container/interface";
+import { EVENT, IDappContainerData, IPageBlockData } from "@pageblock-dapp-container/interface";
 import { getModule } from "@pageblock-dapp-container/utils";
 
 declare global {
@@ -28,7 +28,10 @@ export class DappContainerBody extends Module {
       this.module = await this.loadModule(data.content.module);
       if (this.module) {
         await this.module.setData(data.content.properties);
-        if (data.content.tag) this.module.setTag(data.content.tag);
+        if (data.content.tag) {
+          this.module.setTag(data.content.tag);
+          application.EventBus.dispatch(EVENT.UPDATE_TAG, data.content.tag);
+        }
       }
     }
   }
