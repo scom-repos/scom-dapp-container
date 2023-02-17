@@ -14,9 +14,11 @@ declare global {
 export class DappContainerBody extends Module {
   private pnlModule: Panel;
   private module: any;
+  private isLoading: boolean = false;
 
   clear() {
     this.pnlModule.clearInnerHTML();
+    this.module = null;
   }
 
   getModule() {
@@ -24,6 +26,8 @@ export class DappContainerBody extends Module {
   }
   
   async setData(data: IDappContainerData) {
+    if (this.isLoading) return;
+    this.isLoading = true;
     if (data.content && data.content.module) {
       this.clear();
       this.module = await this.loadModule(data.content.module);
@@ -35,6 +39,7 @@ export class DappContainerBody extends Module {
         }
       }
     }
+    this.isLoading = false;
   }
 
   setTag(data: any) {
@@ -43,7 +48,7 @@ export class DappContainerBody extends Module {
   }
   
   async loadModule(moduleData: IPageBlockData) {
-    this.pnlModule.clearInnerHTML();
+    this.clear();
     let module: any = await getModule(moduleData);
     if (module) {
       this.pnlModule.append(module);
