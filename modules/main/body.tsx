@@ -25,6 +25,7 @@ export class DappContainerBody extends Module {
   
   async setData(data: IDappContainerData) {
     if (data.content && data.content.module) {
+      this.clear();
       this.module = await this.loadModule(data.content.module);
       if (this.module) {
         await this.module.setData(data.content.properties);
@@ -34,6 +35,11 @@ export class DappContainerBody extends Module {
         }
       }
     }
+  }
+
+  setTag(data: any) {
+    if (this.module)
+      this.module.setTag(data);
   }
   
   async loadModule(moduleData: IPageBlockData) {
