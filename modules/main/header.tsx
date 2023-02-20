@@ -340,7 +340,7 @@ export class DappContainerHeader extends Module {
 
   render() {
       return (
-          <i-panel padding={{ top: '0.5rem', bottom: '0.5rem', left: '5.25rem', right: '5.25rem' }}>
+          <i-panel padding={{ top: '1.188rem', bottom: '0.5rem', left: '5.25rem', right: '5.25rem' }}>
               <i-hstack verticalAlignment='center' horizontalAlignment='end'>
                   <i-panel>
                       <i-button

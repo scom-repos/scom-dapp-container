@@ -58,6 +58,7 @@ export class DappContainer extends Module {
 
   setTag(value: any) {
     this.tag = value;
+    this.dappContainerBody.setTag(value);
     this.updateTheme();
   }
 
