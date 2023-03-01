@@ -474,12 +474,13 @@ define("@pageblock-dapp-container/utils", ["require", "exports", "@ijstech/compo
         }
     };
     exports.formatNumberWithSeparators = formatNumberWithSeparators;
-    const getModule = async (options) => {
+    const getModule = async (rootDir, options) => {
         let module;
         if (options.localPath) {
-            const scconfigRes = await fetch(`${options.localPath}/scconfig.json`);
+            const localRootPath = rootDir ? `${rootDir}/${options.localPath}` : options.localPath;
+            const scconfigRes = await fetch(`${localRootPath}/scconfig.json`);
             const scconfig = await scconfigRes.json();
-            scconfig.rootDir = options.localPath;
+            scconfig.rootDir = localRootPath;
             module = await components_1.application.newModule(scconfig.main, scconfig);
         }
         else {

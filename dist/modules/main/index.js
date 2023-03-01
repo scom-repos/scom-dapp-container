@@ -44,13 +44,13 @@ define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijste
         getModule() {
             return this.module;
         }
-        async setData(data) {
+        async setData(rootDir, data) {
             if (this.isLoading)
                 return;
             this.isLoading = true;
             if (data.content && data.content.module) {
                 this.clear();
-                this.module = await this.loadModule(data.content.module);
+                this.module = await this.loadModule(rootDir, data.content.module);
                 if (this.module) {
                     await this.module.setData(data.content.properties);
                     if (data.content.tag) {
@@ -65,9 +65,9 @@ define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijste
             if (this.module)
                 this.module.setTag(data);
         }
-        async loadModule(moduleData) {
+        async loadModule(rootDir, moduleData) {
             this.clear();
-            let module = await utils_1.getModule(moduleData);
+            let module = await utils_1.getModule(rootDir, moduleData);
             if (module) {
                 this.pnlModule.append(module);
             }
@@ -511,6 +511,12 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
             super.init();
             components_6.application.EventBus.register(this, interface_2.EVENT.UPDATE_TAG, this.setTag);
         }
+        setRootDir(value) {
+            this._rootDir = value || '';
+        }
+        getRootDir() {
+            return this._rootDir;
+        }
         async getData() {
             return this._data;
         }
@@ -556,7 +562,7 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
                 this.style.setProperty('--input-background', this.tag.inputBackgroundColor);
         }
         async renderPageByConfig() {
-            await this.dappContainerBody.setData(this._data);
+            await this.dappContainerBody.setData(this._rootDir, this._data);
         }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },

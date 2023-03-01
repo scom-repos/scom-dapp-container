@@ -18,10 +18,19 @@ export class DappContainer extends Module {
   private dappContainerHeader: DappContainerHeader;
   private dappContainerBody: DappContainerBody;
   private _data: IDappContainerData | undefined;
+  private _rootDir: string;
 
   async init() {
     super.init();
     application.EventBus.register(this, EVENT.UPDATE_TAG, this.setTag);
+  }
+
+  setRootDir(value: string) {
+    this._rootDir = value || '';
+  }
+
+  getRootDir() {
+    return this._rootDir;
   }
 
   async getData() {
@@ -74,7 +83,7 @@ export class DappContainer extends Module {
   }
   
   async renderPageByConfig() {
-    await this.dappContainerBody.setData(this._data);
+    await this.dappContainerBody.setData(this._rootDir, this._data);
   }
 
   render() {

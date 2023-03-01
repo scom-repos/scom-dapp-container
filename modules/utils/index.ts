@@ -66,12 +66,13 @@ const formatNumberWithSeparators = (value: number, precision?: number) => {
   }
 }
 
-const getModule = async (options: IGetModuleOptions) => {
+const getModule = async (rootDir: string, options: IGetModuleOptions) => {
   let module: Module;
   if (options.localPath) {
-      const scconfigRes = await fetch(`${options.localPath}/scconfig.json`);
+      const localRootPath = rootDir ? `${rootDir}/${options.localPath}` : options.localPath;
+      const scconfigRes = await fetch(`${localRootPath}/scconfig.json`);
       const scconfig = await scconfigRes.json();
-      scconfig.rootDir = options.localPath;
+      scconfig.rootDir = localRootPath;
       module = await application.newModule(scconfig.main, scconfig);
   }
   else {

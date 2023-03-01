@@ -25,12 +25,12 @@ export class DappContainerBody extends Module {
     return this.module;
   }
   
-  async setData(data: IDappContainerData) {
+  async setData(rootDir: string, data: IDappContainerData) {
     if (this.isLoading) return;
     this.isLoading = true;
     if (data.content && data.content.module) {
       this.clear();
-      this.module = await this.loadModule(data.content.module);
+      this.module = await this.loadModule(rootDir, data.content.module);
       if (this.module) {
         await this.module.setData(data.content.properties);
         if (data.content.tag) {
@@ -47,9 +47,9 @@ export class DappContainerBody extends Module {
       this.module.setTag(data);
   }
   
-  async loadModule(moduleData: IPageBlockData) {
+  async loadModule(rootDir: string, moduleData: IPageBlockData) {
     this.clear();
-    let module: any = await getModule(moduleData);
+    let module: any = await getModule(rootDir, moduleData);
     if (module) {
       this.pnlModule.append(module);
     }
