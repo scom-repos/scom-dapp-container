@@ -507,6 +507,10 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
     Object.defineProperty(exports, "DappContainerFooter", { enumerable: true, get: function () { return footer_1.DappContainerFooter; } });
     const Theme = components_6.Styles.Theme.ThemeVars;
     let DappContainer = class DappContainer extends components_6.Module {
+        constructor() {
+            super(...arguments);
+            this.tag = {};
+        }
         async init() {
             super.init();
             components_6.application.EventBus.register(this, interface_2.EVENT.UPDATE_TAG, this.setTag);
@@ -546,20 +550,27 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
             return this.tag;
         }
         setTag(value) {
-            this.tag = value;
-            this.dappContainerBody.setTag(value);
+            const newValue = value || {};
+            for (let prop in newValue) {
+                if (newValue.hasOwnProperty(prop))
+                    this.tag[prop] = newValue[prop];
+            }
+            this.dappContainerBody.setTag(this.tag);
+            console.log(this.tag);
             this.updateTheme();
         }
+        updateStyle(name, value) {
+            value ?
+                this.style.setProperty(name, value) :
+                this.style.removeProperty(name);
+        }
         updateTheme() {
-            var _a, _b, _c, _d;
-            if ((_a = this.tag) === null || _a === void 0 ? void 0 : _a.fontColor)
-                this.style.setProperty('--text-primary', this.tag.fontColor);
-            if ((_b = this.tag) === null || _b === void 0 ? void 0 : _b.backgroundColor)
-                this.style.setProperty('--background-main', this.tag.backgroundColor);
-            if ((_c = this.tag) === null || _c === void 0 ? void 0 : _c.inputFontColor)
-                this.style.setProperty('--input-font_color', this.tag.inputFontColor);
-            if ((_d = this.tag) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor)
-                this.style.setProperty('--input-background', this.tag.inputBackgroundColor);
+            var _a, _b, _c, _d, _e;
+            this.updateStyle('--text-primary', (_a = this.tag) === null || _a === void 0 ? void 0 : _a.fontColor);
+            this.updateStyle('--background-main', (_b = this.tag) === null || _b === void 0 ? void 0 : _b.backgroundColor);
+            this.updateStyle('--input-font_color', (_c = this.tag) === null || _c === void 0 ? void 0 : _c.inputFontColor);
+            this.updateStyle('--input-background', (_d = this.tag) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor);
+            this.updateStyle('--colors-primary-main', (_e = this.tag) === null || _e === void 0 ? void 0 : _e.buttonBackgroundColor);
         }
         async renderPageByConfig() {
             await this.dappContainerBody.setData(this._rootDir, this._data);
