@@ -73,7 +73,6 @@ export class DappContainer extends Module {
         this.tag[prop] = newValue[prop];
     }
     this.dappContainerBody.setTag(this.tag);
-    console.log(this.tag)
     this.updateTheme();
   }
 
