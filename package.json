@@ -5,7 +5,7 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@ijstech/components": "^0.1.39",
+        "@ijstech/components": "^0.1.40",
         "@ijstech/eth-contract": "^0.1.14",
         "@ijstech/eth-wallet": "^0.1.36"
     },

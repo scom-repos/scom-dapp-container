@@ -1,10 +1,9 @@
-import { application, customModule, GridLayout, Module, Panel, Styles } from "@ijstech/components";
-import { EVENT, IDappContainerData } from "@pageblock-dapp-container/interface";
+import { customModule, GridLayout, Module, Panel, Styles } from "@ijstech/components";
+import { IDappContainerData } from "@pageblock-dapp-container/interface";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { updateStore } from "@pageblock-dapp-container/store";
 import { DappContainerHeader } from "./header";
-import { Wallet } from "@ijstech/eth-wallet";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
 export { DappContainerFooter } from './footer';
@@ -23,7 +22,7 @@ export class DappContainer extends Module {
 
   async init() {
     super.init();
-    application.EventBus.register(this, EVENT.UPDATE_TAG, this.setTag);
+    this.classList.add('main-dapp');
   }
 
   setRootDir(value: string) {
