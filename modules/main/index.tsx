@@ -19,6 +19,7 @@ export class DappContainer extends Module {
   private dappContainerBody: DappContainerBody;
   private _data: IDappContainerData | undefined;
   private _rootDir: string;
+  tag: any = {};
 
   async init() {
     super.init();
@@ -66,20 +67,27 @@ export class DappContainer extends Module {
   }
 
   setTag(value: any) {
-    this.tag = value;
-    this.dappContainerBody.setTag(value);
+    const newValue = value || {};
+    for (let prop in newValue) {
+      if (newValue.hasOwnProperty(prop))
+        this.tag[prop] = newValue[prop];
+    }
+    this.dappContainerBody.setTag(this.tag);
     this.updateTheme();
   }
 
+  private updateStyle(name: string, value: any) {
+    value ?
+      this.style.setProperty(name, value) :
+      this.style.removeProperty(name);
+  }
+
   private updateTheme() {
-    if (this.tag?.fontColor)
-      this.style.setProperty('--text-primary', this.tag.fontColor);
-    if (this.tag?.backgroundColor)
-      this.style.setProperty('--background-main', this.tag.backgroundColor);
-    if (this.tag?.inputFontColor)
-      this.style.setProperty('--input-font_color', this.tag.inputFontColor);
-    if (this.tag?.inputBackgroundColor)
-      this.style.setProperty('--input-background', this.tag.inputBackgroundColor);
+    this.updateStyle('--text-primary', this.tag?.fontColor);
+    this.updateStyle('--background-main', this.tag?.backgroundColor);
+    this.updateStyle('--input-font_color', this.tag?.inputFontColor);
+    this.updateStyle('--input-background', this.tag?.inputBackgroundColor);
+    this.updateStyle('--colors-primary-main', this.tag?.buttonBackgroundColor);
   }
   
   async renderPageByConfig() {
