@@ -28,7 +28,7 @@ define("@pageblock-dapp-container/main/index.css.ts", ["require", "exports", "@i
         }
     });
 });
-define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijstech/components", "@pageblock-dapp-container/interface", "@pageblock-dapp-container/utils"], function (require, exports, components_2, interface_1, utils_1) {
+define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijstech/components", "@pageblock-dapp-container/utils"], function (require, exports, components_2, utils_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerBody = void 0;
@@ -45,18 +45,28 @@ define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijste
             return this.module;
         }
         async setData(rootDir, data) {
+            var _a;
             if (this.isLoading)
                 return;
             this.isLoading = true;
             if (data.content && data.content.module) {
                 this.clear();
-                this.module = await this.loadModule(rootDir, data.content.module);
-                if (this.module) {
-                    await this.module.setData(data.content.properties);
-                    if (data.content.tag) {
-                        this.module.setTag(data.content.tag);
-                        components_2.application.EventBus.dispatch(interface_1.EVENT.UPDATE_TAG, data.content.tag);
+                try {
+                    this.module = await this.loadModule(rootDir, data.content.module);
+                    if (this.module) {
+                        await this.module.setData(data.content.properties);
+                        const tagData = data.tag || ((_a = data === null || data === void 0 ? void 0 : data.content) === null || _a === void 0 ? void 0 : _a.tag) || null;
+                        if (tagData) {
+                            this.module.setTag(tagData);
+                            console.log(this.parent, this.parentElement);
+                            const parent = this.parentElement.closest('.main-dapp');
+                            if (parent)
+                                parent.setTag(tagData);
+                        }
                     }
+                }
+                catch (err) {
+                    console.log('dapp: ', err);
                 }
             }
             this.isLoading = false;
@@ -69,6 +79,7 @@ define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijste
             this.clear();
             let module = await utils_1.getModule(rootDir, moduleData);
             if (module) {
+                module.parent = this.pnlModule;
                 this.pnlModule.append(module);
             }
             return module;
@@ -498,7 +509,7 @@ define("@pageblock-dapp-container/main/footer.tsx", ["require", "exports", "@ijs
     ], DappContainerFooter);
     exports.DappContainerFooter = DappContainerFooter;
 });
-define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/components", "@pageblock-dapp-container/interface", "@pageblock-dapp-container/main/index.css.ts", "@pageblock-dapp-container/store", "@pageblock-dapp-container/main/body.tsx", "@pageblock-dapp-container/main/header.tsx", "@pageblock-dapp-container/main/footer.tsx"], function (require, exports, components_6, interface_2, index_css_1, store_2, body_1, header_1, footer_1) {
+define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/components", "@pageblock-dapp-container/main/index.css.ts", "@pageblock-dapp-container/store", "@pageblock-dapp-container/main/body.tsx", "@pageblock-dapp-container/main/header.tsx", "@pageblock-dapp-container/main/footer.tsx"], function (require, exports, components_6, index_css_1, store_2, body_1, header_1, footer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainer = exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
@@ -513,7 +524,7 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
         }
         async init() {
             super.init();
-            components_6.application.EventBus.register(this, interface_2.EVENT.UPDATE_TAG, this.setTag);
+            this.classList.add('main-dapp');
         }
         setRootDir(value) {
             this._rootDir = value || '';
@@ -556,7 +567,7 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
                     this.tag[prop] = newValue[prop];
             }
             this.dappContainerBody.setTag(this.tag);
-            console.log(this.tag);
+            console.log('dapp tag: ', this.tag);
             this.updateTheme();
         }
         updateStyle(name, value) {
