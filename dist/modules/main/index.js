@@ -58,16 +58,13 @@ define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijste
                         const tagData = data.tag || ((_a = data === null || data === void 0 ? void 0 : data.content) === null || _a === void 0 ? void 0 : _a.tag) || null;
                         if (tagData) {
                             this.module.setTag(tagData);
-                            console.log(this.parent, this.parentElement);
                             const parent = this.parentElement.closest('.main-dapp');
                             if (parent)
                                 parent.setTag(tagData);
                         }
                     }
                 }
-                catch (err) {
-                    console.log('dapp: ', err);
-                }
+                catch (err) { }
             }
             this.isLoading = false;
         }
@@ -539,6 +536,12 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
             this.pnlLoading.visible = true;
             this.gridMain.visible = false;
             this._data = data;
+            if (this._data.showHeader) {
+                this.dappContainerHeader.visible = true;
+            }
+            else {
+                this.dappContainerHeader.visible = false;
+            }
             store_2.updateStore(this._data);
             this.dappContainerHeader.reloadWalletsAndNetworks();
             if (!this._data) {
@@ -567,7 +570,6 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
                     this.tag[prop] = newValue[prop];
             }
             this.dappContainerBody.setTag(this.tag);
-            console.log('dapp tag: ', this.tag);
             this.updateTheme();
         }
         updateStyle(name, value) {
@@ -588,7 +590,7 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
         }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },
-                this.$render("dapp-container-header", { id: "dappContainerHeader" }),
+                this.$render("dapp-container-header", { visible: false, id: "dappContainerHeader" }),
                 this.$render("i-panel", { stack: { grow: "1" }, overflow: "hidden" },
                     this.$render("i-vstack", { id: "pnlLoading", height: "100%", horizontalAlignment: "center", verticalAlignment: "center", padding: { top: "1rem", bottom: "1rem", left: "1rem", right: "1rem" }, visible: false },
                         this.$render("i-panel", { class: 'spinner' })),

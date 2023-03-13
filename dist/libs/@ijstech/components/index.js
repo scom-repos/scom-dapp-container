@@ -17879,14 +17879,16 @@ function parse(cid) {
   return import_ipfs_utils.default.parse(cid);
 }
 async function hashItems(items, version) {
-  return await import_ipfs_utils.default.hashItems(items || [], version);
+  let result = await import_ipfs_utils.default.hashItems(items || [], version);
+  result.type = "dir";
+  result.links = items;
+  return result;
 }
 async function hashContent(content, version) {
   if (version == void 0)
     version = 1;
-  if (content.length == 0) {
+  if (content.length == 0)
     return await import_ipfs_utils.default.hashContent("", version);
-  }
   let result;
   if (version == 1) {
     result = await import_ipfs_utils.default.hashFile(content, version, {
@@ -17896,11 +17898,14 @@ async function hashContent(content, version) {
     });
   } else
     result = await import_ipfs_utils.default.hashFile(content, version);
-  return result.cid;
+  result.type = "file";
+  return result;
 }
 async function hashFile(file, version) {
   if (version == void 0)
     version = 1;
+  if (file.size == 0)
+    return await import_ipfs_utils.default.hashContent("", version);
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
@@ -17969,6 +17974,7 @@ async function hashTree(tree) {
     }
     ;
     let cid = await hashItems(items);
+    tree.type = "dir";
     tree.cid = cid.cid;
     tree.size = cid.size;
   }
@@ -18942,6 +18948,11 @@ var Upload = class extends Control {
     this._dt = new DataTransfer();
     this.isPreviewing = false;
     this._fileList = [];
+  }
+  async upload(endpoint) {
+    let cid = await hashFiles(this._fileList);
+    let result = await application.postData(endpoint, cid);
+    console.dir(result);
   }
   addFiles() {
   }
@@ -20472,6 +20483,7 @@ var UploadModal = class extends Control {
     this.isForcedCancelled = false;
     this.currentPage = 1;
     this.currentFilterStatus = 0;
+    this.files = [];
     this.fileListData = [];
   }
   get serverUrl() {
@@ -20552,7 +20564,9 @@ var UploadModal = class extends Control {
       const fileElm = new Panel(this._fileListElm, {
         class: `file file-${i} status-${fileData.status}`
       });
-      const fileNameElm = new Label(fileElm, { caption: fileData.file.path || fileData.file.name });
+      const fileNameElm = new Label(fileElm, {
+        caption: fileData.file.path || fileData.file.name
+      });
       const statusElm = new Panel(fileElm, { class: "status" });
       const percentageElm = new Label(statusElm, {
         caption: `${fileData.percentage}%`
@@ -20629,6 +20643,7 @@ var UploadModal = class extends Control {
         reject();
       for (let i = 0; i < files.length; i++) {
         this.fileListData.push({ file: files[i], status: 0, percentage: 0 });
+        this.files.push(files[i]);
       }
       this.renderFileList();
       this.renderFilterBar();
@@ -20641,6 +20656,7 @@ var UploadModal = class extends Control {
   }
   onRemoveFile(index) {
     this.fileListData.splice(index, 1);
+    this.files.splice(index, 1);
     this.renderFileList();
     this.renderFilterBar();
     this.renderPagination();
@@ -20648,88 +20664,86 @@ var UploadModal = class extends Control {
       this.toggle(false);
     }
   }
-  async uploadRequest(i, file) {
-    const formData = new FormData();
-    formData.append("file", file.file, file.file.name);
-    if (this.serverUrl) {
-      return new Promise((resolve, reject) => {
-        const _self = this;
-        this.currentRequest = new XMLHttpRequest();
-        this.currentRequest.open("POST", this.serverUrl);
-        this.currentRequest.upload.addEventListener("progress", function(e) {
-          const percentCompleted = e.loaded / e.total * 100;
-          _self.fileListData[i].percentage = (Math.round(percentCompleted * 100) / 100).toFixed(2);
-          _self.renderFileList();
-        });
-        this.currentRequest.addEventListener("load", function(e) {
-          const result = JSON.parse(_self.currentRequest.response);
-          console.log("result: ", result, typeof result);
-          if (result && result.cid) {
-            if (_self.onUploaded)
-              _self.onUploaded(_self, result.cid);
-            _self.fileListData[i].status = 1;
-            _self.renderFileList();
-          } else {
-            console.log("why", result, typeof result);
-            _self.fileListData[i].status = 2;
-          }
-          _self.renderFilterBar();
-          _self.renderFileList();
-          _self.renderPagination();
-        });
-        this.currentRequest.addEventListener("error", function(e) {
-          _self.fileListData[i].status = 2;
-          _self.renderFilterBar();
-          _self.renderFileList();
-          _self.renderPagination();
-        });
-        this.currentRequest.addEventListener("abort", function(e) {
-          _self.fileListData[i].status = 2;
-          _self.renderFilterBar();
-          _self.renderFileList();
-          _self.renderPagination();
-        });
-        this.currentRequest.send(formData);
-        this.currentRequest.onload = function() {
-          if (_self.currentRequest.status === 200) {
-            resolve(_self.currentRequest.responseText);
-          } else {
-            reject(_self.currentRequest.status);
-          }
-        };
+  getDirItems(cidItem, result) {
+    var _a;
+    result = result || [];
+    if (cidItem.type == "dir") {
+      let items = [];
+      if (cidItem.links) {
+        for (let i = 0; i < ((_a = cidItem.links) == null ? void 0 : _a.length); i++) {
+          let item = cidItem.links[i];
+          if (item.type == "dir")
+            this.getDirItems(item, result);
+          items.push({
+            cid: item.cid,
+            name: item.name,
+            size: item.size,
+            type: item.type
+          });
+        }
+        ;
+      }
+      ;
+      result.push({
+        cid: cidItem.cid,
+        name: cidItem.name,
+        size: cidItem.size,
+        type: "dir",
+        links: items
       });
     }
+    ;
+    return result;
   }
   async onUpload() {
     return new Promise(async (resolve, reject) => {
+      var _a, _b, _c;
       if (!this.fileListData.length)
         reject();
       this._uploadBtnElm.caption = "Uploading files to IPFS...";
       this.isForcedCancelled = false;
+      let cidItem = await hashFiles(this.files);
+      console.dir("### IPFS Upload ###");
+      console.dir(cidItem);
+      let uploadUrl = await application.getUploadUrl(cidItem);
+      let dirItems = this.getDirItems(cidItem);
+      for (let i = 0; i < dirItems.length; i++) {
+        let item = dirItems[i];
+        if (uploadUrl[item.cid]) {
+          await application.upload(uploadUrl[item.cid], JSON.stringify(item));
+        }
+        ;
+      }
+      ;
       for (let i = 0; i < this.fileListData.length; i++) {
-        console.log("this.isForcedCancelled: ", this.isForcedCancelled, i);
         if (this.isForcedCancelled) {
           break;
         } else {
           const file = this.fileListData[i];
-          if ([1, 3].includes(file.status)) {
+          file.url = `https://ipfs.scom.dev/ipfs/${cidItem.cid}${file.file.path || file.file.name}`;
+          if ([1, 3].includes(file.status) || !((_a = file.file.cid) == null ? void 0 : _a.cid)) {
             continue;
           }
           this.fileListData[i].status = 3;
           this.renderFilterBar();
-          try {
-            const result = await this.uploadRequest(i, file);
-            console.log("Success! ", i);
-            console.log(result);
-          } catch (err) {
-            console.log("Error! ", err);
-            this.fileListData[i].status = 2;
-            this.renderFilterBar();
-            this.renderFileList();
-            this.renderPagination();
+          if (uploadUrl[(_b = file.file.cid) == null ? void 0 : _b.cid]) {
+            try {
+              let result = await application.upload(uploadUrl[(_c = file.file.cid) == null ? void 0 : _c.cid], file.file);
+              this.fileListData[i].status = 1;
+              this.renderFilterBar();
+            } catch (err) {
+              console.log("Error! ", err);
+              this.fileListData[i].status = 2;
+            }
           }
+          ;
         }
+        ;
       }
+      ;
+      this.renderFilterBar();
+      this.renderFileList();
+      this.renderPagination();
       this._uploadBtnElm.caption = "Upload file to IPFS";
     });
   }
@@ -20764,9 +20778,9 @@ var UploadModal = class extends Control {
       this._uploadBoxElm = new Panel(this);
       this._uploadBoxElm.classList.add("upload-box");
       this._closeBtnElm = new Button(this._uploadBoxElm, {
-        icon: new Icon(this._closeBtnElm, { name: "times" }),
+        icon: { name: "times" },
         class: "modal-close",
-        onClick: this.hide
+        onClick: () => this.hide()
       });
       const headingElm = new Label(this._uploadBoxElm, {
         caption: "Upload more files"
@@ -20789,7 +20803,7 @@ var UploadModal = class extends Control {
       this._fileUploader.onRemoved = () => this.onRemove;
       const image = new Image2(droparea, { width: 60, height: 60 });
       image.classList.add("icon");
-      image.url = "";
+      image.url = `${LibPath}assets/img/file-icon.png`;
       const dargLabelElm = new Label(droparea, {
         caption: "Drag and drop your files here"
       });
@@ -23197,40 +23211,59 @@ var validate = (instance, schema, options) => {
     return schema2.type;
   }
   var errors = [];
-  function checkProp(value, schema2, path, i) {
+  function checkProp(value, schema2, path, scope, i) {
+    const parsedPath = path.split(".");
+    let parsedScope = scope.split("/");
+    let parentProp = "";
+    if (parsedScope.length > 1) {
+      parsedScope = parsedScope.splice(0, parsedScope.length - 2);
+      parentProp = parsedScope[parsedScope.length - 1].split("_")[0];
+    }
+    let idxOfArray = -1;
+    parsedPath.forEach((value2) => {
+      if (value2.includes(parentProp)) {
+        let matches = value2.match(/\[(.*?)\]/);
+        if (matches)
+          idxOfArray = parseInt(matches[1]) + 1;
+      }
+    });
+    if (idxOfArray > 0 && getType(schema2) != "object") {
+      scope = scope + "_" + idxOfArray;
+    }
     var l;
     path += path ? typeof i == "number" ? "[" + i + "]" : typeof i == "undefined" ? "" : "." + i : i;
-    function addError(message, overwritePath) {
-      errors.push({ property: overwritePath || path, message });
+    function addError(message, scope2, overwritePath) {
+      errors.push({ property: overwritePath || path, scope: scope2, message });
     }
     if ((typeof schema2 != "object" || schema2 instanceof Array) && (path || typeof schema2 != "function") && !(schema2 && getType(schema2))) {
       if (typeof schema2 == "function") {
         if (!(value instanceof schema2)) {
-          addError("is not an instance of the class/constructor " + schema2.name);
+          addError("is not an instance of the class/constructor " + schema2.name, scope);
         }
       } else if (schema2) {
-        addError("Invalid schema/property definition " + schema2);
+        addError("Invalid schema/property definition " + schema2, scope);
       }
       return null;
     }
     if (_changing && schema2.readOnly) {
-      addError("is a readonly field, it can not be changed");
+      addError("is a readonly field, it can not be changed", scope);
     }
     if (schema2["extends"]) {
-      checkProp(value, schema2["extends"], path, i);
+      checkProp(value, schema2["extends"], path, scope, i);
     }
-    function checkType(type, value2) {
+    function checkType(type, value2, scope2) {
       if (type) {
         if (typeof type == "string" && type != "any" && (type == "null" ? value2 !== null : typeof value2 != type) && !(value2 instanceof Array && type == "array") && !(type == "integer" && value2 % 1 === 0)) {
           return [{
             property: path,
+            scope: scope2,
             message: value2 + " - " + typeof value2 + " value found, but a " + type + " is required"
           }];
         }
         if (type instanceof Array) {
           let unionErrors = [];
           for (var j2 = 0; j2 < type.length; j2++) {
-            if (!(unionErrors = checkType(type[j2], value2)).length) {
+            if (!(unionErrors = checkType(type[j2], value2, scope2)).length) {
               break;
             }
           }
@@ -23240,7 +23273,7 @@ var validate = (instance, schema, options) => {
         } else if (typeof type == "object") {
           var priorErrors = errors;
           errors = [];
-          checkProp(value2, type, path);
+          checkProp(value2, type, path, scope2);
           var theseErrors = errors;
           errors = priorErrors;
           return theseErrors;
@@ -23250,18 +23283,19 @@ var validate = (instance, schema, options) => {
     }
     if (value === void 0 || value === "" || value instanceof Array && !value.length) {
       if (schema2.required && typeof schema2.required === "boolean") {
-        addError("is missing and it is required");
+        addError("is missing and it is required", scope);
       }
     } else {
       if (getType(schema2) === "object" && schema2.required instanceof Array) {
         for (let requiredField of schema2.required) {
-          if (value[requiredField] === void 0 || value[requiredField] === "" || value[requiredField] instanceof Array && !value[requiredField].length)
-            addError(`is missing and it is required`, requiredField);
+          if (value[requiredField] === void 0 || value[requiredField] === "" || value[requiredField] instanceof Array && !value[requiredField].length) {
+            addError(`is missing and it is required`, scope + "/properties/" + requiredField, requiredField);
+          }
         }
       }
-      errors = errors.concat(checkType(getType(schema2), value));
-      if (schema2.disallow && !checkType(schema2.disallow, value).length) {
-        addError(" disallowed value was matched");
+      errors = errors.concat(checkType(getType(schema2), value, scope));
+      if (schema2.disallow && !checkType(schema2.disallow, value, scope).length) {
+        addError(" disallowed value was matched", scope);
       }
       if (value !== null) {
         if (value instanceof Array) {
@@ -23273,34 +23307,34 @@ var validate = (instance, schema, options) => {
                 propDef = schema2.items[i];
               if (options.coerce)
                 value[i] = options.coerce(value[i], propDef);
-              var errors2 = checkProp(value[i], propDef, path, i);
+              var errors2 = checkProp(value[i], propDef, path, scope, i);
               if (errors2)
                 errors.concat(errors2);
             }
           }
           if (schema2.minItems && value.length < schema2.minItems) {
-            addError("There must be a minimum of " + schema2.minItems + " in the array");
+            addError("There must be a minimum of " + schema2.minItems + " in the array", scope);
           }
           if (schema2.maxItems && value.length > schema2.maxItems) {
-            addError("There must be a maximum of " + schema2.maxItems + " in the array");
+            addError("There must be a maximum of " + schema2.maxItems + " in the array", scope);
           }
         } else if (schema2.properties || schema2.additionalProperties) {
-          errors.concat(checkObj(value, schema2.properties, path, schema2.additionalProperties));
+          errors.concat(checkObj(value, schema2.properties, path, schema2.additionalProperties, scope));
         }
         if (schema2.pattern && typeof value == "string" && !value.match(schema2.pattern)) {
-          addError("does not match the regex pattern " + schema2.pattern);
+          addError("does not match the regex pattern " + schema2.pattern, scope);
         }
         if (schema2.maxLength && typeof value == "string" && value.length > schema2.maxLength) {
-          addError("may only be " + schema2.maxLength + " characters long");
+          addError("may only be " + schema2.maxLength + " characters long", scope);
         }
         if (schema2.minLength && typeof value == "string" && value.length < schema2.minLength) {
-          addError("must be at least " + schema2.minLength + " characters long");
+          addError("must be at least " + schema2.minLength + " characters long", scope);
         }
         if (typeof schema2.minimum !== "undefined" && typeof value == typeof schema2.minimum && schema2.minimum > value) {
-          addError("must have a minimum value of " + schema2.minimum);
+          addError("must have a minimum value of " + schema2.minimum, scope);
         }
         if (typeof schema2.maximum !== "undefined" && typeof value == typeof schema2.maximum && schema2.maximum < value) {
-          addError("must have a maximum value of " + schema2.maximum);
+          addError("must have a maximum value of " + schema2.maximum, scope);
         }
         if (schema2["enum"]) {
           var enumer = schema2["enum"];
@@ -23313,43 +23347,43 @@ var validate = (instance, schema, options) => {
             }
           }
           if (!found) {
-            addError("does not have a value in the enumeration " + enumer.join(", "));
+            addError("does not have a value in the enumeration " + enumer.join(", "), scope);
           }
         }
         if (typeof schema2.maxDecimal == "number" && value.toString().match(new RegExp("\\.[0-9]{" + (schema2.maxDecimal + 1) + ",}"))) {
-          addError("may only have " + schema2.maxDecimal + " digits of decimal places");
+          addError("may only have " + schema2.maxDecimal + " digits of decimal places", scope);
         }
         if (value !== "") {
           if (schema2.format === "wallet-address") {
             const regex = new RegExp("^((0x[a-fA-F0-9]{40})|([13][a-km-zA-HJ-NP-Z1-9]{25,34})|(X[1-9A-HJ-NP-Za-km-z]{33})|(4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}))$");
             if (!regex.test(value))
-              addError("is not a valid wallet address");
+              addError("is not a valid wallet address", scope);
           } else if (schema2.format === "cid") {
             const regex = new RegExp("^(Qm[1-9A-HJ-NP-Za-km-z]{44,}|b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,})$");
             if (!regex.test(value))
-              addError("is not a valid cid");
+              addError("is not a valid cid", scope);
           } else if (schema2.format === "cid-v0") {
             const regex = new RegExp("^(Qm[1-9A-HJ-NP-Za-km-z]{44,})$");
             if (!regex.test(value))
-              addError("is not a valid version 0 cid");
+              addError("is not a valid version 0 cid", scope);
           } else if (schema2.format === "cid-v1") {
             const regex = new RegExp("^(b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,})$");
             if (!regex.test(value))
-              addError("is not a valid version 1 cid");
+              addError("is not a valid version 1 cid", scope);
           } else if (schema2.format === "uuid") {
             const regex = new RegExp("^[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}$");
             if (!regex.test(value))
-              addError("is not a valid uuid");
+              addError("is not a valid uuid", scope);
           }
         }
       }
     }
     return null;
   }
-  function checkObj(instance2, objTypeDef, path, additionalProp) {
+  function checkObj(instance2, objTypeDef, path, additionalProp, scope) {
     if (typeof objTypeDef == "object") {
       if (typeof instance2 != "object" || instance2 instanceof Array) {
-        errors.push({ property: path, message: "an object is required" });
+        errors.push({ property: path, scope, message: "an object is required" });
       }
       for (var i in objTypeDef) {
         if (objTypeDef.hasOwnProperty(i) && i != "__proto__" && i != "constructor") {
@@ -23363,7 +23397,7 @@ var validate = (instance, schema, options) => {
           if (options.coerce && i in instance2) {
             value = instance2[i] = options.coerce(value, propDef);
           }
-          checkProp(value, propDef, path, i);
+          checkProp(value, propDef, path, scope + "/properties/" + i, i);
         }
       }
     }
@@ -23375,7 +23409,8 @@ var validate = (instance, schema, options) => {
         } else {
           errors.push({
             property: path,
-            message: "The property " + i + " is not defined in the schema and the schema does not allow additional properties"
+            message: "The property " + i + " is not defined in the schema and the schema does not allow additional properties",
+            scope
           });
         }
       }
@@ -23383,6 +23418,7 @@ var validate = (instance, schema, options) => {
       if (requires && !(requires in instance2)) {
         errors.push({
           property: path,
+          scope,
           message: "the presence of the property " + i + " requires that " + requires + " also be present"
         });
       }
@@ -23391,21 +23427,22 @@ var validate = (instance, schema, options) => {
         if (options.coerce) {
           value = instance2[i] = options.coerce(value, additionalProp);
         }
-        checkProp(value, additionalProp, path, i);
+        checkProp(value, additionalProp, path, scope + "/properties/" + i, i);
       }
       if (!_changing && value && value.$schema) {
-        const errors2 = checkProp(value, value.$schema, path, i);
+        const errors2 = checkProp(value, value.$schema, path, scope + "/properties/" + i, i);
         if (errors2)
           errors = errors.concat(errors2);
       }
     }
     return errors;
   }
+  const root = "#";
   if (schema) {
-    checkProp(instance, schema, "", _changing || "");
+    checkProp(instance, schema, "", root, _changing || "");
   }
   if (!_changing && instance && instance.$schema) {
-    checkProp(instance, instance.$schema, "", "");
+    checkProp(instance, instance.$schema, "", root, "");
   }
   return { valid: !errors.length, errors };
 };
@@ -23433,7 +23470,34 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
     }
   };
   const controls = {};
+  const descriptions = {};
+  const errorMsgs = {};
   const flatRules = [];
+  const showErrorMsg = async (idxScope) => {
+    const data2 = await getData(jsonSchema);
+    const validationResult = validate(data2, jsonSchema, { changing: false });
+    let showErrMsg = false;
+    let errMsg = "";
+    if ((validationResult == null ? void 0 : validationResult.valid) == false) {
+      for (let idx = 0; idx < validationResult.errors.length; idx++) {
+        if (validationResult.errors[idx].scope == idxScope) {
+          showErrMsg = true;
+          errMsg = validationResult.errors[idx].message;
+        }
+      }
+    }
+    if (showErrMsg == true) {
+      if (descriptions.hasOwnProperty(idxScope))
+        descriptions[idxScope].visible = false;
+      errorMsgs[idxScope].caption = errMsg;
+      errorMsgs[idxScope].visible = true;
+    } else {
+      if (descriptions.hasOwnProperty(idxScope))
+        descriptions[idxScope].visible = true;
+      errorMsgs[idxScope].caption = "";
+      errorMsgs[idxScope].visible = false;
+    }
+  };
   const renderForm = (schema, scope = "#", isArray = false, idx, schemaOptions) => {
     if (!schema)
       return void 0;
@@ -23469,13 +23533,15 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
       });
       combobox.id = idxScope;
       combobox.classList.add(jsonUIComboboxStyle);
+      combobox.onChanged = () => showErrorMsg(idxScope);
       controls[idxScope] = combobox;
       if (isArray) {
         controls[idxScope].setAttribute("role", "column");
         controls[idxScope].setAttribute("field", currentField);
       }
       if (schema.description)
-        new Label(groupPnl, { caption: schema.description });
+        descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+      errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
       return groupPnl;
     } else if (schema.oneOf && schema.oneOf.length > 0) {
       const items = [];
@@ -23498,13 +23564,15 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
       });
       combobox.id = idxScope;
       combobox.classList.add(jsonUIComboboxStyle);
+      combobox.onChanged = () => showErrorMsg(idxScope);
       controls[idxScope] = combobox;
       if (isArray) {
         controls[idxScope].setAttribute("role", "column");
         controls[idxScope].setAttribute("field", currentField);
       }
       if (schema.description)
-        new Label(groupPnl, { caption: schema.description });
+        descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+      errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
       return groupPnl;
     } else if (schema.type === "string") {
       if (schema.format === "date") {
@@ -23522,6 +23590,7 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           type: "date"
         });
         datePicker.id = idxScope;
+        datePicker.onChanged = () => showErrorMsg(idxScope);
         controls[idxScope] = datePicker;
         if (isArray) {
           controls[idxScope].setAttribute("role", "column");
@@ -23529,7 +23598,8 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           controls[idxScope].setAttribute("format", schema.format);
         }
         if (schema.description)
-          new Label(groupPnl, { caption: schema.description });
+          descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+        errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
         return groupPnl;
       } else if (schema.format === "time") {
         const groupPnl = new Panel();
@@ -23546,6 +23616,7 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           type: "time"
         });
         timePicker.id = idxScope;
+        timePicker.onChanged = () => showErrorMsg(idxScope);
         controls[idxScope] = timePicker;
         if (isArray) {
           controls[idxScope].setAttribute("role", "column");
@@ -23553,7 +23624,8 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           controls[idxScope].setAttribute("format", schema.format);
         }
         if (schema.description)
-          new Label(groupPnl, { caption: schema.description });
+          descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+        errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
         return groupPnl;
       } else if (schema.format === "date-time") {
         const groupPnl = new Panel();
@@ -23570,6 +23642,7 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           type: "dateTime"
         });
         dateTimePicker.id = idxScope;
+        dateTimePicker.onChanged = () => showErrorMsg(idxScope);
         controls[idxScope] = dateTimePicker;
         if (isArray) {
           controls[idxScope].setAttribute("role", "column");
@@ -23577,7 +23650,8 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           controls[idxScope].setAttribute("format", schema.format);
         }
         if (schema.description)
-          new Label(groupPnl, { caption: schema.description });
+          descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+        errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
         return groupPnl;
       } else if (schema.format === "color") {
         const groupPnl = new Panel();
@@ -23593,6 +23667,7 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           inputType: "color"
         });
         input.id = idxScope;
+        input.onChanged = () => showErrorMsg(idxScope);
         controls[idxScope] = input;
         if (isArray) {
           controls[idxScope].setAttribute("role", "column");
@@ -23600,7 +23675,8 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           controls[idxScope].setAttribute("format", schema.format);
         }
         if (schema.description)
-          new Label(groupPnl, { caption: schema.description });
+          descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+        errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
         return groupPnl;
       } else if (schema.format === "data-url") {
         const groupPnl = new Panel();
@@ -23614,6 +23690,7 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
         const controlPnl = new Panel(groupPnl);
         let upload = new Upload(controlPnl);
         upload.id = idxScope;
+        upload.onChanged = () => showErrorMsg(idxScope);
         controls[idxScope] = upload;
         if (isArray) {
           controls[idxScope].setAttribute("role", "column");
@@ -23638,13 +23715,15 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
           ...inputStyle
         });
         input.id = idxScope;
+        input.onChanged = () => showErrorMsg(idxScope);
         controls[idxScope] = input;
         if (isArray) {
           controls[idxScope].setAttribute("role", "column");
           controls[idxScope].setAttribute("field", currentField);
         }
         if (schema.description)
-          new Label(groupPnl, { caption: schema.description });
+          descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+        errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
         return groupPnl;
       }
     } else if (schema.type === "number") {
@@ -23662,6 +23741,7 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
         inputType: "number"
       });
       input.id = idxScope;
+      input.onChanged = () => showErrorMsg(idxScope);
       controls[idxScope] = input;
       if (isArray) {
         controls[idxScope].setAttribute("role", "column");
@@ -23669,7 +23749,8 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
         controls[idxScope].setAttribute("format", "number");
       }
       if (schema.description)
-        new Label(groupPnl, { caption: schema.description });
+        descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+      errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
       return groupPnl;
     } else if (schema.type === "integer") {
       const groupPnl = new Panel();
@@ -23686,6 +23767,7 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
         inputType: "number"
       });
       input.id = idxScope;
+      input.onChanged = () => showErrorMsg(idxScope);
       controls[idxScope] = input;
       if (isArray) {
         controls[idxScope].setAttribute("role", "column");
@@ -23693,7 +23775,8 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
         controls[idxScope].setAttribute("format", "integer");
       }
       if (schema.description)
-        new Label(groupPnl, { caption: schema.description });
+        descriptions[idxScope] = new Label(groupPnl, { caption: schema.description });
+      errorMsgs[idxScope] = new Label(groupPnl, { visible: false, font: { color: "#ff0000" } });
       return groupPnl;
     } else if (schema.type === "boolean") {
       const groupPnl = new Panel();
@@ -23708,6 +23791,7 @@ function renderUI(target, jsonSchema, callback, jsonUISchema, data, options) {
       const controlPnl = new Panel(groupPnl);
       let checkbox = new Checkbox(controlPnl);
       checkbox.id = idxScope;
+      checkbox.onChanged = () => showErrorMsg(idxScope);
       controls[idxScope] = checkbox;
       if (isArray) {
         controls[idxScope].setAttribute("role", "column");
@@ -24566,6 +24650,7 @@ function convertFieldNameToLabel(name) {
 }
 
 // packages/application/src/index.ts
+var API_IPFS_BASEURL = "/api/ipfs/v0";
 var IpfsDataType;
 (function(IpfsDataType2) {
   IpfsDataType2[IpfsDataType2["Raw"] = 0] = "Raw";
@@ -24621,13 +24706,95 @@ var Application = class {
     });
     return response.json();
   }
-  async upload() {
+  async showUploadModal() {
     if (!this._uploadModal)
       this._uploadModal = new UploadModal();
     this._uploadModal.show();
   }
-  async uploadFileContent(fileName, content, endpoint) {
-    endpoint = endpoint || "/ipfs";
+  async getUploadUrl(item) {
+    let { data } = await this.postData(`${API_IPFS_BASEURL}/upload`, { data: item });
+    return data || {};
+  }
+  async uploadData(fileName, content, endpoint) {
+    let cid = await hashContent(content);
+    let item = {
+      cid: cid.cid,
+      name: fileName,
+      size: cid.size,
+      type: "file"
+    };
+    let dir = await hashItems([item]);
+    let data = await this.getUploadUrl(dir);
+    if ((data == null ? void 0 : data[dir.cid]) && (data == null ? void 0 : data[cid.cid])) {
+      let dirStatus = await this.upload(data[dir.cid], JSON.stringify(dir));
+      let fileStatus = await this.upload(data[cid.cid], content);
+      if (dirStatus == 200 && fileStatus == 200)
+        return { success: true, data: dir };
+      else
+        return { success: false, error: `Failed to upload file. Status code: ${fileStatus}` };
+    } else
+      return { success: false };
+  }
+  async uploadFile(extensions) {
+    return new Promise(async (resolve, reject) => {
+      const input = document.createElement("input");
+      input.type = "file";
+      if (extensions) {
+        const accept = Array.isArray(extensions) ? extensions.map((ext) => `.${ext}`).join(",") : `.${extensions}`;
+        input.accept = accept;
+      }
+      ;
+      input.addEventListener("change", async () => {
+        var _a;
+        const file = (_a = input.files) == null ? void 0 : _a[0];
+        if (file) {
+          file.path = `/${file.name}`;
+          file.cid = await hashFile(file);
+          let dir = await hashFiles([file]);
+          let { data } = await this.postData(`${API_IPFS_BASEURL}/upload`, { data: dir });
+          if (data == null ? void 0 : data[file.cid.cid]) {
+            let result = await this.upload(data[file.cid.cid], file);
+          }
+          ;
+          if (data == null ? void 0 : data[dir.cid]) {
+            let result = await this.upload(data[dir.cid], JSON.stringify(dir));
+          }
+          ;
+          resolve({
+            success: true,
+            data
+          });
+        } else {
+          reject({ success: false, error: "No file selected" });
+        }
+      });
+      input.click();
+    });
+  }
+  async upload(url, data) {
+    return new Promise(async (resolve) => {
+      if (typeof data == "string") {
+        let result = await fetch(url, {
+          method: "PUT",
+          body: data
+        });
+        resolve(result.status);
+      } else {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          let result = await fetch(url, {
+            method: "PUT",
+            body: reader.result
+          });
+          resolve(result.status);
+        };
+        reader.onerror = () => {
+          resolve(0);
+        };
+        reader.readAsArrayBuffer(data);
+      }
+      ;
+    });
   }
   async verifyScript(modulePath, script) {
     try {

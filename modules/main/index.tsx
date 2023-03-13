@@ -41,6 +41,12 @@ export class DappContainer extends Module {
     this.pnlLoading.visible = true;
     this.gridMain.visible = false;
     this._data = data;
+    if (this._data.showHeader) {
+      this.dappContainerHeader.visible = true;
+    }
+    else {
+      this.dappContainerHeader.visible = false;
+    }
     updateStore(this._data);
     this.dappContainerHeader.reloadWalletsAndNetworks();
     if (!this._data) {
@@ -96,7 +102,7 @@ export class DappContainer extends Module {
   render() {
     return (
       <i-vstack class={styleClass} width="100%" height="100%" background={{ color: Theme.background.main }}>
-        <dapp-container-header id="dappContainerHeader"></dapp-container-header>
+        <dapp-container-header visible={false} id="dappContainerHeader"></dapp-container-header>
         <i-panel stack={{ grow: "1" }} overflow="hidden">
           <i-vstack
             id="pnlLoading"

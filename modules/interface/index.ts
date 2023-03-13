@@ -9,6 +9,7 @@ interface IDappContainerContent {
 interface IDappContainerData {
   networks: number[];
   wallets: WalletPlugin[];
+  showHeader?: boolean;
   content: IDappContainerContent;
   tag?: any;
 }
