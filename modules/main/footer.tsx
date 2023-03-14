@@ -49,7 +49,7 @@ export class DappContainerFooter extends Module {
         class="footer"
         horizontalAlignment="start"
         verticalAlignment="center"
-        padding={{ left: '5.25rem', right: '5.25rem', bottom: '1.25rem' }}
+        padding={{ left: '0.5rem', right: '0.5rem',bottom: '1.25rem' }}
         // border={{ width: 1, style: 'solid', color: Theme.divider }}
       >
         {/* <i-image height={30} width={30} url={Assets.logo}></i-image> */}

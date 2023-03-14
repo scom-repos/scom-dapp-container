@@ -494,7 +494,7 @@ define("@pageblock-dapp-container/main/footer.tsx", ["require", "exports", "@ijs
             this.lblFooter.appendChild(value);
         }
         render() {
-            return (this.$render("i-hstack", { class: "footer", horizontalAlignment: "start", verticalAlignment: "center", padding: { left: '5.25rem', right: '5.25rem', bottom: '1.25rem' } },
+            return (this.$render("i-hstack", { class: "footer", horizontalAlignment: "start", verticalAlignment: "center", padding: { left: '0.5rem', right: '0.5rem', bottom: '1.25rem' } },
                 this.$render("i-hstack", { id: "lblFooter", gap: 4, verticalAlignment: "center" },
                     this.$render("i-label", { caption: "Powered By", font: { size: '0.75rem', color: '#000' } }),
                     this.$render("i-label", { caption: "SECURE", font: { size: '0.875rem', color: '#F99E43', weight: 700 } }),
