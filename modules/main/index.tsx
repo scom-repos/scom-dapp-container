@@ -1,4 +1,4 @@
-import { customModule, GridLayout, Module, Panel, Styles } from "@ijstech/components";
+import { application, customModule, GridLayout, Module, Panel, Styles } from "@ijstech/components";
 import { IDappContainerData } from "@pageblock-dapp-container/interface";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
@@ -18,6 +18,7 @@ export class DappContainer extends Module {
   private dappContainerBody: DappContainerBody;
   private _data: IDappContainerData | undefined;
   private _rootDir: string;
+  private embedInitializedEvent: any;
   tag: any = {};
 
   async init() {
@@ -68,7 +69,11 @@ export class DappContainer extends Module {
   }
 
   getTag() {
-    return this.tag;
+    let bodyTag = this.dappContainerBody.getTag();
+    return {
+      ...this.tag,
+      ...bodyTag
+    }
   }
 
   setTag(value: any) {
@@ -97,6 +102,20 @@ export class DappContainer extends Module {
   
   async renderPageByConfig() {
     await this.dappContainerBody.setData(this._rootDir, this._data);
+    const containingModule = this.dappContainerBody.getModule();
+    if (this.embedInitializedEvent) {
+      this.embedInitializedEvent.unregister();
+    }
+    this.embedInitializedEvent = application.EventBus.register(this, 'embedInitialized', async (module) => {
+      if (containingModule.tagName !== module.tagName) return;
+      application.EventBus.dispatch('embedInitialized', this);
+    });
+  }
+
+  onHide() {
+    if (this.embedInitializedEvent) {
+      this.embedInitializedEvent.unregister();
+    }
   }
 
   render() {

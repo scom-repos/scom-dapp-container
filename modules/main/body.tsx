@@ -1,4 +1,4 @@
-import { ControlElement, customElements, Module, Panel } from "@ijstech/components";
+import { application, ControlElement, customElements, Module, Panel } from "@ijstech/components";
 import { IDappContainerData, IPageBlockData } from "@pageblock-dapp-container/interface";
 import { getModule } from "@pageblock-dapp-container/utils";
 
@@ -44,6 +44,10 @@ export class DappContainerBody extends Module {
       } catch (err) {}
     }
     this.isLoading = false;
+  }
+
+  getTag() {
+    return this.module?.getTag();
   }
 
   setTag(data: any) {

@@ -68,6 +68,10 @@ define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijste
             }
             this.isLoading = false;
         }
+        getTag() {
+            var _a;
+            return (_a = this.module) === null || _a === void 0 ? void 0 : _a.getTag();
+        }
         setTag(data) {
             if (this.module)
                 this.module.setTag(data);
@@ -561,7 +565,8 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
             return actions;
         }
         getTag() {
-            return this.tag;
+            let bodyTag = this.dappContainerBody.getTag();
+            return Object.assign(Object.assign({}, this.tag), bodyTag);
         }
         setTag(value) {
             const newValue = value || {};
@@ -587,6 +592,20 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
         }
         async renderPageByConfig() {
             await this.dappContainerBody.setData(this._rootDir, this._data);
+            const containingModule = this.dappContainerBody.getModule();
+            if (this.embedInitializedEvent) {
+                this.embedInitializedEvent.unregister();
+            }
+            this.embedInitializedEvent = components_6.application.EventBus.register(this, 'embedInitialized', async (module) => {
+                if (containingModule.tagName !== module.tagName)
+                    return;
+                components_6.application.EventBus.dispatch('embedInitialized', this);
+            });
+        }
+        onHide() {
+            if (this.embedInitializedEvent) {
+                this.embedInitializedEvent.unregister();
+            }
         }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },
