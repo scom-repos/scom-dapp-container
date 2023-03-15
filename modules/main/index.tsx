@@ -68,6 +68,15 @@ export class DappContainer extends Module {
     return actions;
   }
 
+  getEmbedderActions() {
+    let module = this.dappContainerBody.getModule();
+    let actions;
+    if (module && module.getEmbedderActions) {
+      actions = module.getEmbedderActions();
+    }
+    return actions;
+  }
+
   getTag() {
     let bodyTag = this.dappContainerBody.getTag();
     return {

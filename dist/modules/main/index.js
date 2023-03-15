@@ -564,6 +564,14 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
             }
             return actions;
         }
+        getEmbedderActions() {
+            let module = this.dappContainerBody.getModule();
+            let actions;
+            if (module && module.getEmbedderActions) {
+                actions = module.getEmbedderActions();
+            }
+            return actions;
+        }
         getTag() {
             let bodyTag = this.dappContainerBody.getTag();
             return Object.assign(Object.assign({}, this.tag), bodyTag);
