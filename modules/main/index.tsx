@@ -18,10 +18,10 @@ export class DappContainer extends Module {
   private dappContainerBody: DappContainerBody;
   private _data: IDappContainerData | undefined;
   private _rootDir: string;
-  private embedInitializedEvent: any;
+  // private embedInitializedEvent: any;
   tag: any = {};
 
-  async init() {
+  init() {
     super.init();
     this.classList.add('main-dapp');
   }
@@ -54,7 +54,7 @@ export class DappContainer extends Module {
       this.dappContainerBody.clear();
       return;
     }
-    await this.renderPageByConfig();
+    // await this.renderPageByConfig();
     this.pnlLoading.visible = false;
     this.gridMain.visible = true;
   }
@@ -75,6 +75,15 @@ export class DappContainer extends Module {
       actions = module.getEmbedderActions();
     }
     return actions;
+  }
+
+  getModule() {
+    let module = this.dappContainerBody.getModule();
+    return module;
+  }
+
+  setModule(module: Module) {
+    this.dappContainerBody.setModule(module);
   }
 
   getTag() {
@@ -109,23 +118,23 @@ export class DappContainer extends Module {
     this.updateStyle('--colors-primary-main', this.tag?.buttonBackgroundColor);
   }
   
-  async renderPageByConfig() {
-    await this.dappContainerBody.setData(this._rootDir, this._data);
-    const containingModule = this.dappContainerBody.getModule();
-    if (this.embedInitializedEvent) {
-      this.embedInitializedEvent.unregister();
-    }
-    this.embedInitializedEvent = application.EventBus.register(this, 'embedInitialized', async (module) => {
-      if (containingModule.tagName !== module.tagName) return;
-      application.EventBus.dispatch('embedInitialized', this);
-    });
-  }
+  // async renderPageByConfig() {
+  //   await this.dappContainerBody.setData(this._rootDir, this._data);
+  //   const containingModule = this.dappContainerBody.getModule();
+  //   if (this.embedInitializedEvent) {
+  //     this.embedInitializedEvent.unregister();
+  //   }
+  //   this.embedInitializedEvent = application.EventBus.register(this, 'embedInitialized', async (module) => {
+  //     if (containingModule.tagName !== module.tagName) return;
+  //     application.EventBus.dispatch('embedInitialized', this);
+  //   });
+  // }
 
-  onHide() {
-    if (this.embedInitializedEvent) {
-      this.embedInitializedEvent.unregister();
-    }
-  }
+  // onHide() {
+  //   if (this.embedInitializedEvent) {
+  //     this.embedInitializedEvent.unregister();
+  //   }
+  // }
 
   render() {
     return (

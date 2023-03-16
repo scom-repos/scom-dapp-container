@@ -28,7 +28,7 @@ define("@pageblock-dapp-container/main/index.css.ts", ["require", "exports", "@i
         }
     });
 });
-define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijstech/components", "@pageblock-dapp-container/utils"], function (require, exports, components_2, utils_1) {
+define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijstech/components"], function (require, exports, components_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerBody = void 0;
@@ -44,30 +44,31 @@ define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijste
         getModule() {
             return this.module;
         }
-        async setData(rootDir, data) {
-            var _a;
-            if (this.isLoading)
-                return;
-            this.isLoading = true;
-            if (data.content && data.content.module) {
-                this.clear();
-                try {
-                    this.module = await this.loadModule(rootDir, data.content.module);
-                    if (this.module) {
-                        await this.module.setData(data.content.properties);
-                        const tagData = data.tag || ((_a = data === null || data === void 0 ? void 0 : data.content) === null || _a === void 0 ? void 0 : _a.tag) || null;
-                        if (tagData) {
-                            this.module.setTag(tagData);
-                            const parent = this.parentElement.closest('.main-dapp');
-                            if (parent)
-                                parent.setTag(tagData);
-                        }
-                    }
-                }
-                catch (err) { }
-            }
-            this.isLoading = false;
+        setModule(module) {
+            this.module = module;
+            this.module.parent = this.pnlModule;
+            this.pnlModule.append(module);
         }
+        // async setData(rootDir: string, data: IDappContainerData) {
+        //   if (this.isLoading) return;
+        //   this.isLoading = true;
+        //   if (data.content && data.content.module) {
+        //     this.clear();
+        //     try {
+        //       this.module = await this.loadModule(rootDir, data.content.module);
+        //       if (this.module) {
+        //         await this.module.setData(data.content.properties);
+        //         const tagData = data.tag || data?.content?.tag || null;
+        //         if (tagData) {
+        //           this.module.setTag(tagData);
+        //           const parent = this.parentElement.closest('.main-dapp');
+        //           if (parent) (parent as any).setTag(tagData);
+        //         }
+        //       }
+        //     } catch (err) {}
+        //   }
+        //   this.isLoading = false;
+        // }
         getTag() {
             var _a;
             return (_a = this.module) === null || _a === void 0 ? void 0 : _a.getTag();
@@ -76,15 +77,15 @@ define("@pageblock-dapp-container/main/body.tsx", ["require", "exports", "@ijste
             if (this.module)
                 this.module.setTag(data);
         }
-        async loadModule(rootDir, moduleData) {
-            this.clear();
-            let module = await utils_1.getModule(rootDir, moduleData);
-            if (module) {
-                module.parent = this.pnlModule;
-                this.pnlModule.append(module);
-            }
-            return module;
-        }
+        // async loadModule(rootDir: string, moduleData: IPageBlockData) {
+        //   this.clear();
+        //   let module: any = await getModule(rootDir, moduleData);
+        //   if (module) {
+        //     module.parent = this.pnlModule;
+        //     this.pnlModule.append(module);
+        //   }
+        //   return module;
+        // }
         render() {
             return (this.$render("i-panel", { id: "pnlModule" }));
         }
@@ -186,7 +187,7 @@ define("@pageblock-dapp-container/main/header.css.ts", ["require", "exports", "@
         }
     });
 });
-define("@pageblock-dapp-container/main/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@pageblock-dapp-container/utils", "@pageblock-dapp-container/main/header.css.ts", "@pageblock-dapp-container/assets", "@pageblock-dapp-container/store"], function (require, exports, components_4, eth_wallet_1, utils_2, header_css_1, assets_1, store_1) {
+define("@pageblock-dapp-container/main/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@pageblock-dapp-container/utils", "@pageblock-dapp-container/main/header.css.ts", "@pageblock-dapp-container/assets", "@pageblock-dapp-container/store"], function (require, exports, components_4, eth_wallet_1, utils_1, header_css_1, assets_1, store_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerHeader = void 0;
@@ -205,7 +206,7 @@ define("@pageblock-dapp-container/main/header.tsx", ["require", "exports", "@ijs
                 this.selectedNetwork = store_1.getNetworkInfo(chainId);
                 let wallet = eth_wallet_1.Wallet.getClientInstance();
                 const isConnected = wallet.isConnected;
-                this.walletInfo.balance = isConnected ? utils_2.formatNumber((await wallet.balance).toFixed(), 2) : '0';
+                this.walletInfo.balance = isConnected ? utils_1.formatNumber((await wallet.balance).toFixed(), 2) : '0';
                 this.updateConnectedStatus(isConnected);
                 this.updateList(isConnected);
             };
@@ -317,7 +318,7 @@ define("@pageblock-dapp-container/main/header.tsx", ["require", "exports", "@ijs
             this.$eventBus.register(this, "isWalletConnected" /* IsWalletConnected */, async (connected) => {
                 if (connected) {
                     this.walletInfo.address = wallet.address;
-                    this.walletInfo.balance = utils_2.formatNumber((await wallet.balance).toFixed(), 2);
+                    this.walletInfo.balance = utils_1.formatNumber((await wallet.balance).toFixed(), 2);
                     this.walletInfo.networkId = wallet.chainId;
                 }
                 this.selectedNetwork = store_1.getNetworkInfo(wallet.chainId);
@@ -521,9 +522,10 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
     let DappContainer = class DappContainer extends components_6.Module {
         constructor() {
             super(...arguments);
+            // private embedInitializedEvent: any;
             this.tag = {};
         }
-        async init() {
+        init() {
             super.init();
             this.classList.add('main-dapp');
         }
@@ -552,7 +554,7 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
                 this.dappContainerBody.clear();
                 return;
             }
-            await this.renderPageByConfig();
+            // await this.renderPageByConfig();
             this.pnlLoading.visible = false;
             this.gridMain.visible = true;
         }
@@ -571,6 +573,13 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
                 actions = module.getEmbedderActions();
             }
             return actions;
+        }
+        getModule() {
+            let module = this.dappContainerBody.getModule();
+            return module;
+        }
+        setModule(module) {
+            this.dappContainerBody.setModule(module);
         }
         getTag() {
             let bodyTag = this.dappContainerBody.getTag();
@@ -598,23 +607,22 @@ define("@pageblock-dapp-container/main", ["require", "exports", "@ijstech/compon
             this.updateStyle('--input-background', (_d = this.tag) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor);
             this.updateStyle('--colors-primary-main', (_e = this.tag) === null || _e === void 0 ? void 0 : _e.buttonBackgroundColor);
         }
-        async renderPageByConfig() {
-            await this.dappContainerBody.setData(this._rootDir, this._data);
-            const containingModule = this.dappContainerBody.getModule();
-            if (this.embedInitializedEvent) {
-                this.embedInitializedEvent.unregister();
-            }
-            this.embedInitializedEvent = components_6.application.EventBus.register(this, 'embedInitialized', async (module) => {
-                if (containingModule.tagName !== module.tagName)
-                    return;
-                components_6.application.EventBus.dispatch('embedInitialized', this);
-            });
-        }
-        onHide() {
-            if (this.embedInitializedEvent) {
-                this.embedInitializedEvent.unregister();
-            }
-        }
+        // async renderPageByConfig() {
+        //   await this.dappContainerBody.setData(this._rootDir, this._data);
+        //   const containingModule = this.dappContainerBody.getModule();
+        //   if (this.embedInitializedEvent) {
+        //     this.embedInitializedEvent.unregister();
+        //   }
+        //   this.embedInitializedEvent = application.EventBus.register(this, 'embedInitialized', async (module) => {
+        //     if (containingModule.tagName !== module.tagName) return;
+        //     application.EventBus.dispatch('embedInitialized', this);
+        //   });
+        // }
+        // onHide() {
+        //   if (this.embedInitializedEvent) {
+        //     this.embedInitializedEvent.unregister();
+        //   }
+        // }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },
                 this.$render("dapp-container-header", { visible: false, id: "dappContainerHeader" }),
