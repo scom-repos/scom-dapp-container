@@ -11,9 +11,9 @@
         "declaration": false,
         "baseUrl": ".",
         "paths": {
-            "@pageblock-dapp-container/*":["modules/*"]
+            "@pageblock-dapp-container/*":["src/*"]
         }
     },
-    "include": ["modules/**/*.ts","modules/**/*.tsx"],
+    "include": ["src/**/*.ts","src/**/*.tsx"],
     "exclude": ["node_modules"]
 }

@@ -1,0 +1,26 @@
+export default {
+  "env": "testnet",
+  "main": "@pageblock-dapp-container/main",
+  "assets": "@pageblock-dapp-container/assets",
+  "moduleDir": "modules",
+  "modules": {
+    "@pageblock-dapp-container/assets": {
+      "path": "assets"
+    },
+    "@pageblock-dapp-container/main": {
+      "path": "main"
+    },
+    "@pageblock-dapp-container/interface": {
+      "path": "interface"
+    },
+    "@pageblock-dapp-container/utils": {
+      "path": "utils"
+    },
+    "@pageblock-dapp-container/store": {
+      "path": "store"
+    }
+  },
+  "dependencies": {
+    "@ijstech/eth-contract": "*"
+  }
+}
