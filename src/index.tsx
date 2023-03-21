@@ -5,7 +5,7 @@ import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
 import { updateStore } from "./store/index";
-import { getModule } from "./utils/index";
+import { getEmbedElement } from "./utils/index";
 import { WalletPlugin } from "@ijstech/eth-wallet";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
@@ -37,19 +37,21 @@ export default class ScomDappContainer extends Module {
   private dappContainerBody: DappContainerBody;
   private _data: IDappContainerData | undefined;
   private _rootDir: string;
-  // private embedInitializedEvent: any;
   private isInited: boolean = false;
+  private isRendering: boolean = false;
 
   tag: any = {};
 
   private async initData() {
     if (!this.isInited && this.dappContainerHeader.isInited && this.dappContainerBody.isInited) {
       this.isInited = true;
+      this.isRendering = true;
       const networks = this.getAttribute('networks', true, [])
       const wallets = this.getAttribute('wallets', true, [])
       const showHeader = this.getAttribute('showHeader', true, true)
       const content = this.getAttribute('content', true, [])
       await this.setData({networks, wallets, content, showHeader})
+      this.isRendering = false;
     }
   }
 
@@ -83,6 +85,7 @@ export default class ScomDappContainer extends Module {
   }
   set networks(value: number[]) {
     this._data.networks = value;
+    updateStore(this._data);
   }
 
   get wallets() {
@@ -90,6 +93,7 @@ export default class ScomDappContainer extends Module {
   }
   set wallets(value: WalletPlugin[]) {
     this._data.wallets = value;
+    updateStore(this._data);
   }
 
   get content() {
@@ -97,6 +101,7 @@ export default class ScomDappContainer extends Module {
   }
   set content(value: IDappContainerContent) {
     this._data.content = value;
+    if (!this.isRendering) this.renderContent();
   }
 
   setRootDir(value: string) {
@@ -122,29 +127,32 @@ export default class ScomDappContainer extends Module {
       this.dappContainerBody.clear();
       return;
     }
-    // await this.renderPageByConfig();
-    // if (this._data?.content?.module) {
-    //   try {
-    //     console.log('this._data.content.module', this._data.content.module)
-    //     const module: any = await getModule(this.getRootDir(), this._data.content.module);
-    //     console.log(module)
-    //     if (module) {
-    //       this.setModule(module);
-    //       // if (data.content?.properties)
-    //       //   await this.getModule().setData(data.content.properties);
-    //       // const tagData = data.tag || data?.content?.tag || null;
-    //       // if (tagData) {
-    //       //   this.getModule().setTag(tagData);
-    //       //   this.setTag(tagData);
-    //       // }
-    //     }
-    //   } catch {}
-    // }
+    await this.renderContent();
     this.pnlLoading.visible = false;
     this.gridMain.visible = true;
   }
 
-  private setContent() {}
+  private async renderContent() {
+    console.log('render content')
+    if (this._data?.content?.module) {
+      try {
+        console.log('this._data.content.module', this._data.content.module)
+        const module: any = await getEmbedElement(this._data.content.module.localPath);
+        console.log(module)
+        if (module) {
+          this.setModule(module);
+          await module.ready();
+          if (this._data.content?.properties)
+            await module.setData(this._data.content.properties);
+          const tagData = this._data.tag || this._data?.content?.tag || null;
+          if (tagData) {
+            module.setTag(tagData);
+            this.setTag(tagData);
+          }
+        }
+      } catch {}
+    }
+  }
 
   getActions() {
     let module = this.dappContainerBody.getModule();
@@ -170,6 +178,7 @@ export default class ScomDappContainer extends Module {
   }
 
   setModule(module: Module) {
+    this.dappContainerBody.clear();
     this.dappContainerBody.setModule(module);
   }
 
@@ -205,24 +214,6 @@ export default class ScomDappContainer extends Module {
     this.updateStyle('--colors-primary-main', this.tag?.buttonBackgroundColor);
   }
   
-  // async renderPageByConfig() {
-  //   await this.dappContainerBody.setData(this._rootDir, this._data);
-  //   const containingModule = this.dappContainerBody.getModule();
-  //   if (this.embedInitializedEvent) {
-  //     this.embedInitializedEvent.unregister();
-  //   }
-  //   this.embedInitializedEvent = application.EventBus.register(this, 'embedInitialized', async (module) => {
-  //     if (containingModule.tagName !== module.tagName) return;
-  //     application.EventBus.dispatch('embedInitialized', this);
-  //   });
-  // }
-
-  // onHide() {
-  //   if (this.embedInitializedEvent) {
-  //     this.embedInitializedEvent.unregister();
-  //   }
-  // }
-
   render() {
     return (
       <i-vstack class={styleClass} width="100%" height="100%" background={{ color: Theme.background.main }}>

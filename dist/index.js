@@ -522,7 +522,7 @@ define("@scom/scom-dapp-container/utils/pathToRegexp.ts", ["require", "exports"]
 define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/pathToRegexp.ts"], function (require, exports, components_3, eth_wallet_1, pathToRegexp_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getModule = exports.match = exports.formatNumberWithSeparators = exports.formatNumber = exports.getSCConfigByCodeCid = exports.fetchFileContentByCid = exports.IPFS_SCOM_URL = void 0;
+    exports.getEmbedElement = exports.match = exports.formatNumberWithSeparators = exports.formatNumber = exports.getSCConfigByCodeCid = exports.fetchFileContentByCid = exports.IPFS_SCOM_URL = void 0;
     Object.defineProperty(exports, "match", { enumerable: true, get: function () { return pathToRegexp_1.match; } });
     const IPFS_SCOM_URL = "https://ipfs.scom.dev/ipfs";
     exports.IPFS_SCOM_URL = IPFS_SCOM_URL;
@@ -586,40 +586,46 @@ define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@ijst
         }
     };
     exports.formatNumberWithSeparators = formatNumberWithSeparators;
-    const getModule = async (rootDir, options) => {
-        let module;
-        if (options.localPath) {
-            const localRootPath = rootDir ? `${rootDir}/${options.localPath}` : options.localPath;
-            const scconfigRes = await fetch(`${localRootPath}/scconfig.json`);
-            const scconfig = await scconfigRes.json();
-            scconfig.rootDir = localRootPath;
-            module = await components_3.application.newModule(scconfig.main, scconfig);
-        }
-        else {
-            const response = await fetchFileContentByCid(options.ipfscid);
-            const result = await response.json();
-            const codeCID = result.codeCID;
-            const scConfig = await getSCConfigByCodeCid(codeCID);
-            if (!scConfig)
-                return;
-            const main = scConfig.main;
-            if (main.startsWith("@")) {
-                scConfig.rootDir = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-                module = await components_3.application.newModule(main, scConfig);
-            }
-            else {
-                const root = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-                const mainScriptPath = main.replace('{root}', root);
-                const dependencies = scConfig.dependencies;
-                for (let key in dependencies) {
-                    dependencies[key] = dependencies[key].replace('{root}', root);
-                }
-                module = await components_3.application.newModule(mainScriptPath, { dependencies });
-            }
-        }
-        return module;
+    // const getModule = async (rootDir: string, options: IGetModuleOptions) => {
+    //   let module: Module;
+    //   if (options.localPath) {
+    //       const localRootPath = rootDir ? `${rootDir}/${options.localPath}` : options.localPath;
+    //       const scconfigRes = await fetch(`${localRootPath}/scconfig.json`);
+    //       const scconfig = await scconfigRes.json();
+    //       scconfig.rootDir = localRootPath;
+    //       module = await application.newModule(scconfig.main, scconfig);
+    //   }
+    //   else {
+    //     const response = await fetchFileContentByCid(options.ipfscid);
+    //     const result: ICodeInfoFileContent = await response.json();
+    //     const codeCID = result.codeCID;
+    //     const scConfig = await getSCConfigByCodeCid(codeCID);
+    //     if (!scConfig) return;
+    //     const main: string = scConfig.main;
+    //     if (main.startsWith("@")) {
+    //       scConfig.rootDir = `${IPFS_SCOM_URL}/${codeCID}/dist`;
+    //       module = await application.newModule(main, scConfig);
+    //     } else {
+    //       const root = `${IPFS_SCOM_URL}/${codeCID}/dist`;
+    //       const mainScriptPath = main.replace('{root}', root);
+    //       const dependencies = scConfig.dependencies;
+    //       for (let key in dependencies) {
+    //         dependencies[key] = dependencies[key].replace('{root}', root);
+    //       }
+    //       module = await application.newModule(mainScriptPath, { dependencies });
+    //     }
+    //   }
+    //   return module;
+    // }
+    const getEmbedElement = async (path) => {
+        components_3.application.currentModuleDir = path;
+        await components_3.application.loadScript(`${path}/index.js`);
+        components_3.application.currentModuleDir = '';
+        const elementName = `i-${path.split('/').pop()}`;
+        const element = document.createElement(elementName);
+        return element;
     };
-    exports.getModule = getModule;
+    exports.getEmbedElement = getEmbedElement;
 });
 define("@scom/scom-dapp-container/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_4) {
     "use strict";
@@ -1432,7 +1438,7 @@ define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/
     ], DappContainerFooter);
     exports.DappContainerFooter = DappContainerFooter;
 });
-define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_9, index_css_1, index_3, body_1, header_1, footer_1) {
+define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_9, index_css_1, index_3, index_4, body_1, header_1, footer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
@@ -1443,18 +1449,20 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
     let ScomDappContainer = class ScomDappContainer extends components_9.Module {
         constructor() {
             super(...arguments);
-            // private embedInitializedEvent: any;
             this.isInited = false;
+            this.isRendering = false;
             this.tag = {};
         }
         async initData() {
             if (!this.isInited && this.dappContainerHeader.isInited && this.dappContainerBody.isInited) {
                 this.isInited = true;
+                this.isRendering = true;
                 const networks = this.getAttribute('networks', true, []);
                 const wallets = this.getAttribute('wallets', true, []);
                 const showHeader = this.getAttribute('showHeader', true, true);
                 const content = this.getAttribute('content', true, []);
                 await this.setData({ networks, wallets, content, showHeader });
+                this.isRendering = false;
             }
         }
         async init() {
@@ -1485,18 +1493,22 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         set networks(value) {
             this._data.networks = value;
+            index_3.updateStore(this._data);
         }
         get wallets() {
             return this._data.wallets;
         }
         set wallets(value) {
             this._data.wallets = value;
+            index_3.updateStore(this._data);
         }
         get content() {
             return this._data.content;
         }
         set content(value) {
             this._data.content = value;
+            if (!this.isRendering)
+                this.renderContent();
         }
         setRootDir(value) {
             this._rootDir = value || '';
@@ -1518,28 +1530,33 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.dappContainerBody.clear();
                 return;
             }
-            // await this.renderPageByConfig();
-            // if (this._data?.content?.module) {
-            //   try {
-            //     console.log('this._data.content.module', this._data.content.module)
-            //     const module: any = await getModule(this.getRootDir(), this._data.content.module);
-            //     console.log(module)
-            //     if (module) {
-            //       this.setModule(module);
-            //       // if (data.content?.properties)
-            //       //   await this.getModule().setData(data.content.properties);
-            //       // const tagData = data.tag || data?.content?.tag || null;
-            //       // if (tagData) {
-            //       //   this.getModule().setTag(tagData);
-            //       //   this.setTag(tagData);
-            //       // }
-            //     }
-            //   } catch {}
-            // }
+            await this.renderContent();
             this.pnlLoading.visible = false;
             this.gridMain.visible = true;
         }
-        setContent() { }
+        async renderContent() {
+            var _a, _b, _c, _d, _e;
+            console.log('render content');
+            if ((_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.content) === null || _b === void 0 ? void 0 : _b.module) {
+                try {
+                    console.log('this._data.content.module', this._data.content.module);
+                    const module = await index_4.getEmbedElement(this._data.content.module.localPath);
+                    console.log(module);
+                    if (module) {
+                        this.setModule(module);
+                        await module.ready();
+                        if ((_c = this._data.content) === null || _c === void 0 ? void 0 : _c.properties)
+                            await module.setData(this._data.content.properties);
+                        const tagData = this._data.tag || ((_e = (_d = this._data) === null || _d === void 0 ? void 0 : _d.content) === null || _e === void 0 ? void 0 : _e.tag) || null;
+                        if (tagData) {
+                            module.setTag(tagData);
+                            this.setTag(tagData);
+                        }
+                    }
+                }
+                catch (_f) { }
+            }
+        }
         getActions() {
             let module = this.dappContainerBody.getModule();
             let actions;
@@ -1561,6 +1578,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             return module;
         }
         setModule(module) {
+            this.dappContainerBody.clear();
             this.dappContainerBody.setModule(module);
         }
         getTag() {
@@ -1589,22 +1607,6 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.updateStyle('--input-background', (_d = this.tag) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor);
             this.updateStyle('--colors-primary-main', (_e = this.tag) === null || _e === void 0 ? void 0 : _e.buttonBackgroundColor);
         }
-        // async renderPageByConfig() {
-        //   await this.dappContainerBody.setData(this._rootDir, this._data);
-        //   const containingModule = this.dappContainerBody.getModule();
-        //   if (this.embedInitializedEvent) {
-        //     this.embedInitializedEvent.unregister();
-        //   }
-        //   this.embedInitializedEvent = application.EventBus.register(this, 'embedInitialized', async (module) => {
-        //     if (containingModule.tagName !== module.tagName) return;
-        //     application.EventBus.dispatch('embedInitialized', this);
-        //   });
-        // }
-        // onHide() {
-        //   if (this.embedInitializedEvent) {
-        //     this.embedInitializedEvent.unregister();
-        //   }
-        // }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },
                 this.$render("dapp-container-header", { visible: false, id: "dappContainerHeader" }),
