@@ -18,6 +18,7 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         description: string;
         ipfscid: string;
         imgUrl: string;
+        localPath?: string;
     }
     interface ICodeInfoFileContent {
         version: ISemanticVersion;
@@ -195,7 +196,6 @@ declare module "@scom/scom-dapp-container/utils/pathToRegexp.ts" {
 }
 /// <amd-module name="@scom/scom-dapp-container/utils/index.ts" />
 declare module "@scom/scom-dapp-container/utils/index.ts" {
-    import { Module } from '@ijstech/components';
     import { match, MatchFunction } from "@scom/scom-dapp-container/utils/pathToRegexp.ts";
     const IPFS_SCOM_URL = "https://ipfs.scom.dev/ipfs";
     interface IGetModuleOptions {
@@ -206,8 +206,8 @@ declare module "@scom/scom-dapp-container/utils/index.ts" {
     function getSCConfigByCodeCid(codeCid: string): Promise<any>;
     const formatNumber: (value: any, decimals?: number) => string;
     const formatNumberWithSeparators: (value: number, precision?: number) => string;
-    const getModule: (rootDir: string, options: IGetModuleOptions) => Promise<Module>;
-    export { IPFS_SCOM_URL, fetchFileContentByCid, getSCConfigByCodeCid, formatNumber, formatNumberWithSeparators, match, MatchFunction, IGetModuleOptions, getModule };
+    const getEmbedElement: (path: string) => Promise<HTMLElement>;
+    export { IPFS_SCOM_URL, fetchFileContentByCid, getSCConfigByCodeCid, formatNumber, formatNumberWithSeparators, match, MatchFunction, IGetModuleOptions, getEmbedElement };
 }
 /// <amd-module name="@scom/scom-dapp-container/header.css.ts" />
 declare module "@scom/scom-dapp-container/header.css.ts" {

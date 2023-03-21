@@ -19,6 +19,7 @@ interface IPageBlockData {
   description: string;
   ipfscid: string;
   imgUrl: string;
+  localPath?: string;
 }
 
 interface ICodeInfoFileContent {

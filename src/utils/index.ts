@@ -66,38 +66,46 @@ const formatNumberWithSeparators = (value: number, precision?: number) => {
   }
 }
 
-const getModule = async (rootDir: string, options: IGetModuleOptions) => {
-  let module: Module;
-  if (options.localPath) {
-      const localRootPath = rootDir ? `${rootDir}/${options.localPath}` : options.localPath;
-      const scconfigRes = await fetch(`${localRootPath}/scconfig.json`);
-      const scconfig = await scconfigRes.json();
-      scconfig.rootDir = localRootPath;
-      module = await application.newModule(scconfig.main, scconfig);
-  }
-  else {
-    const response = await fetchFileContentByCid(options.ipfscid);
-    const result: ICodeInfoFileContent = await response.json();
-    const codeCID = result.codeCID;
-    const scConfig = await getSCConfigByCodeCid(codeCID);
-    if (!scConfig) return;
-    const main: string = scConfig.main;
-    if (main.startsWith("@")) {
-      scConfig.rootDir = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-      module = await application.newModule(main, scConfig);
-    } else {
-      const root = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-      const mainScriptPath = main.replace('{root}', root);
-      const dependencies = scConfig.dependencies;
-      for (let key in dependencies) {
-        dependencies[key] = dependencies[key].replace('{root}', root);
-      }
-      module = await application.newModule(mainScriptPath, { dependencies });
-    }
-  }
-  return module;
-}
+// const getModule = async (rootDir: string, options: IGetModuleOptions) => {
+//   let module: Module;
+//   if (options.localPath) {
+//       const localRootPath = rootDir ? `${rootDir}/${options.localPath}` : options.localPath;
+//       const scconfigRes = await fetch(`${localRootPath}/scconfig.json`);
+//       const scconfig = await scconfigRes.json();
+//       scconfig.rootDir = localRootPath;
+//       module = await application.newModule(scconfig.main, scconfig);
+//   }
+//   else {
+//     const response = await fetchFileContentByCid(options.ipfscid);
+//     const result: ICodeInfoFileContent = await response.json();
+//     const codeCID = result.codeCID;
+//     const scConfig = await getSCConfigByCodeCid(codeCID);
+//     if (!scConfig) return;
+//     const main: string = scConfig.main;
+//     if (main.startsWith("@")) {
+//       scConfig.rootDir = `${IPFS_SCOM_URL}/${codeCID}/dist`;
+//       module = await application.newModule(main, scConfig);
+//     } else {
+//       const root = `${IPFS_SCOM_URL}/${codeCID}/dist`;
+//       const mainScriptPath = main.replace('{root}', root);
+//       const dependencies = scConfig.dependencies;
+//       for (let key in dependencies) {
+//         dependencies[key] = dependencies[key].replace('{root}', root);
+//       }
+//       module = await application.newModule(mainScriptPath, { dependencies });
+//     }
+//   }
+//   return module;
+// }
 
+const getEmbedElement = async (path: string) => {
+  application.currentModuleDir = path;
+  await application.loadScript(`${path}/index.js`);
+  application.currentModuleDir = '';
+  const elementName = `i-${path.split('/').pop()}`;
+  const element = document.createElement(elementName);
+  return element;
+}
 
 export {
   IPFS_SCOM_URL,
@@ -108,5 +116,5 @@ export {
   match,
   MatchFunction,
   IGetModuleOptions,
-  getModule
+  getEmbedElement
 }
