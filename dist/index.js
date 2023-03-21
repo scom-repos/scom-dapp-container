@@ -1432,7 +1432,7 @@ define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/
     ], DappContainerFooter);
     exports.DappContainerFooter = DappContainerFooter;
 });
-define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_9, index_css_1, index_3, index_4, body_1, header_1, footer_1) {
+define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_9, index_css_1, index_3, body_1, header_1, footer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
@@ -1458,11 +1458,14 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             }
         }
         async init() {
+            this.isReadyCallbackQueued = true;
             super.init();
             this.classList.add('main-dapp');
             const tag = this.getAttribute('tag', true);
             tag && this.setTag(tag);
             await this.initData();
+            this.isReadyCallbackQueued = false;
+            this.executeReadyCallback();
         }
         async connectedCallback() {
             super.connectedCallback();
@@ -1505,7 +1508,6 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             return this._data;
         }
         async setData(data) {
-            var _a, _b;
             this.pnlLoading.visible = true;
             this.gridMain.visible = false;
             this._data = data;
@@ -1517,24 +1519,23 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 return;
             }
             // await this.renderPageByConfig();
-            if ((_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.content) === null || _b === void 0 ? void 0 : _b.module) {
-                try {
-                    console.log('this._data.content.module', this._data.content.module);
-                    const module = await index_4.getModule(this.getRootDir(), this._data.content.module);
-                    console.log(module);
-                    if (module) {
-                        this.setModule(module);
-                        // if (data.content?.properties)
-                        //   await this.getModule().setData(data.content.properties);
-                        // const tagData = data.tag || data?.content?.tag || null;
-                        // if (tagData) {
-                        //   this.getModule().setTag(tagData);
-                        //   this.setTag(tagData);
-                        // }
-                    }
-                }
-                catch (_c) { }
-            }
+            // if (this._data?.content?.module) {
+            //   try {
+            //     console.log('this._data.content.module', this._data.content.module)
+            //     const module: any = await getModule(this.getRootDir(), this._data.content.module);
+            //     console.log(module)
+            //     if (module) {
+            //       this.setModule(module);
+            //       // if (data.content?.properties)
+            //       //   await this.getModule().setData(data.content.properties);
+            //       // const tagData = data.tag || data?.content?.tag || null;
+            //       // if (tagData) {
+            //       //   this.getModule().setTag(tagData);
+            //       //   this.setTag(tagData);
+            //       // }
+            //     }
+            //   } catch {}
+            // }
             this.pnlLoading.visible = false;
             this.gridMain.visible = true;
         }

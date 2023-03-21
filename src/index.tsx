@@ -54,11 +54,14 @@ export default class ScomDappContainer extends Module {
   }
 
   async init() {
+    this.isReadyCallbackQueued = true;
     super.init();
     this.classList.add('main-dapp');
     const tag = this.getAttribute('tag', true)
     tag && this.setTag(tag)
     await this.initData();
+    this.isReadyCallbackQueued = false;
+    this.executeReadyCallback();
   }
 
   async connectedCallback() {
@@ -120,23 +123,23 @@ export default class ScomDappContainer extends Module {
       return;
     }
     // await this.renderPageByConfig();
-    if (this._data?.content?.module) {
-      try {
-        console.log('this._data.content.module', this._data.content.module)
-        const module: any = await getModule(this.getRootDir(), this._data.content.module);
-        console.log(module)
-        if (module) {
-          this.setModule(module);
-          // if (data.content?.properties)
-          //   await this.getModule().setData(data.content.properties);
-          // const tagData = data.tag || data?.content?.tag || null;
-          // if (tagData) {
-          //   this.getModule().setTag(tagData);
-          //   this.setTag(tagData);
-          // }
-        }
-      } catch {}
-    }
+    // if (this._data?.content?.module) {
+    //   try {
+    //     console.log('this._data.content.module', this._data.content.module)
+    //     const module: any = await getModule(this.getRootDir(), this._data.content.module);
+    //     console.log(module)
+    //     if (module) {
+    //       this.setModule(module);
+    //       // if (data.content?.properties)
+    //       //   await this.getModule().setData(data.content.properties);
+    //       // const tagData = data.tag || data?.content?.tag || null;
+    //       // if (tagData) {
+    //       //   this.getModule().setTag(tagData);
+    //       //   this.setTag(tagData);
+    //       // }
+    //     }
+    //   } catch {}
+    // }
     this.pnlLoading.visible = false;
     this.gridMain.visible = true;
   }
