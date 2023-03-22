@@ -151,7 +151,7 @@ export class DappContainerHeader extends Module {
     } else {
       this.hsViewAccount.visible = false;
     }
-    const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
+    const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network.chainId === this.selectedNetwork.chainId) !== -1;
     if (isSupportedNetwork) {
       const img = this.selectedNetwork?.img ? Assets.img.network[this.selectedNetwork.img || ''] || application.assets(this.selectedNetwork.img || '') : undefined;
       this.btnNetwork.icon = img ? <i-icon width={26} height={26} image={{ url: img }} ></i-icon> : undefined;

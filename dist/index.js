@@ -1146,7 +1146,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 else {
                     this.hsViewAccount.visible = false;
                 }
-                const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
+                const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network.chainId === this.selectedNetwork.chainId) !== -1;
                 if (isSupportedNetwork) {
                     const img = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.img) ? assets_1.default.img.network[this.selectedNetwork.img || ''] || components_7.application.assets(this.selectedNetwork.img || '') : undefined;
                     this.btnNetwork.icon = img ? this.$render("i-icon", { width: 26, height: 26, image: { url: img } }) : undefined;
@@ -1450,16 +1450,19 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         constructor() {
             super(...arguments);
             this.isInited = false;
+            this.isRendering = false;
             this.tag = {};
         }
         async initData() {
             if (!this.isInited && this.dappContainerHeader.isInited && this.dappContainerBody.isInited) {
                 this.isInited = true;
+                this.isRendering = true;
                 const networks = this.getAttribute('networks', true, []);
                 const wallets = this.getAttribute('wallets', true, []);
                 const showHeader = this.getAttribute('showHeader', true, true);
                 const content = this.getAttribute('content', true, []);
                 await this.setData({ networks, wallets, content, showHeader });
+                this.isRendering = false;
             }
         }
         async init() {
@@ -1490,18 +1493,22 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         set networks(value) {
             this._data.networks = value;
+            index_3.updateStore(this._data);
         }
         get wallets() {
             return this._data.wallets;
         }
         set wallets(value) {
             this._data.wallets = value;
+            index_3.updateStore(this._data);
         }
         get content() {
             return this._data.content;
         }
         set content(value) {
             this._data.content = value;
+            if (!this.isRendering)
+                this.renderContent();
         }
         setRootDir(value) {
             this._rootDir = value || '';
@@ -1513,7 +1520,6 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             return this._data;
         }
         async setData(data) {
-            var _a, _b, _c, _d;
             this.pnlLoading.visible = true;
             this.gridMain.visible = false;
             this._data = data;
@@ -1524,6 +1530,12 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.dappContainerBody.clear();
                 return;
             }
+            await this.renderContent();
+            this.pnlLoading.visible = false;
+            this.gridMain.visible = true;
+        }
+        async renderContent() {
+            var _a, _b, _c, _d, _e;
             if ((_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.content) === null || _b === void 0 ? void 0 : _b.module) {
                 try {
                     console.log('this._data.content.module', this._data.content.module);
@@ -1532,21 +1544,18 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                     if (module) {
                         this.setModule(module);
                         await module.ready();
-                        if ((_c = data.content) === null || _c === void 0 ? void 0 : _c.properties)
-                            await module.setData(data.content.properties);
-                        const tagData = data.tag || ((_d = data === null || data === void 0 ? void 0 : data.content) === null || _d === void 0 ? void 0 : _d.tag) || null;
+                        if ((_c = this._data.content) === null || _c === void 0 ? void 0 : _c.properties)
+                            await module.setData(this._data.content.properties);
+                        const tagData = this._data.tag || ((_e = (_d = this._data) === null || _d === void 0 ? void 0 : _d.content) === null || _e === void 0 ? void 0 : _e.tag) || null;
                         if (tagData) {
                             module.setTag(tagData);
                             this.setTag(tagData);
                         }
                     }
                 }
-                catch (_e) { }
+                catch (_f) { }
             }
-            this.pnlLoading.visible = false;
-            this.gridMain.visible = true;
         }
-        setContent() { }
         getActions() {
             let module = this.dappContainerBody.getModule();
             let actions;
@@ -1568,6 +1577,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             return module;
         }
         setModule(module) {
+            this.dappContainerBody.clear();
             this.dappContainerBody.setModule(module);
         }
         getTag() {
