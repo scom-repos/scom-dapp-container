@@ -1146,7 +1146,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 else {
                     this.hsViewAccount.visible = false;
                 }
-                const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
+                const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network.chainId === this.selectedNetwork.chainId) !== -1;
                 if (isSupportedNetwork) {
                     const img = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.img) ? assets_1.default.img.network[this.selectedNetwork.img || ''] || components_7.application.assets(this.selectedNetwork.img || '') : undefined;
                     this.btnNetwork.icon = img ? this.$render("i-icon", { width: 26, height: 26, image: { url: img } }) : undefined;
