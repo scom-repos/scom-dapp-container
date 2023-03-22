@@ -1536,7 +1536,6 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         async renderContent() {
             var _a, _b, _c, _d, _e;
-            console.log('render content');
             if ((_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.content) === null || _b === void 0 ? void 0 : _b.module) {
                 try {
                     console.log('this._data.content.module', this._data.content.module);

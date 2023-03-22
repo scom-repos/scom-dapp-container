@@ -133,7 +133,6 @@ export default class ScomDappContainer extends Module {
   }
 
   private async renderContent() {
-    console.log('render content')
     if (this._data?.content?.module) {
       try {
         console.log('this._data.content.module', this._data.content.module)
