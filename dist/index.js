@@ -1539,7 +1539,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             if ((_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.content) === null || _b === void 0 ? void 0 : _b.module) {
                 try {
                     console.log('this._data.content.module', this._data.content.module);
-                    const module = await index_4.getEmbedElement(this._data.content.module.localPath);
+                    const rootDir = this.getRootDir();
+                    const module = await index_4.getEmbedElement(rootDir ? `${rootDir}/${this._data.content.module.localPath}` : this._data.content.module.localPath);
                     console.log(module);
                     if (module) {
                         this.setModule(module);
