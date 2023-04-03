@@ -427,6 +427,7 @@ declare module "@scom/scom-dapp-container" {
         private _data;
         private _rootDir;
         private isInited;
+        private isRendering;
         tag: any;
         private initData;
         init(): Promise<void>;
@@ -442,7 +443,7 @@ declare module "@scom/scom-dapp-container" {
         getRootDir(): string;
         getData(): Promise<IDappContainerData>;
         setData(data: IDappContainerData): Promise<void>;
-        private setContent;
+        private renderContent;
         getActions(): any;
         getEmbedderActions(): any;
         getModule(): any;
