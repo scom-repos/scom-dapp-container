@@ -1,12 +1,11 @@
 import { customElements, ControlElement, customModule, GridLayout, Module, Panel, Styles, Container } from "@ijstech/components";
-import { IDappContainerContent, IDappContainerData } from "./interface";
+import { IWalletPlugin, IDappContainerContent, IDappContainerData } from "./interface";
 import {} from "@ijstech/eth-contract";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
 import { updateStore } from "./store/index";
 import { getEmbedElement } from "./utils/index";
-import { WalletPlugin } from "@ijstech/eth-wallet";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
 export { DappContainerFooter } from './footer';
@@ -15,7 +14,7 @@ const Theme = Styles.Theme.ThemeVars;
 
 interface ScomDappElement extends ControlElement {
   networks: number[];
-  wallets: string[];
+  wallets: IWalletPlugin[];
   showHeader?: boolean;
   content: IDappContainerContent;
 }
@@ -91,7 +90,7 @@ export default class ScomDappContainer extends Module {
   get wallets() {
     return this._data.wallets;
   }
-  set wallets(value: WalletPlugin[]) {
+  set wallets(value: IWalletPlugin[]) {
     this._data.wallets = value;
     updateStore(this._data);
   }
