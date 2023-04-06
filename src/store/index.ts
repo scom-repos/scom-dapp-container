@@ -1,9 +1,8 @@
 import {
   application
 } from '@ijstech/components';
-import { walletList } from './walletList';
-import {Erc20, ISendTxEventsOptions, IWallet, Wallet, WalletPlugin } from '@ijstech/eth-wallet';
-import { IDappContainerData } from '../interface';
+import {Erc20, IClientProviderOptions, IClientSideProvider, IClientSideProviderEvents, ISendTxEventsOptions, IWallet, MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
+import { IDappContainerData, IWalletPlugin } from '../interface';
 
 export interface INetwork {
   chainId: number;
@@ -18,6 +17,11 @@ export interface INetwork {
   isDisabled?: boolean;
 };
 
+export enum WalletPlugin {
+  MetaMask = 'metamask',
+  WalletConnect = 'walletconnect',
+}
+
 export const enum EventId {
   ConnectWallet = 'connectWallet',
   IsWalletConnected = 'isWalletConnected',
@@ -30,21 +34,37 @@ export function isWalletConnected() {
   return wallet.isConnected;
 }
 
-export async function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: { [key: string]: Function }):Promise<IWallet> {
-  let wallet = Wallet.getClientInstance();
-  const walletOptions = '';
-  let providerOptions = walletOptions[walletPlugin];
-  // if (!wallet.chainId) {
-  //   wallet.chainId = getDefaultChainId();
-  // }
-  await wallet.connect(walletPlugin, {
+async function getWalletPluginConfigProvider(
+  wallet: Wallet, 
+  pluginName: string, 
+  packageName?: string,
+  events?: IClientSideProviderEvents, 
+  options?: IClientProviderOptions
+) {
+  switch (pluginName) {
+    case WalletPlugin.MetaMask:
+      return new MetaMaskProvider(wallet, events, options);
+    case WalletPlugin.WalletConnect:
+      return new Web3ModalProvider(wallet, events, options);
+    default: {
+      if (packageName) {
+        const provider: any = await application.loadPackage(packageName, '*');
+        return new provider(wallet, events, options);
+      }
+    }
+  }
+} 
+
+export async function initWalletPlugins(eventHandlers?: { [key: string]: Function }) {
+  let wallet: any = Wallet.getClientInstance();
+  const events = {
     onAccountChanged: (account: string) => {
       if (eventHandlers && eventHandlers.accountsChanged) {
         eventHandlers.accountsChanged(account);
       }
       const connected = !!account;
       if (connected) {
-        localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.walletPlugin || '');
+        localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
       }
       application.EventBus.dispatch(EventId.IsWalletConnected, connected);
     },
@@ -56,7 +76,52 @@ export async function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: 
       }
       application.EventBus.dispatch(EventId.chainChanged, chainId);
     }
-  }, providerOptions)
+  }
+  let networkList = getSiteSupportedNetworks();
+  const rpcs: { [chainId: number]: string } = {}
+  for (const network of networkList) {
+    let rpc = network.rpc
+    if (rpc) rpcs[network.chainId] = rpc;
+  }
+
+  for (let walletPlugin of state.wallets) {
+    let pluginName = walletPlugin.name;
+    let providerOptions;
+    if (pluginName == WalletPlugin.WalletConnect) {
+      providerOptions = {
+        name: pluginName,
+        infuraId: getInfuraId(),
+        bridge: "https://bridge.walletconnect.org",
+        rpc: rpcs,
+        useDefaultProvider: true
+      }
+    }
+    else {
+      providerOptions = {
+        name: pluginName,
+        infuraId: getInfuraId(),
+        rpc: rpcs,
+        useDefaultProvider: true
+      }
+    }
+    let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, events, providerOptions);
+    setWalletPluginProvider(pluginName, {
+      name: pluginName,
+      packageName: walletPlugin.packageName,
+      provider
+    });
+  }
+}
+
+export async function connectWallet(walletPlugin: string):Promise<IWallet> {
+  let wallet = Wallet.getClientInstance();
+  // if (!wallet.chainId) {
+  //   wallet.chainId = getDefaultChainId();
+  // }
+  let provider = getWalletPluginProvider(walletPlugin);
+  if (provider?.installed()) {
+    await wallet.connect(provider);
+  }
   return wallet;
 }
 
@@ -66,7 +131,7 @@ export async function switchNetwork(chainId: number) {
     return;
   }
   const wallet = Wallet.getClientInstance();
-  if (wallet?.clientSideProvider?.walletPlugin === WalletPlugin.MetaMask) {
+  if (wallet?.clientSideProvider?.name === WalletPlugin.MetaMask) {
     await wallet.switchNetwork(chainId);
   }
 }
@@ -80,8 +145,10 @@ export async function logoutWallet() {
 
 export const hasWallet = function () {
   let hasWallet = false;
-  for (let wallet of walletList) {
-    if (Wallet.isInstalled(wallet.name)) {
+  const walletPluginMap = getWalletPluginMap();
+  for (let pluginName in walletPluginMap) {
+    const provider = walletPluginMap[pluginName].provider;
+    if (provider.installed()) {
       hasWallet = true;
       break;
     } 
@@ -90,7 +157,8 @@ export const hasWallet = function () {
 }
 
 export const hasMetaMask = function () {
-  return Wallet.isInstalled(WalletPlugin.MetaMask);
+  const provider = getWalletPluginProvider(WalletPlugin.MetaMask);
+  return provider.installed();
 }
 
 export const truncateAddress = (address: string) => {
@@ -100,6 +168,11 @@ export const truncateAddress = (address: string) => {
 
 export const getSupportedWallets = () => {
   return state.wallets;
+}
+
+export const getSupportedWalletProviders = (): IClientSideProvider[] => {
+  const walletPluginMap = getWalletPluginMap();
+  return state.wallets.map(v => walletPluginMap[v.name].provider);
 }
 
 export interface ITokenObject {
@@ -263,15 +336,16 @@ const state = {
   defaultChainId: 0,
   infuraId: "",
   env: "",
-  wallets: []
+  wallets: [] as IWalletPlugin[],
+  walletPluginMap: {} as Record<string, IWalletPlugin>
 }
 
 export const updateStore = (data: IDappContainerData) => {
   setNetworkList(data.networks);
   setWalletList(data.wallets);
 }
-const setWalletList = (wallets: WalletPlugin[]) => {
-  state.wallets = walletList.filter(v => wallets.includes(v.name));
+const setWalletList = (wallets: IWalletPlugin[]) => {
+  state.wallets = wallets;
 }
 const setNetworkList = (chainIds: number[], infuraId?: string) => {
   state.networkMap = {};
@@ -354,4 +428,16 @@ const setEnv = (env: string) => {
 
 export const getEnv = () => {
   return state.env;
+}
+
+export const setWalletPluginProvider = (name: string, wallet: IWalletPlugin) => {
+  state.walletPluginMap[name] = wallet;
+}
+
+export const getWalletPluginMap = () => {
+  return state.walletPluginMap;
+}
+
+export const getWalletPluginProvider = (name: string) => {
+  return state.walletPluginMap[name].provider;
 }

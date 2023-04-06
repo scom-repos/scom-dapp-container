@@ -1,4 +1,10 @@
-import { WalletPlugin } from "@ijstech/eth-wallet";
+import { IClientSideProvider } from "@ijstech/eth-wallet";
+
+interface IWalletPlugin {
+  name: string;
+  packageName?: string;
+  provider: IClientSideProvider;
+}
 
 interface IDappContainerContent {
   module: IPageBlockData;
@@ -8,7 +14,7 @@ interface IDappContainerContent {
 
 interface IDappContainerData {
   networks: number[];
-  wallets: WalletPlugin[];
+  wallets: IWalletPlugin[];
   showHeader?: boolean;
   content: IDappContainerContent;
   tag?: any;
@@ -39,6 +45,7 @@ enum EVENT {
 }
 
 export {
+  IWalletPlugin,
   IPageBlockData,
   IDappContainerContent,
   IDappContainerData,
