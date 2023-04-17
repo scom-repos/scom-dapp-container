@@ -51,9 +51,9 @@ export class DappContainerFooter extends Module {
       >
         {/* <i-image height={30} width={30} url={Assets.logo}></i-image> */}
         <i-hstack id="lblFooter" gap={4} verticalAlignment="center">
-          <i-label caption="Powered By" font={{size: '0.75rem', color: '#000'}}></i-label>
+          <i-label caption="Powered By" font={{size: '0.75rem', color: Theme.text.primary}}></i-label>
           <i-label caption="SECURE" font={{size: '0.875rem', color: '#F99E43', weight: 700}}></i-label>
-          <i-label caption="COMPUTE" font={{size: '0.875rem', color: '#000', weight: 700}}></i-label>
+          <i-label caption="COMPUTE" font={{size: '0.875rem', color: Theme.text.primary, weight: 700}}></i-label>
         </i-hstack>
       </i-hstack>
     );
