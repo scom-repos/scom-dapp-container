@@ -20,7 +20,6 @@ import { formatNumber } from './utils/index';
 import styleClass from './header.css';
 import Assets from './assets';
 import {
-  INetwork,
   EventId,
   truncateAddress,
   isWalletConnected,
@@ -40,6 +39,7 @@ import {
   getSupportedWalletProviders,
   initWalletPlugins
 } from './store/index';
+import { IExtendedNetwork } from './interface';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -62,12 +62,12 @@ export class DappContainerHeader extends Module {
   private gridNetworkGroup: GridLayout;
 
   private $eventBus: IEventBus;
-  private selectedNetwork: INetwork | undefined;
+  private selectedNetwork: IExtendedNetwork | undefined;
   private networkMapper: Map<number, HStack>;
   private walletMapper: Map<string, HStack>;
   private currActiveNetworkId: number;
   private currActiveWallet: string;
-  private supportedNetworks: INetwork[] = [];
+  private supportedNetworks: IExtendedNetwork[] = [];
   isInited: boolean = false;
   @observable()
   private walletInfo = {
@@ -124,12 +124,19 @@ export class DappContainerHeader extends Module {
     super.init();
     this.isInited = true;
     this.classList.add(styleClass);
-    this.selectedNetwork = getNetworkInfo(getDefaultChainId());
     await this.reloadWalletsAndNetworks();
     await this.initData();
   }
 
   async reloadWalletsAndNetworks() {
+    this.selectedNetwork = this.selectedNetwork || getNetworkInfo(getDefaultChainId());
+    let wallet = Wallet.getClientInstance();
+    const isConnected = wallet.isConnected;
+    if (isConnected) {
+      this.walletInfo.address = wallet.address;
+      this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
+      this.walletInfo.networkId = wallet.chainId;
+    }
     await this.renderWalletList();
     this.renderNetworks();
     this.updateConnectedStatus(isWalletConnected());
@@ -157,9 +164,9 @@ export class DappContainerHeader extends Module {
     }
     const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network.chainId === this.selectedNetwork.chainId) !== -1;
     if (isSupportedNetwork) {
-      const img = this.selectedNetwork?.img ? Assets.img.network[this.selectedNetwork.img || ''] || application.assets(this.selectedNetwork.img || '') : undefined;
+      const img = this.selectedNetwork?.image ? this.selectedNetwork.image : '';
       this.btnNetwork.icon = img ? <i-icon width={26} height={26} image={{ url: img }} ></i-icon> : undefined;
-      this.btnNetwork.caption = this.selectedNetwork?.name ?? "";
+      this.btnNetwork.caption = this.selectedNetwork?.chainName ?? "";
     } else {
       this.btnNetwork.icon = undefined;
       this.btnNetwork.caption = "Unsupported Network";
@@ -307,7 +314,7 @@ export class DappContainerHeader extends Module {
             wordBreak="break-word"
             font={{ size: '.875rem', bold: true, color: Theme.colors.secondary.contrastText }}
           />
-          <i-image width={34} height="auto" url={Assets.img.wallet[wallet.image || ''] || application.assets(wallet.image || '')} />
+          <i-image width={34} height="auto" url={wallet.image || ''} />
         </i-hstack>
       );
       this.walletMapper.set(wallet.name, hsWallet);
@@ -320,7 +327,7 @@ export class DappContainerHeader extends Module {
     this.networkMapper = new Map();
     this.supportedNetworks = getSiteSupportedNetworks();
     this.gridNetworkGroup.append(...this.supportedNetworks.map((network) => {
-      const img = network.img ? <i-image url={Assets.img.network[network.img || ''] || application.assets(network.img || '')} width={34} height={34} /> : [];
+      const img = network.image ? <i-image url={network.image || ''} width={34} height={34} /> : [];
       const isActive = this.isNetworkActive(network.chainId);
       if (isActive) this.currActiveNetworkId = network.chainId;
       const hsNetwork = (
@@ -334,7 +341,7 @@ export class DappContainerHeader extends Module {
         >
           <i-hstack margin={{ left: '1rem' }} verticalAlignment="center" gap={12}>
             {img}
-            <i-label caption={network.name} wordBreak="break-word" font={{ size: '.875rem', bold: true, color: Theme.colors.secondary.contrastText }} />
+            <i-label caption={network.chainName} wordBreak="break-word" font={{ size: '.875rem', bold: true, color: Theme.colors.secondary.contrastText }} />
           </i-hstack>
         </i-hstack>
       );

@@ -1,5 +1,5 @@
 import { customElements, ControlElement, customModule, GridLayout, Module, Panel, Styles, Container } from "@ijstech/components";
-import { IWalletPlugin, IDappContainerContent, IDappContainerData } from "./interface";
+import { IWalletPlugin, IDappContainerContent, IDappContainerData, IExtendedNetwork } from "./interface";
 import {} from "@ijstech/eth-contract";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
@@ -82,7 +82,7 @@ export default class ScomDappContainer extends Module {
   get networks() {
     return this._data.networks;
   }
-  set networks(value: number[]) {
+  set networks(value: IExtendedNetwork[]) {
     this._data.networks = value;
     updateStore(this._data);
   }

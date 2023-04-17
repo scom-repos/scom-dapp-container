@@ -11,7 +11,8 @@
     "dependencies": {
         "@ijstech/components": "^0.1.40",
         "@ijstech/eth-contract": "^0.1.14",
-        "@ijstech/eth-wallet": "^0.1.36"
+        "@ijstech/eth-wallet": "^0.1.51",
+        "@scom/scom-network-list": "^0.1.0"
     },
     "devDependencies": {
         "@ijstech/cli": "^0.1.28",

@@ -1,4 +1,4 @@
-import { IClientSideProvider } from "@ijstech/eth-wallet";
+import { IClientSideProvider, INetwork } from "@ijstech/eth-wallet";
 
 interface IWalletPlugin {
   name: string;
@@ -13,7 +13,8 @@ interface IDappContainerContent {
 }
 
 interface IDappContainerData {
-  networks: number[];
+  defaultChainId?: number;
+  networks: IExtendedNetwork[];
   wallets: IWalletPlugin[];
   showHeader?: boolean;
   content: IDappContainerContent;
@@ -44,11 +45,21 @@ enum EVENT {
   'UPDATE_TAG' = 'UPDATE_TAG'
 }
 
+interface IExtendedNetwork extends INetwork {
+	symbol?: string;
+	env?: string;
+	explorerName?: string;
+	explorerTxUrl?: string;
+	explorerAddressUrl?: string;
+	isDisabled?: boolean;
+};
+
 export {
   IWalletPlugin,
   IPageBlockData,
   IDappContainerContent,
   IDappContainerData,
   ICodeInfoFileContent,
-  EVENT
+  EVENT,
+  IExtendedNetwork
 }

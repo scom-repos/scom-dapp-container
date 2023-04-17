@@ -1,6 +1,6 @@
 /// <amd-module name="@scom/scom-dapp-container/interface.ts" />
 declare module "@scom/scom-dapp-container/interface.ts" {
-    import { IClientSideProvider } from "@ijstech/eth-wallet";
+    import { IClientSideProvider, INetwork } from "@ijstech/eth-wallet";
     interface IWalletPlugin {
         name: string;
         packageName?: string;
@@ -12,7 +12,8 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         tag?: any;
     }
     interface IDappContainerData {
-        networks: number[];
+        defaultChainId?: number;
+        networks: IExtendedNetwork[];
         wallets: IWalletPlugin[];
         showHeader?: boolean;
         content: IDappContainerContent;
@@ -38,7 +39,15 @@ declare module "@scom/scom-dapp-container/interface.ts" {
     enum EVENT {
         'UPDATE_TAG' = "UPDATE_TAG"
     }
-    export { IWalletPlugin, IPageBlockData, IDappContainerContent, IDappContainerData, ICodeInfoFileContent, EVENT };
+    interface IExtendedNetwork extends INetwork {
+        symbol?: string;
+        env?: string;
+        explorerName?: string;
+        explorerTxUrl?: string;
+        explorerAddressUrl?: string;
+        isDisabled?: boolean;
+    }
+    export { IWalletPlugin, IPageBlockData, IDappContainerContent, IDappContainerData, ICodeInfoFileContent, EVENT, IExtendedNetwork };
 }
 /// <amd-module name="@scom/scom-dapp-container/index.css.ts" />
 declare module "@scom/scom-dapp-container/index.css.ts" {
@@ -224,22 +233,6 @@ declare module "@scom/scom-dapp-container/assets.ts" {
     function fullPath(path: string): string;
     const _default_2: {
         logo: string;
-        img: {
-            network: {
-                bsc: string;
-                eth: string;
-                amio: string;
-                avax: string;
-                ftm: string;
-                polygon: string;
-            };
-            wallet: {
-                metamask: string;
-                trustwallet: string;
-                binanceChainWallet: string;
-                walletconnect: string;
-            };
-        };
         fullPath: typeof fullPath;
     };
     export default _default_2;
@@ -247,19 +240,7 @@ declare module "@scom/scom-dapp-container/assets.ts" {
 /// <amd-module name="@scom/scom-dapp-container/store/index.ts" />
 declare module "@scom/scom-dapp-container/store/index.ts" {
     import { Erc20, IClientSideProvider, ISendTxEventsOptions, IWallet } from '@ijstech/eth-wallet';
-    import { IDappContainerData, IWalletPlugin } from "@scom/scom-dapp-container/interface.ts";
-    export interface INetwork {
-        chainId: number;
-        name: string;
-        img?: string;
-        rpc?: string;
-        symbol?: string;
-        env?: string;
-        explorerName?: string;
-        explorerTxUrl?: string;
-        explorerAddressUrl?: string;
-        isDisabled?: boolean;
-    }
+    import { IDappContainerData, IExtendedNetwork, IWalletPlugin } from "@scom/scom-dapp-container/interface.ts";
     export enum WalletPlugin {
         MetaMask = "metamask",
         WalletConnect = "walletconnect"
@@ -299,13 +280,12 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     export function getWalletProvider(): string;
     export function getErc20(address: string): Erc20;
     export const updateStore: (data: IDappContainerData) => void;
-    export const getNetworkInfo: (chainId: number) => INetwork | undefined;
-    export const getNetworkList: () => INetwork[];
+    export const getNetworkInfo: (chainId: number) => IExtendedNetwork | undefined;
     export const viewOnExplorerByTxHash: (chainId: number, txHash: string) => void;
     export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
     export const getNetworkType: (chainId: number) => string;
     export const getDefaultChainId: () => number;
-    export const getSiteSupportedNetworks: () => INetwork[];
+    export const getSiteSupportedNetworks: () => IExtendedNetwork[];
     export const isValidEnv: (env: string) => boolean;
     export const getInfuraId: () => string;
     export const getEnv: () => string;
@@ -400,7 +380,7 @@ declare module "@scom/scom-dapp-container/footer.tsx" {
 /// <amd-module name="@scom/scom-dapp-container" />
 declare module "@scom/scom-dapp-container" {
     import { ControlElement, Module, Container } from "@ijstech/components";
-    import { IWalletPlugin, IDappContainerContent, IDappContainerData } from "@scom/scom-dapp-container/interface.ts";
+    import { IWalletPlugin, IDappContainerContent, IDappContainerData, IExtendedNetwork } from "@scom/scom-dapp-container/interface.ts";
     export { DappContainerBody } from "@scom/scom-dapp-container/body.tsx";
     export { DappContainerHeader } from "@scom/scom-dapp-container/header.tsx";
     export { DappContainerFooter } from "@scom/scom-dapp-container/footer.tsx";
@@ -431,8 +411,8 @@ declare module "@scom/scom-dapp-container" {
         init(): Promise<void>;
         connectedCallback(): Promise<void>;
         static create(options?: ScomDappElement, parent?: Container): Promise<ScomDappContainer>;
-        get networks(): number[];
-        set networks(value: number[]);
+        get networks(): IExtendedNetwork[];
+        set networks(value: IExtendedNetwork[]);
         get wallets(): IWalletPlugin[];
         set wallets(value: IWalletPlugin[]);
         get content(): IDappContainerContent;
