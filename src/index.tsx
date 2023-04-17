@@ -135,7 +135,8 @@ export default class ScomDappContainer extends Module {
     if (this._data?.content?.module) {
       try {
         console.log('this._data.content.module', this._data.content.module)
-        const module: any = await getEmbedElement(this._data.content.module.localPath);
+        const rootDir = this.getRootDir();
+        const module: any = await getEmbedElement(rootDir ? `${rootDir}/${this._data.content.module.localPath}` : this._data.content.module.localPath);
         console.log(module)
         if (module) {
           this.setModule(module);
