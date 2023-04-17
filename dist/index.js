@@ -1485,9 +1485,9 @@ define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/
         render() {
             return (this.$render("i-hstack", { class: "footer", horizontalAlignment: "start", verticalAlignment: "center", padding: { left: '0.5rem', right: '0.5rem', bottom: '1.25rem' } },
                 this.$render("i-hstack", { id: "lblFooter", gap: 4, verticalAlignment: "center" },
-                    this.$render("i-label", { caption: "Powered By", font: { size: '0.75rem', color: '#000' } }),
+                    this.$render("i-label", { caption: "Powered By", font: { size: '0.75rem', color: Theme.text.primary } }),
                     this.$render("i-label", { caption: "SECURE", font: { size: '0.875rem', color: '#F99E43', weight: 700 } }),
-                    this.$render("i-label", { caption: "COMPUTE", font: { size: '0.875rem', color: '#000', weight: 700 } }))));
+                    this.$render("i-label", { caption: "COMPUTE", font: { size: '0.875rem', color: Theme.text.primary, weight: 700 } }))));
         }
     };
     DappContainerFooter = __decorate([
