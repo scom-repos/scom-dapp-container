@@ -211,6 +211,8 @@ export default class ScomDappContainer extends Module {
     this.updateStyle('--input-font_color', this.tag?.inputFontColor);
     this.updateStyle('--input-background', this.tag?.inputBackgroundColor);
     this.updateStyle('--colors-primary-main', this.tag?.buttonBackgroundColor);
+    this.updateStyle('--background-modal', this.tag?.modalColor);
+    this.updateStyle('--background-default', this.tag?.defaultColor);
   }
   
   render() {

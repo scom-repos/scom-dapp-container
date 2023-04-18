@@ -44,16 +44,17 @@ export class DappContainerFooter extends Module {
     return (
       <i-hstack
         class="footer"
-        horizontalAlignment="start"
+        horizontalAlignment="end"
         verticalAlignment="center"
-        padding={{ left: '0.5rem', right: '0.5rem',bottom: '1.25rem' }}
+        padding={{ left: '0.5rem', right: '1.313rem', top: '0.75rem', bottom: '0.75rem' }}
+        background={{color: Theme.background.modal}}
         // border={{ width: 1, style: 'solid', color: Theme.divider }}
       >
         {/* <i-image height={30} width={30} url={Assets.logo}></i-image> */}
         <i-hstack id="lblFooter" gap={4} verticalAlignment="center">
           <i-label caption="Powered By" font={{size: '0.75rem', color: Theme.text.primary}}></i-label>
-          <i-label caption="SECURE" font={{size: '0.875rem', color: '#F99E43', weight: 700}}></i-label>
-          <i-label caption="COMPUTE" font={{size: '0.875rem', color: Theme.text.primary, weight: 700}}></i-label>
+          <i-label caption="SECURE" font={{size: '0.75rem', color: '#F99E43', weight: 700}}></i-label>
+          <i-label caption="COMPUTE" font={{size: '0.75rem', color: Theme.text.primary, weight: 700}}></i-label>
         </i-hstack>
       </i-hstack>
     );

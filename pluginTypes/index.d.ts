@@ -208,6 +208,38 @@ declare module "@scom/scom-dapp-container/utils/pathToRegexp.ts" {
      */
     export function pathToRegexp(path: Path, keys?: Key[], options?: TokensToRegexpOptions & ParseOptions): RegExp;
 }
+/// <amd-module name="@scom/scom-dapp-container/utils/theme.ts" />
+declare module "@scom/scom-dapp-container/utils/theme.ts" {
+    export const darkTheme: {
+        background: {
+            main: string;
+            modal: string;
+            default: string;
+            gradient: string;
+        };
+        input: {
+            background: string;
+            fontColor: string;
+        };
+        text: {
+            primary: string;
+        };
+    };
+    export const lightTheme: {
+        background: {
+            main: string;
+            modal: string;
+            default: string;
+        };
+        input: {
+            background: string;
+            fontColor: string;
+        };
+        text: {
+            primary: string;
+        };
+    };
+}
 /// <amd-module name="@scom/scom-dapp-container/utils/index.ts" />
 declare module "@scom/scom-dapp-container/utils/index.ts" {
     import { match, MatchFunction } from "@scom/scom-dapp-container/utils/pathToRegexp.ts";
@@ -222,20 +254,12 @@ declare module "@scom/scom-dapp-container/utils/index.ts" {
     const formatNumberWithSeparators: (value: number, precision?: number) => string;
     const getEmbedElement: (path: string) => Promise<HTMLElement>;
     export { IPFS_SCOM_URL, fetchFileContentByCid, getSCConfigByCodeCid, formatNumber, formatNumberWithSeparators, match, MatchFunction, IGetModuleOptions, getEmbedElement };
+    export * from "@scom/scom-dapp-container/utils/theme.ts";
 }
 /// <amd-module name="@scom/scom-dapp-container/header.css.ts" />
 declare module "@scom/scom-dapp-container/header.css.ts" {
     const _default_1: string;
     export default _default_1;
-}
-/// <amd-module name="@scom/scom-dapp-container/assets.ts" />
-declare module "@scom/scom-dapp-container/assets.ts" {
-    function fullPath(path: string): string;
-    const _default_2: {
-        logo: string;
-        fullPath: typeof fullPath;
-    };
-    export default _default_2;
 }
 /// <amd-module name="@scom/scom-dapp-container/store/index.ts" />
 declare module "@scom/scom-dapp-container/store/index.ts" {
@@ -312,6 +336,7 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         private hsViewAccount;
         private gridWalletList;
         private gridNetworkGroup;
+        private switchTheme;
         private $eventBus;
         private selectedNetwork;
         private networkMapper;
@@ -347,6 +372,7 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         renderWalletList: () => Promise<void>;
         renderNetworks(): void;
         initData(): Promise<void>;
+        private onThemeChanged;
         render(): any;
     }
     global {

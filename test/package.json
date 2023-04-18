@@ -13,7 +13,11 @@
         "@ijstech/cli": "^0.1.28",
         "@ijstech/compiler": "^0.1.22",
         "@scom/dapp": "^0.1.11",
-        "@scom/scom-dapp-container": "file:./ref"
+        "@scom/scom-dapp-container": "file:./ref",
+        "@scom/scom-nft-minter": "^0.1.5",
+        "@scom/scom-token-list": "^0.1.0",
+        "@scom/scom-network-picker": "^0.1.0",
+        "@scom/scom-network-list": "^0.1.0"
     },
     "scripts": {
         "cp:libs": "rm -rf ref && mkdir ref && cp ../package.json ref/package.json && cp -r ../dist ref/dist && cp -r ../pluginTypes ref/pluginTypes && cp -r ../pluginTypes ref/types",
