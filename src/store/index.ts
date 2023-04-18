@@ -114,13 +114,10 @@ export async function connectWallet(walletPlugin: string):Promise<IWallet> {
 }
 
 export async function switchNetwork(chainId: number) {
+  const wallet = Wallet.getClientInstance();
+  await wallet.switchNetwork(chainId);
   if (!isWalletConnected()) {
     application.EventBus.dispatch(EventId.chainChanged, chainId);
-    return;
-  }
-  const wallet = Wallet.getClientInstance();
-  if (wallet?.clientSideProvider?.name === WalletPlugin.MetaMask) {
-    await wallet.switchNetwork(chainId);
   }
 }
 

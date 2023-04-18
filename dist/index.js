@@ -883,14 +883,10 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     }
     exports.connectWallet = connectWallet;
     async function switchNetwork(chainId) {
-        var _a;
+        const wallet = eth_wallet_2.Wallet.getClientInstance();
+        await wallet.switchNetwork(chainId);
         if (!isWalletConnected()) {
             components_5.application.EventBus.dispatch("chainChanged" /* chainChanged */, chainId);
-            return;
-        }
-        const wallet = eth_wallet_2.Wallet.getClientInstance();
-        if (((_a = wallet === null || wallet === void 0 ? void 0 : wallet.clientSideProvider) === null || _a === void 0 ? void 0 : _a.name) === WalletPlugin.MetaMask) {
-            await wallet.switchNetwork(chainId);
         }
     }
     exports.switchNetwork = switchNetwork;
