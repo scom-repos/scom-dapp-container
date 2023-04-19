@@ -4,6 +4,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 define("@scom/scom-dapp-container/interface.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -520,7 +530,42 @@ define("@scom/scom-dapp-container/utils/pathToRegexp.ts", ["require", "exports"]
     }
     exports.pathToRegexp = pathToRegexp;
 });
-define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/pathToRegexp.ts"], function (require, exports, components_3, eth_wallet_1, pathToRegexp_1) {
+define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.lightTheme = exports.darkTheme = void 0;
+    ///<amd-module name='@scom/scom-dapp-container/utils/theme.ts'/> 
+    exports.darkTheme = {
+        "background": {
+            "main": "#0C1234",
+            "modal": "#192046",
+            "default": "#222237",
+            "gradient": "linear-gradient(254.8deg, #E75B66 -8.08%, #B52082 84.35%)"
+        },
+        "input": {
+            "background": "#232B5A",
+            "fontColor": "rgba(255, 255, 255, 0.3)"
+        },
+        "text": {
+            "primary": "#fff"
+        }
+    };
+    exports.lightTheme = {
+        "background": {
+            "main": "#fff",
+            "modal": "#ddd",
+            default: "#ddd"
+        },
+        "input": {
+            "background": "#fff",
+            "fontColor": "#222"
+        },
+        "text": {
+            "primary": "#222"
+        }
+    };
+});
+define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/pathToRegexp.ts", "@scom/scom-dapp-container/utils/theme.ts"], function (require, exports, components_3, eth_wallet_1, pathToRegexp_1, theme_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getEmbedElement = exports.match = exports.formatNumberWithSeparators = exports.formatNumber = exports.getSCConfigByCodeCid = exports.fetchFileContentByCid = exports.IPFS_SCOM_URL = void 0;
@@ -627,6 +672,7 @@ define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@ijst
         return element;
     };
     exports.getEmbedElement = getEmbedElement;
+    __exportStar(theme_1, exports);
 });
 define("@scom/scom-dapp-container/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_4) {
     "use strict";
@@ -716,24 +762,28 @@ define("@scom/scom-dapp-container/header.css.ts", ["require", "exports", "@ijste
             },
             '.wallet-modal .modal': {
                 minWidth: 200
+            },
+            '.custom-switch .wrapper': {
+                borderRadius: 40,
+                boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
+                $nest: {
+                    '.switch-base': {
+                        background: Theme.background.gradient // f186
+                    },
+                    '.thumb': {
+                        fontFamily: "Font Awesome 5 Free",
+                        content: "\f007"
+                    },
+                    '.track': {
+                        background: 'linear-gradient(0deg, #252A48, #252A48), #8994A3',
+                        color: 'transparent'
+                    }
+                }
             }
         }
     });
 });
-define("@scom/scom-dapp-container/assets.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_5) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    const moduleDir = components_5.application.currentModuleDir;
-    function fullPath(path) {
-        return `${moduleDir}/${path}`;
-    }
-    ;
-    exports.default = {
-        logo: fullPath('img/sc-logo.png'),
-        fullPath
-    };
-});
-define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-network-list"], function (require, exports, components_6, eth_wallet_2, scom_network_list_1) {
+define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-network-list"], function (require, exports, components_5, eth_wallet_2, scom_network_list_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkInfo = exports.updateStore = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.getSupportedWalletProviders = exports.getSupportedWallets = exports.truncateAddress = exports.hasMetaMask = exports.hasWallet = exports.logoutWallet = exports.switchNetwork = exports.connectWallet = exports.initWalletPlugins = exports.isWalletConnected = exports.WalletPlugin = void 0;
@@ -756,7 +806,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
                 return new eth_wallet_2.Web3ModalProvider(wallet, events, options);
             default: {
                 if (packageName) {
-                    const provider = await components_6.application.loadPackage(packageName, '*');
+                    const provider = await components_5.application.loadPackage(packageName, '*');
                     return new provider(wallet, events, options);
                 }
             }
@@ -774,14 +824,14 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
                 if (connected) {
                     localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_2.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.name) || '');
                 }
-                components_6.application.EventBus.dispatch("isWalletConnected" /* IsWalletConnected */, connected);
+                components_5.application.EventBus.dispatch("isWalletConnected" /* IsWalletConnected */, connected);
             },
             onChainChanged: (chainIdHex) => {
                 const chainId = Number(chainIdHex);
                 if (eventHandlers && eventHandlers.chainChanged) {
                     eventHandlers.chainChanged(chainId);
                 }
-                components_6.application.EventBus.dispatch("chainChanged" /* chainChanged */, chainId);
+                components_5.application.EventBus.dispatch("chainChanged" /* chainChanged */, chainId);
             }
         };
         let networkList = exports.getSiteSupportedNetworks();
@@ -836,7 +886,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         const wallet = eth_wallet_2.Wallet.getClientInstance();
         await wallet.switchNetwork(chainId);
         if (!isWalletConnected()) {
-            components_6.application.EventBus.dispatch("chainChanged" /* chainChanged */, chainId);
+            components_5.application.EventBus.dispatch("chainChanged" /* chainChanged */, chainId);
         }
     }
     exports.switchNetwork = switchNetwork;
@@ -844,7 +894,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         const wallet = eth_wallet_2.Wallet.getClientInstance();
         await wallet.disconnect();
         localStorage.setItem('walletProvider', '');
-        components_6.application.EventBus.dispatch("IsWalletDisconnected" /* IsWalletDisconnected */, false);
+        components_5.application.EventBus.dispatch("IsWalletDisconnected" /* IsWalletDisconnected */, false);
     }
     exports.logoutWallet = logoutWallet;
     const hasWallet = function () {
@@ -1029,12 +1079,12 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     };
     exports.getWalletPluginProvider = getWalletPluginProvider;
 });
-define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/header.css.ts", "@scom/scom-dapp-container/store/index.ts"], function (require, exports, components_7, eth_wallet_3, index_1, header_css_1, index_2) {
+define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/header.css.ts", "@scom/scom-dapp-container/store/index.ts"], function (require, exports, components_6, eth_wallet_3, index_1, header_css_1, index_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerHeader = void 0;
-    const Theme = components_7.Styles.Theme.ThemeVars;
-    let DappContainerHeader = class DappContainerHeader extends components_7.Module {
+    const Theme = components_6.Styles.Theme.ThemeVars;
+    let DappContainerHeader = class DappContainerHeader extends components_6.Module {
         constructor(parent, options) {
             super(parent, options);
             this.supportedNetworks = [];
@@ -1120,7 +1170,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 this.mdConnect.visible = false;
             };
             this.copyWalletAddress = () => {
-                components_7.application.copyToClipboard(this.walletInfo.address || "");
+                components_6.application.copyToClipboard(this.walletInfo.address || "");
             };
             this.renderWalletList = async () => {
                 let accountsChangedEventHandler = async (account) => {
@@ -1146,7 +1196,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                     this.gridWalletList.append(hsWallet);
                 });
             };
-            this.$eventBus = components_7.application.EventBus;
+            this.$eventBus = components_6.application.EventBus;
             this.registerEvent();
         }
         ;
@@ -1194,6 +1244,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             this.classList.add(header_css_1.default);
             await this.reloadWalletsAndNetworks();
             await this.initData();
+            this.onThemeChanged();
         }
         async reloadWalletsAndNetworks() {
             this.selectedNetwork = this.selectedNetwork || index_2.getNetworkInfo(index_2.getDefaultChainId());
@@ -1287,21 +1338,39 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 await index_2.connectWallet(selectedProvider);
             }
         }
+        onThemeChanged() {
+            var _a, _b, _c, _d, _e, _f, _g, _h;
+            const themeVars = this.switchTheme.checked ? index_1.darkTheme : index_1.lightTheme;
+            const parent = this.closest('i-scom-dapp-container');
+            if (parent) {
+                parent.setTag({
+                    fontColor: (_a = themeVars === null || themeVars === void 0 ? void 0 : themeVars.text) === null || _a === void 0 ? void 0 : _a.primary,
+                    backgroundColor: (_b = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _b === void 0 ? void 0 : _b.main,
+                    inputFontColor: (_c = themeVars === null || themeVars === void 0 ? void 0 : themeVars.input) === null || _c === void 0 ? void 0 : _c.fontColor,
+                    inputBackgroundColor: (_d = themeVars === null || themeVars === void 0 ? void 0 : themeVars.input) === null || _d === void 0 ? void 0 : _d.background,
+                    buttonBackgroundColor: (_f = (_e = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _e === void 0 ? void 0 : _e.primary) === null || _f === void 0 ? void 0 : _f.main,
+                    modalColor: (_g = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _g === void 0 ? void 0 : _g.modal,
+                    defaultColor: (_h = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _h === void 0 ? void 0 : _h.default,
+                });
+            }
+        }
         render() {
-            return (this.$render("i-panel", { padding: { top: '1.188rem', bottom: '0.5rem', left: '5.25rem', right: '5.25rem' } },
-                this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
+            return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1.75rem', right: '1.75rem' }, background: { color: Theme.background.modal } },
+                this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'space-between' },
                     this.$render("i-panel", null,
-                        this.$render("i-button", { id: "btnNetwork", height: 38, margin: { right: '0.5rem' }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
-                    this.$render("i-hstack", { id: "hsBalance", height: 38, visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 5 }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' } },
-                        this.$render("i-label", { id: "lblBalance", font: { color: Theme.colors.primary.contrastText } })),
-                    this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
-                        this.$render("i-button", { id: "btnWalletDetail", height: 38, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, onClick: this.openWalletDetailModal }),
-                        this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
-                            this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
-                                this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
-                                this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
-                                this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
-                    this.$render("i-button", { id: "btnConnectWallet", height: 38, caption: "Connect Wallet", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, onClick: this.openConnectModal })),
+                        this.$render("i-switch", { id: "switchTheme", checkedThumbColor: "transparent", uncheckedThumbColor: "transparent", checked: true, class: "custom-switch", onChanged: this.onThemeChanged.bind(this) })),
+                    this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
+                        this.$render("i-button", { id: "btnNetwork", margin: { right: '0.5rem' }, padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 12 }, font: { color: Theme.text.primary }, background: { color: Theme.background.default }, onClick: this.openNetworkModal, caption: "Unsupported Network" }),
+                        this.$render("i-hstack", { id: "hsBalance", visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 12 }, padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' } },
+                            this.$render("i-label", { id: "lblBalance", font: { color: Theme.colors.primary.contrastText } })),
+                        this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
+                            this.$render("i-button", { id: "btnWalletDetail", padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.background.gradient }, onClick: this.openWalletDetailModal }),
+                            this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
+                                this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
+                                    this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
+                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
+                                    this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
+                        this.$render("i-button", { id: "btnConnectWallet", height: 38, caption: "Connect Wallet", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.background.gradient }, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, onClick: this.openConnectModal }))),
                 this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
                     this.$render("i-vstack", { height: '100%', lineHeight: 1.5, padding: { left: '1rem', right: '1rem', bottom: '2rem' } },
                         this.$render("i-label", { id: 'lblNetworkDesc', margin: { top: '1rem' }, font: { size: '.875rem' }, wordBreak: "break-word", caption: 'We support the following networks, please click to connect.' }),
@@ -1328,19 +1397,19 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
         }
     };
     __decorate([
-        components_7.observable()
+        components_6.observable()
     ], DappContainerHeader.prototype, "walletInfo", void 0);
     DappContainerHeader = __decorate([
-        components_7.customElements('dapp-container-header')
+        components_6.customElements('dapp-container-header')
     ], DappContainerHeader);
     exports.DappContainerHeader = DappContainerHeader;
 });
-define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/components"], function (require, exports, components_8) {
+define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/components"], function (require, exports, components_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerFooter = void 0;
-    const Theme = components_8.Styles.Theme.ThemeVars;
-    let DappContainerFooter = class DappContainerFooter extends components_8.Module {
+    const Theme = components_7.Styles.Theme.ThemeVars;
+    let DappContainerFooter = class DappContainerFooter extends components_7.Module {
         constructor(parent) {
             super(parent);
         }
@@ -1356,27 +1425,27 @@ define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/
             this.lblFooter.appendChild(value);
         }
         render() {
-            return (this.$render("i-hstack", { class: "footer", horizontalAlignment: "start", verticalAlignment: "center", padding: { left: '0.5rem', right: '0.5rem', bottom: '1.25rem' } },
+            return (this.$render("i-hstack", { class: "footer", horizontalAlignment: "end", verticalAlignment: "center", padding: { left: '0.5rem', right: '1.313rem', top: '0.75rem', bottom: '0.75rem' }, background: { color: Theme.background.modal } },
                 this.$render("i-hstack", { id: "lblFooter", gap: 4, verticalAlignment: "center" },
                     this.$render("i-label", { caption: "Powered By", font: { size: '0.75rem', color: Theme.text.primary } }),
-                    this.$render("i-label", { caption: "SECURE", font: { size: '0.875rem', color: '#F99E43', weight: 700 } }),
-                    this.$render("i-label", { caption: "COMPUTE", font: { size: '0.875rem', color: Theme.text.primary, weight: 700 } }))));
+                    this.$render("i-label", { caption: "SECURE", font: { size: '0.75rem', color: '#F99E43', weight: 700 } }),
+                    this.$render("i-label", { caption: "COMPUTE", font: { size: '0.75rem', color: Theme.text.primary, weight: 700 } }))));
         }
     };
     DappContainerFooter = __decorate([
-        components_8.customElements('dapp-container-footer')
+        components_7.customElements('dapp-container-footer')
     ], DappContainerFooter);
     exports.DappContainerFooter = DappContainerFooter;
 });
-define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_9, index_css_1, index_3, index_4, body_1, header_1, footer_1) {
+define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_8, index_css_1, index_3, index_4, body_1, header_1, footer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
     Object.defineProperty(exports, "DappContainerBody", { enumerable: true, get: function () { return body_1.DappContainerBody; } });
     Object.defineProperty(exports, "DappContainerHeader", { enumerable: true, get: function () { return header_1.DappContainerHeader; } });
     Object.defineProperty(exports, "DappContainerFooter", { enumerable: true, get: function () { return footer_1.DappContainerFooter; } });
-    const Theme = components_9.Styles.Theme.ThemeVars;
-    let ScomDappContainer = class ScomDappContainer extends components_9.Module {
+    const Theme = components_8.Styles.Theme.ThemeVars;
+    let ScomDappContainer = class ScomDappContainer extends components_8.Module {
         constructor() {
             super(...arguments);
             this.isInited = false;
@@ -1530,12 +1599,14 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.style.removeProperty(name);
         }
         updateTheme() {
-            var _a, _b, _c, _d, _e;
+            var _a, _b, _c, _d, _e, _f, _g;
             this.updateStyle('--text-primary', (_a = this.tag) === null || _a === void 0 ? void 0 : _a.fontColor);
             this.updateStyle('--background-main', (_b = this.tag) === null || _b === void 0 ? void 0 : _b.backgroundColor);
             this.updateStyle('--input-font_color', (_c = this.tag) === null || _c === void 0 ? void 0 : _c.inputFontColor);
             this.updateStyle('--input-background', (_d = this.tag) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor);
             this.updateStyle('--colors-primary-main', (_e = this.tag) === null || _e === void 0 ? void 0 : _e.buttonBackgroundColor);
+            this.updateStyle('--background-modal', (_f = this.tag) === null || _f === void 0 ? void 0 : _f.modalColor);
+            this.updateStyle('--background-default', (_g = this.tag) === null || _g === void 0 ? void 0 : _g.defaultColor);
         }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },
@@ -1549,8 +1620,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
     };
     ScomDappContainer = __decorate([
-        components_9.customModule,
-        components_9.customElements('i-scom-dapp-container')
+        components_8.customModule,
+        components_8.customElements('i-scom-dapp-container')
     ], ScomDappContainer);
     exports.default = ScomDappContainer;
 });

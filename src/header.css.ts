@@ -85,6 +85,23 @@ export default Styles.style({
     },
     '.wallet-modal .modal': {
       minWidth: 200
+    },
+    '.custom-switch .wrapper': {
+      borderRadius: 40,
+      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
+      $nest: {
+        '.switch-base': {
+          background: Theme.background.gradient // f186
+        },
+        '.thumb': {
+          fontFamily: "Font Awesome 5 Free",
+          content: "\f007"
+        },
+        '.track': {
+          background: 'linear-gradient(0deg, #252A48, #252A48), #8994A3',
+          color: 'transparent'
+        }
+      }
     }
   }
 })

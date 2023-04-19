@@ -1,4 +1,5 @@
 import { Module, customModule, Container, VStack, application } from '@ijstech/components';
+import { MetaMaskProvider, Wallet } from '@ijstech/eth-wallet';
 import ScomDappContainer from '@scom/scom-dapp-container';
 
 @customModule
@@ -16,7 +17,6 @@ export default class Module1 extends Module {
                 "packageId": 16,
                 "name": "@scom/scom-nft-minter",
                 "description": "Donation / NFT Minter Micro-DApp",
-                "ipfscid": "bafkreigfrhybx24tzcu3ke6iutzoroyygb6lcvgygritz63urfbw3ydpzm",
                 "localPath": "libs/@scom/scom-nft-minter",
                 "local": true,
                 "imgUrl": "ipfs://bafkreid4yhtwe3qz7lzvafzzt3q4ssdowzg2rpbrd6xqjanivyd7bkcsiy",
@@ -111,7 +111,10 @@ export default class Module1 extends Module {
                 43113
             ],
             "wallets": [
-                "metamask"
+                {
+                    name: 'metamask',
+                    provider: new MetaMaskProvider(Wallet.getClientInstance() as any)
+                }
             ],
             "content": this._content
         });
@@ -123,7 +126,12 @@ export default class Module1 extends Module {
             <i-hstack id="mainStack" margin={{top: '1rem', left: '1rem'}} gap="2rem">
                 <i-scom-dapp-container
                     networks={[43113]}
-                    wallets={["metamask"]}
+                    wallets={[
+                        {
+                            name: 'metamask',
+                            provider: new MetaMaskProvider(Wallet.getClientInstance() as any)
+                        }
+                    ]}
                     content={this._content}
                     width={1176}
                 ></i-scom-dapp-container>

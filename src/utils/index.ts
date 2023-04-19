@@ -118,3 +118,5 @@ export {
   IGetModuleOptions,
   getEmbedElement
 }
+
+export * from './theme';
