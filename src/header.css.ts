@@ -91,17 +91,28 @@ export default Styles.style({
       boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
       $nest: {
         '.switch-base': {
-          background: Theme.background.gradient // f186
+          background: Theme.background.gradient
         },
-        '.thumb': {
-          fontFamily: "Font Awesome 5 Free",
-          content: "\f007"
+        '.track::before': {
+          fontSize: 18,
+          color: Theme.text.primary
+        },
+        '.track::after': {
+          transform: 'translateY(-50%) rotate(-30deg)',
+          fontSize: 18,
+          color: '#fff'
         },
         '.track': {
           background: 'linear-gradient(0deg, #252A48, #252A48), #8994A3',
           color: 'transparent'
+        },
+        '.switch-base.checked +.track': {
+          background: Theme.background.main
         }
       }
+    },
+    'i-button': {
+      boxShadow: 'none'
     }
   }
 })

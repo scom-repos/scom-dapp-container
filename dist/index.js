@@ -539,7 +539,6 @@ define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], funct
         "background": {
             "main": "#0C1234",
             "modal": "#192046",
-            "default": "#222237",
             "gradient": "linear-gradient(254.8deg, #E75B66 -8.08%, #B52082 84.35%)"
         },
         "input": {
@@ -548,20 +547,29 @@ define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], funct
         },
         "text": {
             "primary": "#fff"
+        },
+        "colors": {
+            "secondary": {
+                "main": "#222237"
+            }
         }
     };
     exports.lightTheme = {
         "background": {
-            "main": "#fff",
-            "modal": "#ddd",
-            default: "#ddd"
+            "modal": "#fff",
+            "main": "#f1f1f1"
         },
         "input": {
             "background": "#fff",
-            "fontColor": "#222"
+            "fontColor": "#333333"
         },
         "text": {
-            "primary": "#222"
+            "primary": "#333333"
+        },
+        "colors": {
+            "secondary": {
+                "main": "#222237"
+            }
         }
     };
 });
@@ -768,17 +776,28 @@ define("@scom/scom-dapp-container/header.css.ts", ["require", "exports", "@ijste
                 boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
                 $nest: {
                     '.switch-base': {
-                        background: Theme.background.gradient // f186
+                        background: Theme.background.gradient
                     },
-                    '.thumb': {
-                        fontFamily: "Font Awesome 5 Free",
-                        content: "\f007"
+                    '.track::before': {
+                        fontSize: 18,
+                        color: Theme.text.primary
+                    },
+                    '.track::after': {
+                        transform: 'translateY(-50%) rotate(-30deg)',
+                        fontSize: 18,
+                        color: '#fff'
                     },
                     '.track': {
                         background: 'linear-gradient(0deg, #252A48, #252A48), #8994A3',
                         color: 'transparent'
+                    },
+                    '.switch-base.checked +.track': {
+                        background: Theme.background.main
                     }
                 }
+            },
+            'i-button': {
+                boxShadow: 'none'
             }
         }
     });
@@ -1242,9 +1261,9 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             super.init();
             this.isInited = true;
             this.classList.add(header_css_1.default);
+            this.onThemeChanged();
             await this.reloadWalletsAndNetworks();
             await this.initData();
-            this.onThemeChanged();
         }
         async reloadWalletsAndNetworks() {
             this.selectedNetwork = this.selectedNetwork || index_2.getNetworkInfo(index_2.getDefaultChainId());
@@ -1339,8 +1358,8 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             }
         }
         onThemeChanged() {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
-            const themeVars = this.switchTheme.checked ? index_1.darkTheme : index_1.lightTheme;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+            const themeVars = this.switchTheme.checked ? index_1.lightTheme : index_1.darkTheme;
             const parent = this.closest('i-scom-dapp-container');
             if (parent) {
                 parent.setTag({
@@ -1350,17 +1369,17 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                     inputBackgroundColor: (_d = themeVars === null || themeVars === void 0 ? void 0 : themeVars.input) === null || _d === void 0 ? void 0 : _d.background,
                     buttonBackgroundColor: (_f = (_e = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _e === void 0 ? void 0 : _e.primary) === null || _f === void 0 ? void 0 : _f.main,
                     modalColor: (_g = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _g === void 0 ? void 0 : _g.modal,
-                    defaultColor: (_h = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _h === void 0 ? void 0 : _h.default,
+                    secondaryColor: (_j = (_h = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _h === void 0 ? void 0 : _h.secondary) === null || _j === void 0 ? void 0 : _j.main
                 });
             }
         }
         render() {
             return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1.75rem', right: '1.75rem' }, background: { color: Theme.background.modal } },
-                this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'space-between' },
+                this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'space-between', gap: "0.5rem" },
                     this.$render("i-panel", null,
-                        this.$render("i-switch", { id: "switchTheme", checkedThumbColor: "transparent", uncheckedThumbColor: "transparent", checked: true, class: "custom-switch", onChanged: this.onThemeChanged.bind(this) })),
+                        this.$render("i-switch", { id: "switchTheme", checkedText: '\u263C', uncheckedText: '\u263E', checkedThumbColor: "transparent", uncheckedThumbColor: "transparent", class: "custom-switch", onChanged: this.onThemeChanged.bind(this) })),
                     this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
-                        this.$render("i-button", { id: "btnNetwork", margin: { right: '0.5rem' }, padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 12 }, font: { color: Theme.text.primary }, background: { color: Theme.background.default }, onClick: this.openNetworkModal, caption: "Unsupported Network" }),
+                        this.$render("i-button", { id: "btnNetwork", margin: { right: '0.5rem' }, padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 12 }, font: { color: Theme.colors.secondary.contrastText }, background: { color: Theme.colors.secondary.main }, onClick: this.openNetworkModal, caption: "Unsupported Network" }),
                         this.$render("i-hstack", { id: "hsBalance", visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 12 }, padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' } },
                             this.$render("i-label", { id: "lblBalance", font: { color: Theme.colors.primary.contrastText } })),
                         this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
@@ -1590,7 +1609,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 if (newValue.hasOwnProperty(prop))
                     this.tag[prop] = newValue[prop];
             }
-            this.dappContainerBody.setTag(this.tag);
+            if (this.dappContainerBody)
+                this.dappContainerBody.setTag(this.tag);
             this.updateTheme();
         }
         updateStyle(name, value) {
@@ -1606,7 +1626,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.updateStyle('--input-background', (_d = this.tag) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor);
             this.updateStyle('--colors-primary-main', (_e = this.tag) === null || _e === void 0 ? void 0 : _e.buttonBackgroundColor);
             this.updateStyle('--background-modal', (_f = this.tag) === null || _f === void 0 ? void 0 : _f.modalColor);
-            this.updateStyle('--background-default', (_g = this.tag) === null || _g === void 0 ? void 0 : _g.defaultColor);
+            this.updateStyle('--colors-secondary-main', (_g = this.tag) === null || _g === void 0 ? void 0 : _g.secondaryColor);
         }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },

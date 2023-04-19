@@ -214,7 +214,6 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
         background: {
             main: string;
             modal: string;
-            default: string;
             gradient: string;
         };
         input: {
@@ -224,12 +223,16 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
         text: {
             primary: string;
         };
+        colors: {
+            secondary: {
+                main: string;
+            };
+        };
     };
     export const lightTheme: {
         background: {
-            main: string;
             modal: string;
-            default: string;
+            main: string;
         };
         input: {
             background: string;
@@ -237,6 +240,11 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
         };
         text: {
             primary: string;
+        };
+        colors: {
+            secondary: {
+                main: string;
+            };
         };
     };
 }

@@ -2,7 +2,6 @@ export const darkTheme = {
   "background": {
     "main": "#0C1234",
     "modal": "#192046",
-    "default": "#222237",
     "gradient": "linear-gradient(254.8deg, #E75B66 -8.08%, #B52082 84.35%)"
   },
   "input": {
@@ -11,19 +10,28 @@ export const darkTheme = {
   },
   "text": {
     "primary": "#fff"
+  },
+  "colors": {
+    "secondary": {
+      "main": "#222237"
+    }
   }
 }
 export const lightTheme = {
   "background": {
-    "main": "#fff",
-    "modal": "#ddd",
-    default: "#ddd"
+    "modal": "#fff",
+    "main": "#f1f1f1"
   },
   "input": {
     "background": "#fff",
-    "fontColor": "#222"
+    "fontColor": "#333333"
   },
   "text": {
-    "primary": "#222"
+    "primary": "#333333"
+  },
+  "colors": {
+    "secondary": {
+      "main": "#222237"
+    }
   }
 }

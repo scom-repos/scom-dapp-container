@@ -73,5 +73,6 @@
     "mobile": 414,
     "tablet": 1280,
     "desktop": 1920
-  }
+  },
+  "showThemeButton": true
 }
