@@ -195,7 +195,8 @@ export default class ScomDappContainer extends Module {
       if (newValue.hasOwnProperty(prop))
         this.tag[prop] = newValue[prop];
     }
-    this.dappContainerBody.setTag(this.tag);
+    if (this.dappContainerBody)
+      this.dappContainerBody.setTag(this.tag);
     this.updateTheme();
   }
 
@@ -212,7 +213,7 @@ export default class ScomDappContainer extends Module {
     this.updateStyle('--input-background', this.tag?.inputBackgroundColor);
     this.updateStyle('--colors-primary-main', this.tag?.buttonBackgroundColor);
     this.updateStyle('--background-modal', this.tag?.modalColor);
-    this.updateStyle('--background-default', this.tag?.defaultColor);
+    this.updateStyle('--colors-secondary-main', this.tag?.secondaryColor);
   }
   
   render() {

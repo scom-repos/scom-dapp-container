@@ -125,9 +125,9 @@ export class DappContainerHeader extends Module {
     super.init();
     this.isInited = true;
     this.classList.add(styleClass);
+    this.onThemeChanged();
     await this.reloadWalletsAndNetworks();
     await this.initData();
-    this.onThemeChanged();
   }
 
   async reloadWalletsAndNetworks() {
@@ -363,7 +363,7 @@ export class DappContainerHeader extends Module {
   }
 
   private onThemeChanged() {
-    const themeVars: any = this.switchTheme.checked ? darkTheme : lightTheme
+    const themeVars: any = this.switchTheme.checked ? lightTheme : darkTheme
     const parent = this.closest('i-scom-dapp-container') as any;
     if (parent) {
       parent.setTag({
@@ -373,7 +373,7 @@ export class DappContainerHeader extends Module {
         inputBackgroundColor: themeVars?.input?.background,
         buttonBackgroundColor: themeVars?.colors?.primary?.main,
         modalColor: themeVars?.background?.modal,
-        defaultColor: themeVars?.background?.default,
+        secondaryColor: themeVars?.colors?.secondary?.main
       })
     }
   }
@@ -384,13 +384,14 @@ export class DappContainerHeader extends Module {
         padding={{ top: '0.5rem', bottom: '0.5rem', left: '1.75rem', right: '1.75rem' }}
         background={{color: Theme.background.modal}}
       >
-        <i-hstack verticalAlignment='center' horizontalAlignment='space-between'>
+        <i-hstack verticalAlignment='center' horizontalAlignment='space-between' gap="0.5rem">
           <i-panel>
             <i-switch
               id="switchTheme"
+              checkedText='☼'
+              uncheckedText='☾'
               checkedThumbColor={"transparent"}
               uncheckedThumbColor={"transparent"}
-              checked={true}
               class="custom-switch"
               onChanged={this.onThemeChanged.bind(this)}
             ></i-switch>
@@ -401,8 +402,8 @@ export class DappContainerHeader extends Module {
               margin={{ right: '0.5rem' }}
               padding={{ top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }}
               border={{ radius: 12 }}
-              font={{ color: Theme.text.primary }}
-              background={{color: Theme.background.default}}
+              font={{ color: Theme.colors.secondary.contrastText }}
+              background={{color: Theme.colors.secondary.main}}
               onClick={this.openNetworkModal}
               caption={"Unsupported Network"}
             ></i-button>
