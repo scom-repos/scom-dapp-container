@@ -418,8 +418,12 @@ declare module "@scom/scom-dapp-container" {
     export { DappContainerBody } from "@scom/scom-dapp-container/body.tsx";
     export { DappContainerHeader } from "@scom/scom-dapp-container/header.tsx";
     export { DappContainerFooter } from "@scom/scom-dapp-container/footer.tsx";
+    interface INetworkConfig {
+        chainName?: string;
+        chainId: number;
+    }
     interface ScomDappElement extends ControlElement {
-        networks: number[];
+        networks: INetworkConfig[];
         wallets: IWalletPlugin[];
         showHeader?: boolean;
         content: IDappContainerContent;

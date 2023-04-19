@@ -11,9 +11,13 @@ export { DappContainerHeader } from './header';
 export { DappContainerFooter } from './footer';
 
 const Theme = Styles.Theme.ThemeVars;
+interface INetworkConfig {
+  chainName?: string;
+  chainId: number;
+}
 
 interface ScomDappElement extends ControlElement {
-  networks: number[];
+  networks: INetworkConfig[];
   wallets: IWalletPlugin[];
   showHeader?: boolean;
   content: IDappContainerContent;

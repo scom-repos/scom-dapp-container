@@ -108,7 +108,9 @@ export default class Module1 extends Module {
             // height: 391,
             // width: 1180,
             "networks": [
-                43113
+                {
+                    chainId: 43113
+                }
             ],
             "wallets": [
                 {
@@ -125,7 +127,11 @@ export default class Module1 extends Module {
         return <i-panel>
             <i-hstack id="mainStack" margin={{top: '1rem', left: '1rem'}} gap="2rem">
                 <i-scom-dapp-container
-                    networks={[43113]}
+                    networks={[
+                        {
+                            chainId: 43113
+                        }
+                    ]}
                     wallets={[
                         {
                             name: 'metamask',
