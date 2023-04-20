@@ -3,7 +3,7 @@ import { IClientSideProvider, INetwork } from "@ijstech/eth-wallet";
 interface IWalletPlugin {
   name: string;
   packageName?: string;
-  provider: IClientSideProvider;
+  provider?: IClientSideProvider;
 }
 
 interface IDappContainerContent {

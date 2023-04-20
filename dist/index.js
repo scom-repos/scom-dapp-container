@@ -557,11 +557,11 @@ define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], funct
     exports.lightTheme = {
         "background": {
             "modal": "#fff",
-            "main": "#f1f1f1"
+            "main": "#DBDBDB"
         },
         "input": {
             "background": "#fff",
-            "fontColor": "#333333"
+            "fontColor": "#323232"
         },
         "text": {
             "primary": "#333333"
@@ -931,7 +931,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     exports.hasWallet = hasWallet;
     const hasMetaMask = function () {
         const provider = exports.getWalletPluginProvider(WalletPlugin.MetaMask);
-        return provider.installed();
+        return (provider === null || provider === void 0 ? void 0 : provider.installed()) || false;
     };
     exports.hasMetaMask = hasMetaMask;
     const truncateAddress = (address) => {
@@ -1094,7 +1094,8 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     };
     exports.getWalletPluginMap = getWalletPluginMap;
     const getWalletPluginProvider = (name) => {
-        return state.walletPluginMap[name].provider;
+        var _a;
+        return (_a = state.walletPluginMap[name]) === null || _a === void 0 ? void 0 : _a.provider;
     };
     exports.getWalletPluginProvider = getWalletPluginProvider;
 });
@@ -1484,6 +1485,10 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             }
         }
         async init() {
+            let children = [];
+            for (let child of this.children) {
+                children.push(child);
+            }
             this.isReadyCallbackQueued = true;
             super.init();
             this.classList.add('main-dapp');
@@ -1492,6 +1497,9 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             await this.initData();
             this.isReadyCallbackQueued = false;
             this.executeReadyCallback();
+            for (let item of children) {
+                this.dappContainerBody.setModule(item);
+            }
         }
         async connectedCallback() {
             super.connectedCallback();
@@ -1585,6 +1593,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         getEmbedderActions() {
             let module = this.dappContainerBody.getModule();
+            console.log('getEmbedderActions', module);
             let actions;
             if (module && module.getEmbedderActions) {
                 actions = module.getEmbedderActions();

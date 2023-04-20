@@ -143,7 +143,7 @@ export const hasWallet = function () {
 
 export const hasMetaMask = function () {
   const provider = getWalletPluginProvider(WalletPlugin.MetaMask);
-  return provider.installed();
+  return provider?.installed() || false
 }
 
 export const truncateAddress = (address: string) => {
@@ -313,5 +313,5 @@ export const getWalletPluginMap = () => {
 }
 
 export const getWalletPluginProvider = (name: string) => {
-  return state.walletPluginMap[name].provider;
+  return state.walletPluginMap[name]?.provider;
 }

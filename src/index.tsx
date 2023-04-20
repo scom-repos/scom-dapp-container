@@ -20,7 +20,7 @@ interface ScomDappElement extends ControlElement {
   networks: INetworkConfig[];
   wallets: IWalletPlugin[];
   showHeader?: boolean;
-  content: IDappContainerContent;
+  content?: IDappContainerContent;
 }
 
 declare global {
@@ -59,6 +59,10 @@ export default class ScomDappContainer extends Module {
   }
 
   async init() {
+    let children = []
+    for (let child of this.children) {
+      children.push(child)
+    }
     this.isReadyCallbackQueued = true;
     super.init();
     this.classList.add('main-dapp');
@@ -67,6 +71,9 @@ export default class ScomDappContainer extends Module {
     await this.initData();
     this.isReadyCallbackQueued = false;
     this.executeReadyCallback();
+    for (let item of children) {
+      this.dappContainerBody.setModule(item);
+    }
   }
 
   async connectedCallback() {
@@ -168,6 +175,7 @@ export default class ScomDappContainer extends Module {
 
   getEmbedderActions() {
     let module = this.dappContainerBody.getModule();
+    console.log('getEmbedderActions', module)
     let actions;
     if (module && module.getEmbedderActions) {
       actions = module.getEmbedderActions();

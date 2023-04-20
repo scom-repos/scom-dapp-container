@@ -4,7 +4,7 @@ declare module "@scom/scom-dapp-container/interface.ts" {
     interface IWalletPlugin {
         name: string;
         packageName?: string;
-        provider: IClientSideProvider;
+        provider?: IClientSideProvider;
     }
     interface IDappContainerContent {
         module: IPageBlockData;
@@ -426,7 +426,7 @@ declare module "@scom/scom-dapp-container" {
         networks: INetworkConfig[];
         wallets: IWalletPlugin[];
         showHeader?: boolean;
-        content: IDappContainerContent;
+        content?: IDappContainerContent;
     }
     global {
         namespace JSX {
