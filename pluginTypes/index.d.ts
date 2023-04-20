@@ -72,8 +72,6 @@ declare module "@scom/scom-dapp-container/body.tsx" {
         clear(): void;
         getModule(): any;
         setModule(module: Module): void;
-        getTag(): any;
-        setTag(data: any): void;
         init(): void;
         render(): any;
     }

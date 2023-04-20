@@ -91,14 +91,12 @@ define("@scom/scom-dapp-container/body.tsx", ["require", "exports", "@ijstech/co
         //   }
         //   this.isLoading = false;
         // }
-        getTag() {
-            var _a;
-            return (_a = this.module) === null || _a === void 0 ? void 0 : _a.getTag();
-        }
-        setTag(data) {
-            if (this.module)
-                this.module.setTag(data);
-        }
+        // getTag() {
+        //   return this.module?.getTag();
+        // }
+        // setTag(data: any) {
+        //   if (this.module) this.module.setTag(data);
+        // }
         init() {
             super.init();
             this.isInited = true;
@@ -1609,8 +1607,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerBody.setModule(module);
         }
         getTag() {
-            let bodyTag = this.dappContainerBody.getTag();
-            return Object.assign(Object.assign({}, this.tag), bodyTag);
+            // let bodyTag = this.dappContainerBody.getTag();
+            return Object.assign({}, this.tag);
         }
         setTag(value) {
             const newValue = value || {};
@@ -1618,8 +1616,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 if (newValue.hasOwnProperty(prop))
                     this.tag[prop] = newValue[prop];
             }
-            if (this.dappContainerBody)
-                this.dappContainerBody.setTag(this.tag);
+            // if (this.dappContainerBody)
+            //   this.dappContainerBody.setTag(this.tag);
             this.updateTheme();
         }
         updateStyle(name, value) {

@@ -175,7 +175,6 @@ export default class ScomDappContainer extends Module {
 
   getEmbedderActions() {
     let module = this.dappContainerBody.getModule();
-    console.log('getEmbedderActions', module)
     let actions;
     if (module && module.getEmbedderActions) {
       actions = module.getEmbedderActions();
@@ -194,10 +193,10 @@ export default class ScomDappContainer extends Module {
   }
 
   getTag() {
-    let bodyTag = this.dappContainerBody.getTag();
+    // let bodyTag = this.dappContainerBody.getTag();
     return {
       ...this.tag,
-      ...bodyTag
+      // ...bodyTag
     }
   }
 
@@ -207,8 +206,8 @@ export default class ScomDappContainer extends Module {
       if (newValue.hasOwnProperty(prop))
         this.tag[prop] = newValue[prop];
     }
-    if (this.dappContainerBody)
-      this.dappContainerBody.setTag(this.tag);
+    // if (this.dappContainerBody)
+    //   this.dappContainerBody.setTag(this.tag);
     this.updateTheme();
   }
 

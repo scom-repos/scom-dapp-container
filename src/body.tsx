@@ -51,13 +51,13 @@ export class DappContainerBody extends Module {
   //   this.isLoading = false;
   // }
 
-  getTag() {
-    return this.module?.getTag();
-  }
+  // getTag() {
+  //   return this.module?.getTag();
+  // }
 
-  setTag(data: any) {
-    if (this.module) this.module.setTag(data);
-  }
+  // setTag(data: any) {
+  //   if (this.module) this.module.setTag(data);
+  // }
 
   init() {
     super.init();
