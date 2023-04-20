@@ -16,7 +16,7 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         networks: IExtendedNetwork[];
         wallets: IWalletPlugin[];
         showHeader?: boolean;
-        content: IDappContainerContent;
+        content?: IDappContainerContent;
         tag?: any;
     }
     interface IPageBlockData {
@@ -421,8 +421,8 @@ declare module "@scom/scom-dapp-container" {
         chainId: number;
     }
     interface ScomDappElement extends ControlElement {
-        networks: INetworkConfig[];
-        wallets: IWalletPlugin[];
+        networks?: INetworkConfig[];
+        wallets?: IWalletPlugin[];
         showHeader?: boolean;
         content?: IDappContainerContent;
     }
@@ -441,18 +441,16 @@ declare module "@scom/scom-dapp-container" {
         private _data;
         private _rootDir;
         private isInited;
-        private isRendering;
         tag: any;
         private initData;
         init(): Promise<void>;
-        connectedCallback(): Promise<void>;
         static create(options?: ScomDappElement, parent?: Container): Promise<ScomDappContainer>;
         get networks(): IExtendedNetwork[];
         set networks(value: IExtendedNetwork[]);
         get wallets(): IWalletPlugin[];
         set wallets(value: IWalletPlugin[]);
-        get content(): IDappContainerContent;
-        set content(value: IDappContainerContent);
+        get showHeader(): boolean;
+        set showHeader(value: boolean);
         setRootDir(value: string): void;
         getRootDir(): string;
         getData(): Promise<IDappContainerData>;
