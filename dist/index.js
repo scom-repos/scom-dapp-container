@@ -91,14 +91,12 @@ define("@scom/scom-dapp-container/body.tsx", ["require", "exports", "@ijstech/co
         //   }
         //   this.isLoading = false;
         // }
-        getTag() {
-            var _a;
-            return (_a = this.module) === null || _a === void 0 ? void 0 : _a.getTag();
-        }
-        setTag(data) {
-            if (this.module)
-                this.module.setTag(data);
-        }
+        // getTag() {
+        //   return this.module?.getTag();
+        // }
+        // setTag(data: any) {
+        //   if (this.module) this.module.setTag(data);
+        // }
         init() {
             super.init();
             this.isInited = true;
@@ -557,11 +555,11 @@ define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], funct
     exports.lightTheme = {
         "background": {
             "modal": "#fff",
-            "main": "#f1f1f1"
+            "main": "#DBDBDB"
         },
         "input": {
             "background": "#fff",
-            "fontColor": "#333333"
+            "fontColor": "#323232"
         },
         "text": {
             "primary": "#333333"
@@ -931,7 +929,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     exports.hasWallet = hasWallet;
     const hasMetaMask = function () {
         const provider = exports.getWalletPluginProvider(WalletPlugin.MetaMask);
-        return provider.installed();
+        return (provider === null || provider === void 0 ? void 0 : provider.installed()) || false;
     };
     exports.hasMetaMask = hasMetaMask;
     const truncateAddress = (address) => {
@@ -1094,7 +1092,8 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     };
     exports.getWalletPluginMap = getWalletPluginMap;
     const getWalletPluginProvider = (name) => {
-        return state.walletPluginMap[name].provider;
+        var _a;
+        return (_a = state.walletPluginMap[name]) === null || _a === void 0 ? void 0 : _a.provider;
     };
     exports.getWalletPluginProvider = getWalletPluginProvider;
 });
@@ -1484,6 +1483,10 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             }
         }
         async init() {
+            let children = [];
+            for (let child of this.children) {
+                children.push(child);
+            }
             this.isReadyCallbackQueued = true;
             super.init();
             this.classList.add('main-dapp');
@@ -1492,6 +1495,9 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             await this.initData();
             this.isReadyCallbackQueued = false;
             this.executeReadyCallback();
+            for (let item of children) {
+                this.dappContainerBody.setModule(item);
+            }
         }
         async connectedCallback() {
             super.connectedCallback();
@@ -1585,6 +1591,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         getEmbedderActions() {
             let module = this.dappContainerBody.getModule();
+            console.log('getEmbedderActions', module);
             let actions;
             if (module && module.getEmbedderActions) {
                 actions = module.getEmbedderActions();
@@ -1600,8 +1607,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerBody.setModule(module);
         }
         getTag() {
-            let bodyTag = this.dappContainerBody.getTag();
-            return Object.assign(Object.assign({}, this.tag), bodyTag);
+            // let bodyTag = this.dappContainerBody.getTag();
+            return Object.assign({}, this.tag);
         }
         setTag(value) {
             const newValue = value || {};
@@ -1609,8 +1616,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 if (newValue.hasOwnProperty(prop))
                     this.tag[prop] = newValue[prop];
             }
-            if (this.dappContainerBody)
-                this.dappContainerBody.setTag(this.tag);
+            // if (this.dappContainerBody)
+            //   this.dappContainerBody.setTag(this.tag);
             this.updateTheme();
         }
         updateStyle(name, value) {

@@ -20,7 +20,7 @@ interface ScomDappElement extends ControlElement {
   networks: INetworkConfig[];
   wallets: IWalletPlugin[];
   showHeader?: boolean;
-  content: IDappContainerContent;
+  content?: IDappContainerContent;
 }
 
 declare global {
@@ -59,6 +59,10 @@ export default class ScomDappContainer extends Module {
   }
 
   async init() {
+    let children = []
+    for (let child of this.children) {
+      children.push(child)
+    }
     this.isReadyCallbackQueued = true;
     super.init();
     this.classList.add('main-dapp');
@@ -67,6 +71,9 @@ export default class ScomDappContainer extends Module {
     await this.initData();
     this.isReadyCallbackQueued = false;
     this.executeReadyCallback();
+    for (let item of children) {
+      this.dappContainerBody.setModule(item);
+    }
   }
 
   async connectedCallback() {
@@ -186,10 +193,10 @@ export default class ScomDappContainer extends Module {
   }
 
   getTag() {
-    let bodyTag = this.dappContainerBody.getTag();
+    // let bodyTag = this.dappContainerBody.getTag();
     return {
       ...this.tag,
-      ...bodyTag
+      // ...bodyTag
     }
   }
 
@@ -199,8 +206,8 @@ export default class ScomDappContainer extends Module {
       if (newValue.hasOwnProperty(prop))
         this.tag[prop] = newValue[prop];
     }
-    if (this.dappContainerBody)
-      this.dappContainerBody.setTag(this.tag);
+    // if (this.dappContainerBody)
+    //   this.dappContainerBody.setTag(this.tag);
     this.updateTheme();
   }
 

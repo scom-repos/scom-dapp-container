@@ -20,11 +20,11 @@ export const darkTheme = {
 export const lightTheme = {
   "background": {
     "modal": "#fff",
-    "main": "#f1f1f1"
+    "main": "#DBDBDB"
   },
   "input": {
     "background": "#fff",
-    "fontColor": "#333333"
+    "fontColor": "#323232"
   },
   "text": {
     "primary": "#333333"
