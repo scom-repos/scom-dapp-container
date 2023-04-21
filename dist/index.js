@@ -1388,7 +1388,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                             this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
                                 this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
                                     this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
-                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
+                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
                                     this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
                         this.$render("i-button", { id: "btnConnectWallet", height: 38, caption: "Connect Wallet", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.background.gradient }, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, onClick: this.openConnectModal }))),
                 this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
@@ -1457,7 +1457,7 @@ define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/
     ], DappContainerFooter);
     exports.DappContainerFooter = DappContainerFooter;
 });
-define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_8, index_css_1, index_3, index_4, body_1, header_1, footer_1) {
+define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_8, index_css_1, index_3, body_1, header_1, footer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
@@ -1500,7 +1500,6 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             for (let item of children) {
                 this.dappContainerBody.setModule(item);
             }
-            console.log('init');
         }
         // async connectedCallback() {
         //   super.connectedCallback();
@@ -1566,34 +1565,31 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.dappContainerBody.clear();
                 return;
             }
-            console.log('net', this._data);
             // await this.renderContent();
             this.pnlLoading.visible = false;
             this.gridMain.visible = true;
         }
-        async renderContent() {
-            var _a, _b, _c, _d, _e;
-            if ((_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.content) === null || _b === void 0 ? void 0 : _b.module) {
-                try {
-                    console.log('this._data.content.module', this._data.content.module);
-                    const rootDir = this.getRootDir();
-                    const module = await index_4.getEmbedElement(rootDir ? `${rootDir}/${this._data.content.module.localPath}` : this._data.content.module.localPath);
-                    console.log(module);
-                    if (module) {
-                        this.setModule(module);
-                        await module.ready();
-                        if ((_c = this._data.content) === null || _c === void 0 ? void 0 : _c.properties)
-                            await module.setData(this._data.content.properties);
-                        const tagData = this._data.tag || ((_e = (_d = this._data) === null || _d === void 0 ? void 0 : _d.content) === null || _e === void 0 ? void 0 : _e.tag) || null;
-                        if (tagData) {
-                            module.setTag(tagData);
-                            this.setTag(tagData);
-                        }
-                    }
-                }
-                catch (_f) { }
-            }
-        }
+        // private async renderContent() {
+        //   if (this._data?.content?.module) {
+        //     try {
+        //       console.log('this._data.content.module', this._data.content.module)
+        //       const rootDir = this.getRootDir();
+        //       const module: any = await getEmbedElement(rootDir ? `${rootDir}/${this._data.content.module.localPath}` : this._data.content.module.localPath);
+        //       console.log(module)
+        //       if (module) {
+        //         this.setModule(module);
+        //         await module.ready();
+        //         if (this._data.content?.properties)
+        //           await module.setData(this._data.content.properties);
+        //         const tagData = this._data.tag || this._data?.content?.tag || null;
+        //         if (tagData) {
+        //           module.setTag(tagData);
+        //           this.setTag(tagData);
+        //         }
+        //       }
+        //     } catch {}
+        //   }
+        // }
         getActions() {
             let module = this.dappContainerBody.getModule();
             let actions;

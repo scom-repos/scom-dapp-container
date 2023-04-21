@@ -451,7 +451,7 @@ export class DappContainerHeader extends Module {
                     caption="Switch wallet"
                     width="100%"
                     height="auto"
-                    border={{ radius: 5 }}
+                    border={{ radius: 12 }}
                     font={{ color: Theme.colors.error.contrastText }}
                     background={{ color: Theme.colors.error.light }}
                     padding={{ top: '0.5rem', bottom: '0.5rem' }}
