@@ -68,6 +68,8 @@ define("@scom/scom-dapp-container/body.tsx", ["require", "exports", "@ijstech/co
         }
         setModule(module) {
             this.module = module;
+            if (!this.pnlModule)
+                return;
             this.module.parent = this.pnlModule;
             this.pnlModule.append(this.module);
         }
@@ -1467,19 +1469,19 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         constructor() {
             super(...arguments);
             this.isInited = false;
-            this.isRendering = false;
             this.tag = {};
         }
         async initData() {
-            if (!this.isInited && this.dappContainerHeader.isInited && this.dappContainerBody.isInited) {
+            if (!this.dappContainerBody.isConnected)
+                await this.dappContainerBody.ready();
+            if (!this.dappContainerHeader.isConnected)
+                await this.dappContainerHeader.ready();
+            if (!this.isInited) {
                 this.isInited = true;
-                this.isRendering = true;
-                const networks = this.getAttribute('networks', true, []);
-                const wallets = this.getAttribute('wallets', true, []);
-                const showHeader = this.getAttribute('showHeader', true, true);
-                const content = this.getAttribute('content', true, []);
-                await this.setData({ networks, wallets, content, showHeader });
-                this.isRendering = false;
+                const networks = this.getAttribute('networks', true) || this.networks;
+                const wallets = this.getAttribute('wallets', true) || this.wallets;
+                const showHeader = this.getAttribute('showHeader', true) || this.showHeader;
+                await this.setData({ networks, wallets, showHeader });
             }
         }
         async init() {
@@ -1498,42 +1500,50 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             for (let item of children) {
                 this.dappContainerBody.setModule(item);
             }
+            console.log('init');
         }
-        async connectedCallback() {
-            super.connectedCallback();
-            if (!this.isConnected)
-                return;
-            if (!this.dappContainerHeader.isInited)
-                await this.dappContainerHeader.init();
-            await this.initData();
-        }
+        // async connectedCallback() {
+        //   super.connectedCallback();
+        //   if (!this.isConnected) return;
+        //   if (!this.dappContainerHeader.isInited)
+        //     await this.dappContainerHeader.init();
+        //   await this.initData();
+        // }
         static async create(options, parent) {
             let self = new this(parent, options);
             await self.ready();
             return self;
         }
         get networks() {
-            return this._data.networks;
+            var _a, _b;
+            return (_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.networks) !== null && _b !== void 0 ? _b : [];
         }
         set networks(value) {
             this._data.networks = value;
             index_3.updateStore(this._data);
         }
         get wallets() {
-            return this._data.wallets;
+            var _a, _b;
+            return (_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.wallets) !== null && _b !== void 0 ? _b : [];
         }
         set wallets(value) {
             this._data.wallets = value;
             index_3.updateStore(this._data);
         }
-        get content() {
-            return this._data.content;
+        get showHeader() {
+            var _a, _b;
+            return (_b = (_a = this._data) === null || _a === void 0 ? void 0 : _a.showHeader) !== null && _b !== void 0 ? _b : true;
         }
-        set content(value) {
-            this._data.content = value;
-            if (!this.isRendering)
-                this.renderContent();
+        set showHeader(value) {
+            this._data.showHeader = value;
         }
+        // get content() {
+        //   return this._data?.content;
+        // }
+        // set content(value: IDappContainerContent) {
+        //   this._data.content = value;
+        //   if (!this.isRendering) this.renderContent();
+        // }
         setRootDir(value) {
             this._rootDir = value || '';
         }
@@ -1544,9 +1554,11 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             return this._data;
         }
         async setData(data) {
+            this._data = data;
+            if (!this.isInited)
+                return;
             this.pnlLoading.visible = true;
             this.gridMain.visible = false;
-            this._data = data;
             this.dappContainerHeader.visible = this._data.showHeader;
             index_3.updateStore(this._data);
             this.dappContainerHeader.reloadWalletsAndNetworks();
@@ -1554,7 +1566,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.dappContainerBody.clear();
                 return;
             }
-            await this.renderContent();
+            console.log('net', this._data);
+            // await this.renderContent();
             this.pnlLoading.visible = false;
             this.gridMain.visible = true;
         }
@@ -1591,7 +1604,6 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         getEmbedderActions() {
             let module = this.dappContainerBody.getModule();
-            console.log('getEmbedderActions', module);
             let actions;
             if (module && module.getEmbedderActions) {
                 actions = module.getEmbedderActions();

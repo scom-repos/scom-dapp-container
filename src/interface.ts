@@ -17,7 +17,7 @@ interface IDappContainerData {
   networks: IExtendedNetwork[];
   wallets: IWalletPlugin[];
   showHeader?: boolean;
-  content: IDappContainerContent;
+  content?: IDappContainerContent;
   tag?: any;
 }
 

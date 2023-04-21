@@ -26,6 +26,7 @@ export class DappContainerBody extends Module {
   
   setModule(module: Module) {
     this.module = module;
+    if (!this.pnlModule) return;
     this.module.parent = this.pnlModule;
     this.pnlModule.append(this.module);
   }

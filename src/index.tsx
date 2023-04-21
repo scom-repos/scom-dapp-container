@@ -17,10 +17,10 @@ interface INetworkConfig {
 }
 
 interface ScomDappElement extends ControlElement {
-  networks: INetworkConfig[];
-  wallets: IWalletPlugin[];
+  networks?: INetworkConfig[];
+  wallets?: IWalletPlugin[];
   showHeader?: boolean;
-  content?: IDappContainerContent;
+  // content?: IDappContainerContent;
 }
 
 declare global {
@@ -41,20 +41,18 @@ export default class ScomDappContainer extends Module {
   private _data: IDappContainerData | undefined;
   private _rootDir: string;
   private isInited: boolean = false;
-  private isRendering: boolean = false;
 
   tag: any = {};
 
   private async initData() {
-    if (!this.isInited && this.dappContainerHeader.isInited && this.dappContainerBody.isInited) {
+    if (!this.dappContainerBody.isConnected) await this.dappContainerBody.ready();
+    if (!this.dappContainerHeader.isConnected) await this.dappContainerHeader.ready();
+    if (!this.isInited) {
       this.isInited = true;
-      this.isRendering = true;
-      const networks = this.getAttribute('networks', true, [])
-      const wallets = this.getAttribute('wallets', true, [])
-      const showHeader = this.getAttribute('showHeader', true, true)
-      const content = this.getAttribute('content', true, [])
-      await this.setData({networks, wallets, content, showHeader})
-      this.isRendering = false;
+      const networks = this.getAttribute('networks', true) || this.networks;
+      const wallets = this.getAttribute('wallets', true) || this.wallets;
+      const showHeader = this.getAttribute('showHeader', true) || this.showHeader;
+      await this.setData({networks, wallets, showHeader})
     }
   }
 
@@ -76,13 +74,13 @@ export default class ScomDappContainer extends Module {
     }
   }
 
-  async connectedCallback() {
-    super.connectedCallback();
-    if (!this.isConnected) return;
-    if (!this.dappContainerHeader.isInited)
-      await this.dappContainerHeader.init();
-    await this.initData();
-  }
+  // async connectedCallback() {
+  //   super.connectedCallback();
+  //   if (!this.isConnected) return;
+  //   if (!this.dappContainerHeader.isInited)
+  //     await this.dappContainerHeader.init();
+  //   await this.initData();
+  // }
 
   static async create(options?: ScomDappElement, parent?: Container){
     let self = new this(parent, options);
@@ -91,7 +89,7 @@ export default class ScomDappContainer extends Module {
   }
 
   get networks() {
-    return this._data.networks;
+    return this._data?.networks ?? [];
   }
   set networks(value: IExtendedNetwork[]) {
     this._data.networks = value;
@@ -99,20 +97,27 @@ export default class ScomDappContainer extends Module {
   }
 
   get wallets() {
-    return this._data.wallets;
+    return this._data?.wallets ?? [];
   }
   set wallets(value: IWalletPlugin[]) {
     this._data.wallets = value;
     updateStore(this._data);
   }
 
-  get content() {
-    return this._data.content;
+  get showHeader() {
+    return this._data?.showHeader ?? true;
   }
-  set content(value: IDappContainerContent) {
-    this._data.content = value;
-    if (!this.isRendering) this.renderContent();
+  set showHeader(value: boolean) {
+    this._data.showHeader = value;
   }
+
+  // get content() {
+  //   return this._data?.content;
+  // }
+  // set content(value: IDappContainerContent) {
+  //   this._data.content = value;
+  //   if (!this.isRendering) this.renderContent();
+  // }
 
   setRootDir(value: string) {
     this._rootDir = value || '';
@@ -127,9 +132,10 @@ export default class ScomDappContainer extends Module {
   }
 
   async setData(data: IDappContainerData) {
+    this._data = data;
+    if (!this.isInited) return;
     this.pnlLoading.visible = true;
     this.gridMain.visible = false;
-    this._data = data;
     this.dappContainerHeader.visible = this._data.showHeader;
     updateStore(this._data);
     this.dappContainerHeader.reloadWalletsAndNetworks();
@@ -137,32 +143,32 @@ export default class ScomDappContainer extends Module {
       this.dappContainerBody.clear();
       return;
     }
-    await this.renderContent();
+    // await this.renderContent();
     this.pnlLoading.visible = false;
     this.gridMain.visible = true;
   }
 
-  private async renderContent() {
-    if (this._data?.content?.module) {
-      try {
-        console.log('this._data.content.module', this._data.content.module)
-        const rootDir = this.getRootDir();
-        const module: any = await getEmbedElement(rootDir ? `${rootDir}/${this._data.content.module.localPath}` : this._data.content.module.localPath);
-        console.log(module)
-        if (module) {
-          this.setModule(module);
-          await module.ready();
-          if (this._data.content?.properties)
-            await module.setData(this._data.content.properties);
-          const tagData = this._data.tag || this._data?.content?.tag || null;
-          if (tagData) {
-            module.setTag(tagData);
-            this.setTag(tagData);
-          }
-        }
-      } catch {}
-    }
-  }
+  // private async renderContent() {
+  //   if (this._data?.content?.module) {
+  //     try {
+  //       console.log('this._data.content.module', this._data.content.module)
+  //       const rootDir = this.getRootDir();
+  //       const module: any = await getEmbedElement(rootDir ? `${rootDir}/${this._data.content.module.localPath}` : this._data.content.module.localPath);
+  //       console.log(module)
+  //       if (module) {
+  //         this.setModule(module);
+  //         await module.ready();
+  //         if (this._data.content?.properties)
+  //           await module.setData(this._data.content.properties);
+  //         const tagData = this._data.tag || this._data?.content?.tag || null;
+  //         if (tagData) {
+  //           module.setTag(tagData);
+  //           this.setTag(tagData);
+  //         }
+  //       }
+  //     } catch {}
+  //   }
+  // }
 
   getActions() {
     let module = this.dappContainerBody.getModule();
