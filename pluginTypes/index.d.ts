@@ -412,7 +412,7 @@ declare module "@scom/scom-dapp-container/footer.tsx" {
 /// <amd-module name="@scom/scom-dapp-container" />
 declare module "@scom/scom-dapp-container" {
     import { ControlElement, Module, Container } from "@ijstech/components";
-    import { IWalletPlugin, IDappContainerContent, IDappContainerData, IExtendedNetwork } from "@scom/scom-dapp-container/interface.ts";
+    import { IWalletPlugin, IDappContainerData, IExtendedNetwork } from "@scom/scom-dapp-container/interface.ts";
     export { DappContainerBody } from "@scom/scom-dapp-container/body.tsx";
     export { DappContainerHeader } from "@scom/scom-dapp-container/header.tsx";
     export { DappContainerFooter } from "@scom/scom-dapp-container/footer.tsx";
@@ -424,7 +424,6 @@ declare module "@scom/scom-dapp-container" {
         networks?: INetworkConfig[];
         wallets?: IWalletPlugin[];
         showHeader?: boolean;
-        content?: IDappContainerContent;
     }
     global {
         namespace JSX {
@@ -455,7 +454,6 @@ declare module "@scom/scom-dapp-container" {
         getRootDir(): string;
         getData(): Promise<IDappContainerData>;
         setData(data: IDappContainerData): Promise<void>;
-        private renderContent;
         getActions(): any;
         getEmbedderActions(): any;
         getModule(): any;
