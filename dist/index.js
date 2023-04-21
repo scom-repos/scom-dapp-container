@@ -1001,12 +1001,14 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
             setDefaultChainId(data.defaultChainId);
         setNetworkList(data.networks);
         setWalletList(data.wallets);
-        const clientWalletConfig = {
-            defaultChainId: state.defaultChainId,
-            networks: Object.values(state.networkMap),
-            infuraId: state.infuraId,
-        };
-        eth_wallet_2.Wallet.getClientInstance().initClientWallet(clientWalletConfig);
+        if (data.defaultChainId) { //FIXME: make sure there's data
+            const clientWalletConfig = {
+                defaultChainId: state.defaultChainId,
+                networks: Object.values(state.networkMap),
+                infuraId: state.infuraId,
+            };
+            eth_wallet_2.Wallet.getClientInstance().initClientWallet(clientWalletConfig);
+        }
     };
     exports.updateStore = updateStore;
     const setWalletList = (wallets) => {
