@@ -5,7 +5,6 @@ import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
 import { updateStore } from "./store/index";
-import { getEmbedElement } from "./utils/index";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
 export { DappContainerFooter } from './footer';
