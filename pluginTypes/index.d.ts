@@ -13,7 +13,7 @@ declare module "@scom/scom-dapp-container/interface.ts" {
     }
     interface IDappContainerData {
         defaultChainId?: number;
-        networks: IExtendedNetwork[];
+        networks: INetworkConfig[];
         wallets: IWalletPlugin[];
         showHeader?: boolean;
         content?: IDappContainerContent;
@@ -47,7 +47,11 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         explorerAddressUrl?: string;
         isDisabled?: boolean;
     }
-    export { IWalletPlugin, IPageBlockData, IDappContainerContent, IDappContainerData, ICodeInfoFileContent, EVENT, IExtendedNetwork };
+    interface INetworkConfig {
+        chainName?: string;
+        chainId: number;
+    }
+    export { IWalletPlugin, IPageBlockData, IDappContainerContent, IDappContainerData, ICodeInfoFileContent, EVENT, IExtendedNetwork, INetworkConfig };
 }
 /// <amd-module name="@scom/scom-dapp-container/index.css.ts" />
 declare module "@scom/scom-dapp-container/index.css.ts" {
@@ -412,7 +416,7 @@ declare module "@scom/scom-dapp-container/footer.tsx" {
 /// <amd-module name="@scom/scom-dapp-container" />
 declare module "@scom/scom-dapp-container" {
     import { ControlElement, Module, Container } from "@ijstech/components";
-    import { IWalletPlugin, IDappContainerData, IExtendedNetwork } from "@scom/scom-dapp-container/interface.ts";
+    import { IWalletPlugin, IDappContainerData } from "@scom/scom-dapp-container/interface.ts";
     export { DappContainerBody } from "@scom/scom-dapp-container/body.tsx";
     export { DappContainerHeader } from "@scom/scom-dapp-container/header.tsx";
     export { DappContainerFooter } from "@scom/scom-dapp-container/footer.tsx";
@@ -444,8 +448,8 @@ declare module "@scom/scom-dapp-container" {
         private initData;
         init(): Promise<void>;
         static create(options?: ScomDappElement, parent?: Container): Promise<ScomDappContainer>;
-        get networks(): IExtendedNetwork[];
-        set networks(value: IExtendedNetwork[]);
+        get networks(): INetworkConfig[];
+        set networks(value: INetworkConfig[]);
         get wallets(): IWalletPlugin[];
         set wallets(value: IWalletPlugin[]);
         get showHeader(): boolean;

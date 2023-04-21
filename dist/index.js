@@ -945,7 +945,8 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     exports.getSupportedWallets = getSupportedWallets;
     const getSupportedWalletProviders = () => {
         const walletPluginMap = exports.getWalletPluginMap();
-        return state.wallets.map(v => walletPluginMap[v.name].provider);
+        const providers = state.wallets.map(v => walletPluginMap[v.name].provider);
+        return providers.filter(provider => provider);
     };
     exports.getSupportedWalletProviders = getSupportedWalletProviders;
     ;
@@ -1017,9 +1018,9 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
             const networkInfo = defaultNetworkMap[network.chainId];
             if (!networkInfo)
                 continue;
-            if (infuraId && network.rpcUrls && network.rpcUrls.length > 0) {
-                for (let i = 0; i < network.rpcUrls.length; i++) {
-                    network.rpcUrls[i] = network.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+            if (infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+                for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+                    networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
                 }
             }
             state.networkMap[network.chainId] = Object.assign(Object.assign({}, networkInfo), network);
@@ -1625,6 +1626,9 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             }
             // if (this.dappContainerBody)
             //   this.dappContainerBody.setTag(this.tag);
+            const parent = this.closest('ide-toolbar');
+            if (parent === null || parent === void 0 ? void 0 : parent.setTag)
+                parent.setTag(this.tag);
             this.updateTheme();
         }
         updateStyle(name, value) {
