@@ -1001,6 +1001,14 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
             setDefaultChainId(data.defaultChainId);
         setNetworkList(data.networks);
         setWalletList(data.wallets);
+        if (data.defaultChainId) { //FIXME: make sure there's data
+            const clientWalletConfig = {
+                defaultChainId: state.defaultChainId,
+                networks: Object.values(state.networkMap),
+                infuraId: state.infuraId,
+            };
+            eth_wallet_2.Wallet.getClientInstance().initClientWallet(clientWalletConfig);
+        }
     };
     exports.updateStore = updateStore;
     const setWalletList = (wallets) => {
@@ -1388,7 +1396,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                             this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
                                 this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
                                     this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
-                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
+                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
                                     this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
                         this.$render("i-button", { id: "btnConnectWallet", height: 38, caption: "Connect Wallet", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.background.gradient }, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, onClick: this.openConnectModal }))),
                 this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
