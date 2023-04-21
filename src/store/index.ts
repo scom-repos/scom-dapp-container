@@ -1,7 +1,18 @@
 import {
   application
 } from '@ijstech/components';
-import {Erc20, IClientProviderOptions, IClientSideProvider, IClientSideProviderEvents, ISendTxEventsOptions, IWallet, MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
+import {
+  Erc20, 
+  IClientProviderOptions, 
+  IClientSideProvider, 
+  IClientSideProviderEvents, 
+  ISendTxEventsOptions, 
+  IWallet, 
+  MetaMaskProvider, 
+  Wallet, 
+  Web3ModalProvider,
+  IClientWalletConfig
+} from '@ijstech/eth-wallet';
 import { IDappContainerData, IExtendedNetwork, IWalletPlugin } from '../interface';
 import getNetworkList from '@scom/scom-network-list';
 
@@ -213,6 +224,12 @@ export const updateStore = (data: IDappContainerData) => {
   if (data.defaultChainId) setDefaultChainId(data.defaultChainId);
   setNetworkList(data.networks);
   setWalletList(data.wallets);
+  const clientWalletConfig: IClientWalletConfig = {
+    defaultChainId: state.defaultChainId,
+    networks: Object.values(state.networkMap),
+    infuraId: state.infuraId,
+  }
+  Wallet.getClientInstance().initClientWallet(clientWalletConfig);
 }
 const setWalletList = (wallets: IWalletPlugin[]) => {
   state.wallets = wallets;
