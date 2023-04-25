@@ -40,8 +40,17 @@ export default class ScomDappContainer extends Module {
   private _data: IDappContainerData | undefined;
   private _rootDir: string;
   private isInited: boolean = false;
+  private _theme: string;
 
   tag: any = {};
+
+  set theme(value: string) {
+    this._theme = value;
+    this.setTag(this.tag);
+  }
+  get theme() {
+    return this._theme ?? 'dark';
+  }
 
   private async initData() {
     if (!this.dappContainerBody.isConnected) await this.dappContainerBody.ready();
@@ -72,14 +81,6 @@ export default class ScomDappContainer extends Module {
       this.dappContainerBody.setModule(item);
     }
   }
-
-  // async connectedCallback() {
-  //   super.connectedCallback();
-  //   if (!this.isConnected) return;
-  //   if (!this.dappContainerHeader.isInited)
-  //     await this.dappContainerHeader.init();
-  //   await this.initData();
-  // }
 
   static async create(options?: ScomDappElement, parent?: Container){
     let self = new this(parent, options);
@@ -198,24 +199,28 @@ export default class ScomDappContainer extends Module {
   }
 
   getTag() {
-    // let bodyTag = this.dappContainerBody.getTag();
-    return {
-      ...this.tag,
-      // ...bodyTag
+    return this.tag;
+  }
+
+  private updateTag(type: 'light'|'dark', value: any) {
+    this.tag[type] = this.tag[type] ?? {};
+    for (let prop in value) {
+      if (value.hasOwnProperty(prop))
+        this.tag[type][prop] = value[prop];
     }
   }
 
   setTag(value: any) {
     const newValue = value || {};
-    for (let prop in newValue) {
-      if (newValue.hasOwnProperty(prop))
-        this.tag[prop] = newValue[prop];
-    }
-    // if (this.dappContainerBody)
-    //   this.dappContainerBody.setTag(this.tag);
+    if (newValue.light) this.updateTag('light', newValue.light);
+    if (newValue.dark) this.updateTag('dark', newValue.dark);
+    this.updateTheme();
+  }
+
+  initTag(value: any) {
+    this.setTag(value);
     const parent = this.closest('ide-toolbar') as any;
     if (parent?.setTag) parent.setTag(this.tag);
-    this.updateTheme();
   }
 
   private updateStyle(name: string, value: any) {
@@ -225,13 +230,13 @@ export default class ScomDappContainer extends Module {
   }
 
   private updateTheme() {
-    this.updateStyle('--text-primary', this.tag?.fontColor);
-    this.updateStyle('--background-main', this.tag?.backgroundColor);
-    this.updateStyle('--input-font_color', this.tag?.inputFontColor);
-    this.updateStyle('--input-background', this.tag?.inputBackgroundColor);
-    this.updateStyle('--colors-primary-main', this.tag?.buttonBackgroundColor);
-    this.updateStyle('--background-modal', this.tag?.modalColor);
-    this.updateStyle('--colors-secondary-main', this.tag?.secondaryColor);
+    this.updateStyle('--text-primary', this.tag[this.theme]?.fontColor);
+    this.updateStyle('--background-main', this.tag[this.theme]?.backgroundColor);
+    this.updateStyle('--input-font_color', this.tag[this.theme]?.inputFontColor);
+    this.updateStyle('--input-background', this.tag[this.theme]?.inputBackgroundColor);
+    this.updateStyle('--colors-primary-main', this.tag[this.theme]?.buttonBackgroundColor);
+    this.updateStyle('--background-modal', this.tag[this.theme]?.modalColor);
+    this.updateStyle('--colors-secondary-main', this.tag[this.theme]?.secondaryColor);
   }
   
   render() {

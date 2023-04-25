@@ -383,6 +383,7 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         renderNetworks(): void;
         initData(): Promise<void>;
         private onThemeChanged;
+        private initTheme;
         render(): any;
     }
     global {
@@ -444,7 +445,10 @@ declare module "@scom/scom-dapp-container" {
         private _data;
         private _rootDir;
         private isInited;
+        private _theme;
         tag: any;
+        set theme(value: string);
+        get theme(): string;
         private initData;
         init(): Promise<void>;
         static create(options?: ScomDappElement, parent?: Container): Promise<ScomDappContainer>;
@@ -463,7 +467,9 @@ declare module "@scom/scom-dapp-container" {
         getModule(): any;
         setModule(module: Module): void;
         getTag(): any;
+        private updateTag;
         setTag(value: any): void;
+        initTag(value: any): void;
         private updateStyle;
         private updateTheme;
         render(): any;

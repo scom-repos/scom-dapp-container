@@ -1271,7 +1271,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             super.init();
             this.isInited = true;
             this.classList.add(header_css_1.default);
-            this.onThemeChanged();
+            this.initTheme();
             await this.reloadWalletsAndNetworks();
             await this.initData();
         }
@@ -1368,11 +1368,16 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             }
         }
         onThemeChanged() {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-            const themeVars = this.switchTheme.checked ? index_1.lightTheme : index_1.darkTheme;
             const parent = this.closest('i-scom-dapp-container');
             if (parent) {
-                parent.setTag({
+                parent.theme = this.switchTheme.checked ? 'light' : 'dark';
+            }
+        }
+        initTheme() {
+            const getThemeVars = (theme) => {
+                var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+                const themeVars = theme === 'light' ? index_1.lightTheme : index_1.darkTheme;
+                return {
                     fontColor: (_a = themeVars === null || themeVars === void 0 ? void 0 : themeVars.text) === null || _a === void 0 ? void 0 : _a.primary,
                     backgroundColor: (_b = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _b === void 0 ? void 0 : _b.main,
                     inputFontColor: (_c = themeVars === null || themeVars === void 0 ? void 0 : themeVars.input) === null || _c === void 0 ? void 0 : _c.fontColor,
@@ -1380,6 +1385,14 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                     buttonBackgroundColor: (_f = (_e = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _e === void 0 ? void 0 : _e.primary) === null || _f === void 0 ? void 0 : _f.main,
                     modalColor: (_g = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _g === void 0 ? void 0 : _g.modal,
                     secondaryColor: (_j = (_h = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _h === void 0 ? void 0 : _h.secondary) === null || _j === void 0 ? void 0 : _j.main
+                };
+            };
+            const parent = this.closest('i-scom-dapp-container');
+            if (parent) {
+                parent.theme = this.switchTheme.checked ? 'light' : 'dark';
+                parent.initTag({
+                    light: getThemeVars('light'),
+                    dark: getThemeVars('dark')
                 });
             }
         }
@@ -1480,6 +1493,14 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.isInited = false;
             this.tag = {};
         }
+        set theme(value) {
+            this._theme = value;
+            this.setTag(this.tag);
+        }
+        get theme() {
+            var _a;
+            return (_a = this._theme) !== null && _a !== void 0 ? _a : 'dark';
+        }
         async initData() {
             if (!this.dappContainerBody.isConnected)
                 await this.dappContainerBody.ready();
@@ -1510,13 +1531,6 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.dappContainerBody.setModule(item);
             }
         }
-        // async connectedCallback() {
-        //   super.connectedCallback();
-        //   if (!this.isConnected) return;
-        //   if (!this.dappContainerHeader.isInited)
-        //     await this.dappContainerHeader.init();
-        //   await this.initData();
-        // }
         static async create(options, parent) {
             let self = new this(parent, options);
             await self.ready();
@@ -1624,21 +1638,29 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerBody.setModule(module);
         }
         getTag() {
-            // let bodyTag = this.dappContainerBody.getTag();
-            return Object.assign({}, this.tag);
+            return this.tag;
+        }
+        updateTag(type, value) {
+            var _a;
+            this.tag[type] = (_a = this.tag[type]) !== null && _a !== void 0 ? _a : {};
+            for (let prop in value) {
+                if (value.hasOwnProperty(prop))
+                    this.tag[type][prop] = value[prop];
+            }
         }
         setTag(value) {
             const newValue = value || {};
-            for (let prop in newValue) {
-                if (newValue.hasOwnProperty(prop))
-                    this.tag[prop] = newValue[prop];
-            }
-            // if (this.dappContainerBody)
-            //   this.dappContainerBody.setTag(this.tag);
+            if (newValue.light)
+                this.updateTag('light', newValue.light);
+            if (newValue.dark)
+                this.updateTag('dark', newValue.dark);
+            this.updateTheme();
+        }
+        initTag(value) {
+            this.setTag(value);
             const parent = this.closest('ide-toolbar');
             if (parent === null || parent === void 0 ? void 0 : parent.setTag)
                 parent.setTag(this.tag);
-            this.updateTheme();
         }
         updateStyle(name, value) {
             value ?
@@ -1647,13 +1669,13 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         updateTheme() {
             var _a, _b, _c, _d, _e, _f, _g;
-            this.updateStyle('--text-primary', (_a = this.tag) === null || _a === void 0 ? void 0 : _a.fontColor);
-            this.updateStyle('--background-main', (_b = this.tag) === null || _b === void 0 ? void 0 : _b.backgroundColor);
-            this.updateStyle('--input-font_color', (_c = this.tag) === null || _c === void 0 ? void 0 : _c.inputFontColor);
-            this.updateStyle('--input-background', (_d = this.tag) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor);
-            this.updateStyle('--colors-primary-main', (_e = this.tag) === null || _e === void 0 ? void 0 : _e.buttonBackgroundColor);
-            this.updateStyle('--background-modal', (_f = this.tag) === null || _f === void 0 ? void 0 : _f.modalColor);
-            this.updateStyle('--colors-secondary-main', (_g = this.tag) === null || _g === void 0 ? void 0 : _g.secondaryColor);
+            this.updateStyle('--text-primary', (_a = this.tag[this.theme]) === null || _a === void 0 ? void 0 : _a.fontColor);
+            this.updateStyle('--background-main', (_b = this.tag[this.theme]) === null || _b === void 0 ? void 0 : _b.backgroundColor);
+            this.updateStyle('--input-font_color', (_c = this.tag[this.theme]) === null || _c === void 0 ? void 0 : _c.inputFontColor);
+            this.updateStyle('--input-background', (_d = this.tag[this.theme]) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor);
+            this.updateStyle('--colors-primary-main', (_e = this.tag[this.theme]) === null || _e === void 0 ? void 0 : _e.buttonBackgroundColor);
+            this.updateStyle('--background-modal', (_f = this.tag[this.theme]) === null || _f === void 0 ? void 0 : _f.modalColor);
+            this.updateStyle('--colors-secondary-main', (_g = this.tag[this.theme]) === null || _g === void 0 ? void 0 : _g.secondaryColor);
         }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },
