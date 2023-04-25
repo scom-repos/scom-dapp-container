@@ -801,7 +801,7 @@ define("@scom/scom-dapp-container/header.css.ts", ["require", "exports", "@ijste
         }
     });
 });
-define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-network-list"], function (require, exports, components_5, eth_wallet_2, scom_network_list_1) {
+define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-network-list", "@scom/scom-multicall"], function (require, exports, components_5, eth_wallet_2, scom_network_list_1, scom_multicall_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkInfo = exports.updateStore = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.getSupportedWalletProviders = exports.getSupportedWallets = exports.truncateAddress = exports.hasMetaMask = exports.hasWallet = exports.logoutWallet = exports.switchNetwork = exports.connectWallet = exports.initWalletPlugins = exports.isWalletConnected = exports.WalletPlugin = void 0;
@@ -1006,6 +1006,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
                 defaultChainId: state.defaultChainId,
                 networks: Object.values(state.networkMap),
                 infuraId: state.infuraId,
+                multicalls: scom_multicall_1.getMulticallInfoList()
             };
             eth_wallet_2.Wallet.getClientInstance().initClientWallet(clientWalletConfig);
         }
