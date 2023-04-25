@@ -219,7 +219,7 @@ export default class ScomDappContainer extends Module {
 
   initTag(value: any) {
     this.setTag(value);
-    const parent = this.closest('ide-toolbar') as any;
+    const parent = this.parentElement as any;
     if (parent?.setTag) parent.setTag(this.tag);
   }
 
