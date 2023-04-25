@@ -125,7 +125,7 @@ export class DappContainerHeader extends Module {
     super.init();
     this.isInited = true;
     this.classList.add(styleClass);
-    this.onThemeChanged();
+    this.initTheme();
     await this.reloadWalletsAndNetworks();
     await this.initData();
   }
@@ -363,10 +363,16 @@ export class DappContainerHeader extends Module {
   }
 
   private onThemeChanged() {
-    const themeVars: any = this.switchTheme.checked ? lightTheme : darkTheme
     const parent = this.closest('i-scom-dapp-container') as any;
     if (parent) {
-      parent.setTag({
+      parent.theme = this.switchTheme.checked ? 'light' : 'dark';
+    }
+  }
+
+  private initTheme() {
+    const getThemeVars = (theme: 'light' | 'dark') => {
+      const themeVars: any = theme === 'light' ? lightTheme : darkTheme;
+      return {
         fontColor: themeVars?.text?.primary,
         backgroundColor: themeVars?.background?.main,
         inputFontColor: themeVars?.input?.fontColor,
@@ -374,6 +380,14 @@ export class DappContainerHeader extends Module {
         buttonBackgroundColor: themeVars?.colors?.primary?.main,
         modalColor: themeVars?.background?.modal,
         secondaryColor: themeVars?.colors?.secondary?.main
+      }
+    }
+    const parent = this.closest('i-scom-dapp-container') as any;
+    if (parent) {
+      parent.theme = this.switchTheme.checked ? 'light' : 'dark';
+      parent.initTag({
+        light: getThemeVars('light'),
+        dark: getThemeVars('dark') 
       })
     }
   }
