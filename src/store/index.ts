@@ -15,6 +15,7 @@ import {
 } from '@ijstech/eth-wallet';
 import { IDappContainerData, IExtendedNetwork, INetworkConfig, IWalletPlugin } from '../interface';
 import getNetworkList from '@scom/scom-network-list';
+import {getMulticallInfoList} from '@scom/scom-multicall';
 
 export enum WalletPlugin {
   MetaMask = 'metamask',
@@ -230,6 +231,7 @@ export const updateStore = (data: IDappContainerData) => {
       defaultChainId: state.defaultChainId,
       networks: Object.values(state.networkMap),
       infuraId: state.infuraId,
+      multicalls: getMulticallInfoList()
     }
     Wallet.getClientInstance().initClientWallet(clientWalletConfig);
   }
