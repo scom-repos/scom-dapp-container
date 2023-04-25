@@ -13,7 +13,7 @@ import {
   Web3ModalProvider,
   IClientWalletConfig
 } from '@ijstech/eth-wallet';
-import { IDappContainerData, IExtendedNetwork, IWalletPlugin } from '../interface';
+import { IDappContainerData, IExtendedNetwork, INetworkConfig, IWalletPlugin } from '../interface';
 import getNetworkList from '@scom/scom-network-list';
 
 export enum WalletPlugin {
@@ -168,7 +168,8 @@ export const getSupportedWallets = () => {
 
 export const getSupportedWalletProviders = (): IClientSideProvider[] => {
   const walletPluginMap = getWalletPluginMap();
-  return state.wallets.map(v => walletPluginMap[v.name].provider);
+  const providers = state.wallets.map(v => walletPluginMap[v.name].provider);
+  return providers.filter(provider => provider);
 }
 
 export interface ITokenObject {
@@ -236,7 +237,7 @@ export const updateStore = (data: IDappContainerData) => {
 const setWalletList = (wallets: IWalletPlugin[]) => {
   state.wallets = wallets;
 }
-const setNetworkList = (networkList: IExtendedNetwork[], infuraId?: string) => {
+const setNetworkList = (networkList: INetworkConfig[], infuraId?: string) => {
   const wallet = Wallet.getClientInstance();
   state.networkMap = {};
   const defaultNetworkList = getNetworkList();
@@ -247,9 +248,9 @@ const setNetworkList = (networkList: IExtendedNetwork[], infuraId?: string) => {
   for (let network of networkList) {
     const networkInfo = defaultNetworkMap[network.chainId];
     if (!networkInfo) continue;
-    if (infuraId && network.rpcUrls && network.rpcUrls.length > 0) {
-      for (let i = 0; i < network.rpcUrls.length; i++) {
-        network.rpcUrls[i] = network.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+    if (infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+      for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+        networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
       }
     }
     state.networkMap[network.chainId] = {

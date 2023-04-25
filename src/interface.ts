@@ -14,7 +14,7 @@ interface IDappContainerContent {
 
 interface IDappContainerData {
   defaultChainId?: number;
-  networks: IExtendedNetwork[];
+  networks: INetworkConfig[];
   wallets: IWalletPlugin[];
   showHeader?: boolean;
   content?: IDappContainerContent;
@@ -54,6 +54,11 @@ interface IExtendedNetwork extends INetwork {
 	isDisabled?: boolean;
 };
 
+interface INetworkConfig {
+  chainName?: string;
+  chainId: number;
+}
+
 export {
   IWalletPlugin,
   IPageBlockData,
@@ -61,5 +66,6 @@ export {
   IDappContainerData,
   ICodeInfoFileContent,
   EVENT,
-  IExtendedNetwork
+  IExtendedNetwork,
+  INetworkConfig
 }

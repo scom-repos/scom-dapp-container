@@ -1,11 +1,10 @@
 import { customElements, ControlElement, customModule, GridLayout, Module, Panel, Styles, Container } from "@ijstech/components";
-import { IWalletPlugin, IDappContainerContent, IDappContainerData, IExtendedNetwork } from "./interface";
+import { IWalletPlugin, IDappContainerData, IExtendedNetwork } from "./interface";
 import {} from "@ijstech/eth-contract";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
 import { updateStore } from "./store/index";
-import { getEmbedElement } from "./utils/index";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
 export { DappContainerFooter } from './footer';
@@ -91,7 +90,7 @@ export default class ScomDappContainer extends Module {
   get networks() {
     return this._data?.networks ?? [];
   }
-  set networks(value: IExtendedNetwork[]) {
+  set networks(value: INetworkConfig[]) {
     this._data.networks = value;
     updateStore(this._data);
   }
@@ -214,6 +213,8 @@ export default class ScomDappContainer extends Module {
     }
     // if (this.dappContainerBody)
     //   this.dappContainerBody.setTag(this.tag);
+    const parent = this.closest('ide-toolbar') as any;
+    if (parent?.setTag) parent.setTag(this.tag);
     this.updateTheme();
   }
 
