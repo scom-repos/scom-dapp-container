@@ -6,19 +6,19 @@ interface IWalletPlugin {
   provider?: IClientSideProvider;
 }
 
-interface IDappContainerContent {
-  module: IPageBlockData;
-  properties: any;
-  tag?: any;
-}
+// interface IDappContainerContent {
+//   module: IPageBlockData;
+//   properties: any;
+//   tag?: any;
+// }
 
 interface IDappContainerData {
   defaultChainId?: number;
   networks: INetworkConfig[];
   wallets: IWalletPlugin[];
   showHeader?: boolean;
-  content?: IDappContainerContent;
-  tag?: any;
+  showFooter?: boolean;
+  showWalletNetwork?: boolean;
 }
 
 interface IPageBlockData {
@@ -62,7 +62,6 @@ interface INetworkConfig {
 export {
   IWalletPlugin,
   IPageBlockData,
-  IDappContainerContent,
   IDappContainerData,
   ICodeInfoFileContent,
   EVENT,

@@ -5,6 +5,7 @@ import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
 import { updateStore } from "./store/index";
+import { DappContainerFooter } from "./footer";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
 export { DappContainerFooter } from './footer';
@@ -19,7 +20,8 @@ interface ScomDappElement extends ControlElement {
   networks?: INetworkConfig[];
   wallets?: IWalletPlugin[];
   showHeader?: boolean;
-  // content?: IDappContainerContent;
+  showFooter?: boolean;
+  showWalletNetwork?: boolean;
 }
 
 declare global {
@@ -37,6 +39,7 @@ export default class ScomDappContainer extends Module {
   private gridMain: GridLayout;
   private dappContainerHeader: DappContainerHeader;
   private dappContainerBody: DappContainerBody;
+  private dappContainerFooter: DappContainerFooter;
   private _data: IDappContainerData | undefined;
   private _rootDir: string;
   private isInited: boolean = false;
@@ -57,10 +60,12 @@ export default class ScomDappContainer extends Module {
     if (!this.dappContainerHeader.isConnected) await this.dappContainerHeader.ready();
     if (!this.isInited) {
       this.isInited = true;
-      const networks = this.getAttribute('networks', true) || this.networks;
-      const wallets = this.getAttribute('wallets', true) || this.wallets;
-      const showHeader = this.getAttribute('showHeader', true) || this.showHeader;
-      await this.setData({networks, wallets, showHeader})
+      const networks = this.getAttribute('networks', true) ?? this.networks;
+      const wallets = this.getAttribute('wallets', true) ?? this.wallets;
+      const showHeader = this.getAttribute('showHeader', true) ?? this.showHeader;
+      const showFooter = this.getAttribute('showFooter', true) ?? this.showFooter;
+      const showWalletNetwork = this.getAttribute('showWalletNetwork', true) ?? this.showWalletNetwork;
+      await this.setData({networks, wallets, showHeader, showFooter, showWalletNetwork})
     }
   }
 
@@ -111,6 +116,20 @@ export default class ScomDappContainer extends Module {
     this._data.showHeader = value;
   }
 
+  get showFooter() {
+    return this._data?.showFooter ?? true;
+  }
+  set showFooter(value: boolean) {
+    this._data.showFooter = value;
+  }
+
+  get showWalletNetwork() {
+    return this._data?.showWalletNetwork ?? true;
+  }
+  set showWalletNetwork(value: boolean) {
+    this._data.showWalletNetwork = value;
+  }
+
   // get content() {
   //   return this._data?.content;
   // }
@@ -136,7 +155,9 @@ export default class ScomDappContainer extends Module {
     if (!this.isInited) return;
     this.pnlLoading.visible = true;
     this.gridMain.visible = false;
-    this.dappContainerHeader.visible = this._data.showHeader;
+    this.dappContainerHeader.visible = this.showHeader;
+    this.dappContainerHeader.showWalletNetwork = this.showWalletNetwork;
+    this.dappContainerFooter.visible = this.showFooter;
     updateStore(this._data);
     this.dappContainerHeader.reloadWalletsAndNetworks();
     if (!this._data) {
@@ -258,7 +279,7 @@ export default class ScomDappContainer extends Module {
             <dapp-container-body id="dappContainerBody" overflow="auto"></dapp-container-body>
           </i-grid-layout>
         </i-panel>
-        <dapp-container-footer></dapp-container-footer>
+        <dapp-container-footer visible={false} id="dappContainerFooter"></dapp-container-footer>
       </i-vstack>
     )
   }

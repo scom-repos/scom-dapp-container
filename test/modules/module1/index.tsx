@@ -104,7 +104,7 @@ export default class Module1 extends Module {
         //     }
         // }
         this.dapp = await ScomDappContainer.create({
-            showHeader: false,
+            showWalletNetwork: false,
             // height: 391,
             // width: 1180,
             "networks": [
@@ -114,11 +114,9 @@ export default class Module1 extends Module {
             ],
             "wallets": [
                 {
-                    name: 'metamask',
-                    provider: new MetaMaskProvider(Wallet.getClientInstance() as any)
+                    name: 'metamask'
                 }
-            ],
-            "content": this._content
+            ]
         });
         this.mainStack.appendChild(this.dapp);
     }
@@ -134,11 +132,9 @@ export default class Module1 extends Module {
                     ]}
                     wallets={[
                         {
-                            name: 'metamask',
-                            provider: new MetaMaskProvider(Wallet.getClientInstance() as any)
+                            name: 'metamask'
                         }
                     ]}
-                    content={this._content}
                     width={1176}
                 ></i-scom-dapp-container>
             </i-hstack>

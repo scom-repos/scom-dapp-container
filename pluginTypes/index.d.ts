@@ -6,18 +6,13 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         packageName?: string;
         provider?: IClientSideProvider;
     }
-    interface IDappContainerContent {
-        module: IPageBlockData;
-        properties: any;
-        tag?: any;
-    }
     interface IDappContainerData {
         defaultChainId?: number;
         networks: INetworkConfig[];
         wallets: IWalletPlugin[];
         showHeader?: boolean;
-        content?: IDappContainerContent;
-        tag?: any;
+        showFooter?: boolean;
+        showWalletNetwork?: boolean;
     }
     interface IPageBlockData {
         name: string;
@@ -51,7 +46,7 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         chainName?: string;
         chainId: number;
     }
-    export { IWalletPlugin, IPageBlockData, IDappContainerContent, IDappContainerData, ICodeInfoFileContent, EVENT, IExtendedNetwork, INetworkConfig };
+    export { IWalletPlugin, IPageBlockData, IDappContainerData, ICodeInfoFileContent, EVENT, IExtendedNetwork, INetworkConfig };
 }
 /// <amd-module name="@scom/scom-dapp-container/index.css.ts" />
 declare module "@scom/scom-dapp-container/index.css.ts" {
@@ -347,6 +342,7 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         private gridWalletList;
         private gridNetworkGroup;
         private switchTheme;
+        private pnlWallet;
         private $eventBus;
         private selectedNetwork;
         private networkMapper;
@@ -356,14 +352,17 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         private supportedNetworks;
         isInited: boolean;
         private walletInfo;
+        private _showWalletNetwork;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
         get shortlyAddress(): string;
+        get showWalletNetwork(): boolean;
+        set showWalletNetwork(value: boolean);
         registerEvent(): void;
         init(): Promise<void>;
         reloadWalletsAndNetworks(): Promise<void>;
         onChainChanged: (chainId: number) => Promise<void>;
-        updateConnectedStatus: (isConnected: boolean) => void;
+        updateConnectedStatus: (isConnected: boolean) => Promise<void>;
         updateDot(connected: boolean, type: 'network' | 'wallet'): void;
         updateList(isConnected: boolean): void;
         openConnectModal: () => void;
@@ -429,6 +428,8 @@ declare module "@scom/scom-dapp-container" {
         networks?: INetworkConfig[];
         wallets?: IWalletPlugin[];
         showHeader?: boolean;
+        showFooter?: boolean;
+        showWalletNetwork?: boolean;
     }
     global {
         namespace JSX {
@@ -442,6 +443,7 @@ declare module "@scom/scom-dapp-container" {
         private gridMain;
         private dappContainerHeader;
         private dappContainerBody;
+        private dappContainerFooter;
         private _data;
         private _rootDir;
         private isInited;
@@ -458,6 +460,10 @@ declare module "@scom/scom-dapp-container" {
         set wallets(value: IWalletPlugin[]);
         get showHeader(): boolean;
         set showHeader(value: boolean);
+        get showFooter(): boolean;
+        set showFooter(value: boolean);
+        get showWalletNetwork(): boolean;
+        set showWalletNetwork(value: boolean);
         setRootDir(value: string): void;
         getRootDir(): string;
         getData(): Promise<IDappContainerData>;
