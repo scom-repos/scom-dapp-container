@@ -1658,7 +1658,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         initTag(value) {
             this.setTag(value);
-            const parent = this.closest('ide-toolbar');
+            const parent = this.parentElement;
             if (parent === null || parent === void 0 ? void 0 : parent.setTag)
                 parent.setTag(this.tag);
         }
