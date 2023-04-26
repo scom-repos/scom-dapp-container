@@ -1619,8 +1619,10 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerHeader.visible = this.showHeader;
             this.dappContainerHeader.showWalletNetwork = this.showWalletNetwork;
             this.dappContainerFooter.visible = this.showFooter;
-            index_3.updateStore(this._data);
-            this.dappContainerHeader.reloadWalletsAndNetworks();
+            if (this.showWalletNetwork) {
+                index_3.updateStore(this._data);
+                this.dappContainerHeader.reloadWalletsAndNetworks();
+            }
             if (!this._data) {
                 this.dappContainerBody.clear();
                 return;

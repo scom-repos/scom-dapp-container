@@ -158,8 +158,10 @@ export default class ScomDappContainer extends Module {
     this.dappContainerHeader.visible = this.showHeader;
     this.dappContainerHeader.showWalletNetwork = this.showWalletNetwork;
     this.dappContainerFooter.visible = this.showFooter;
-    updateStore(this._data);
-    this.dappContainerHeader.reloadWalletsAndNetworks();
+    if (this.showWalletNetwork) {
+      updateStore(this._data);
+      this.dappContainerHeader.reloadWalletsAndNetworks();
+    }
     if (!this._data) {
       this.dappContainerBody.clear();
       return;
