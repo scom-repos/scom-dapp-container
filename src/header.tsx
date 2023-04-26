@@ -61,6 +61,7 @@ export class DappContainerHeader extends Module {
   private gridWalletList: GridLayout;
   private gridNetworkGroup: GridLayout;
   private switchTheme: Switch;
+  private pnlWallet: HStack;
 
   private $eventBus: IEventBus;
   private selectedNetwork: IExtendedNetwork | undefined;
@@ -76,6 +77,7 @@ export class DappContainerHeader extends Module {
     balance: '',
     networkId: 0
   }
+  private _showWalletNetwork: boolean = true;
 
   constructor(parent?: Container, options?: any) {
     super(parent, options);
@@ -95,6 +97,14 @@ export class DappContainerHeader extends Module {
     const address = this.walletInfo.address;
     if (!address) return 'No address selected';
     return truncateAddress(address);
+  }
+
+  get showWalletNetwork() {
+    return this._showWalletNetwork ?? true;
+  }
+  set showWalletNetwork(value: boolean) {
+    this._showWalletNetwork = value;
+    this.pnlWallet.visible = this.showWalletNetwork;
   }
 
   registerEvent() {
@@ -154,16 +164,20 @@ export class DappContainerHeader extends Module {
     this.updateList(isConnected);
   };
 
-  updateConnectedStatus = (isConnected: boolean) => {
+  updateConnectedStatus = async (isConnected: boolean) => {
     if (isConnected) {
+      if (!this.lblBalance.isConnected) await this.lblBalance.ready();
       this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
+      if (!this.btnWalletDetail.isConnected) await this.btnWalletDetail.ready();
       this.btnWalletDetail.caption = this.shortlyAddress;
+      if (!this.lblWalletAddress.isConnected) await this.lblWalletAddress.ready();
       this.lblWalletAddress.caption = this.shortlyAddress;
       const networkInfo = getNetworkInfo(Wallet.getInstance().chainId);
       this.hsViewAccount.visible = !!networkInfo?.explorerAddressUrl;
     } else {
       this.hsViewAccount.visible = false;
     }
+    if (!this.btnNetwork.isConnected) await this.btnNetwork.ready();
     const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network.chainId === this.selectedNetwork.chainId) !== -1;
     if (isSupportedNetwork) {
       const img = this.selectedNetwork?.image ? this.selectedNetwork.image : '';
@@ -410,7 +424,7 @@ export class DappContainerHeader extends Module {
               onChanged={this.onThemeChanged.bind(this)}
             ></i-switch>
           </i-panel>
-          <i-hstack verticalAlignment='center' horizontalAlignment='end'>
+          <i-hstack id="pnlWallet" verticalAlignment='center' horizontalAlignment='end'>
             <i-button
               id="btnNetwork"
               margin={{ right: '0.5rem' }}

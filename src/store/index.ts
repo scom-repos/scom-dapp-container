@@ -144,7 +144,7 @@ export const hasWallet = function () {
   let hasWallet = false;
   const walletPluginMap = getWalletPluginMap();
   for (let pluginName in walletPluginMap) {
-    const provider = walletPluginMap[pluginName].provider;
+    const provider = walletPluginMap[pluginName]?.provider;
     if (provider.installed()) {
       hasWallet = true;
       break;
@@ -169,7 +169,7 @@ export const getSupportedWallets = () => {
 
 export const getSupportedWalletProviders = (): IClientSideProvider[] => {
   const walletPluginMap = getWalletPluginMap();
-  const providers = state.wallets.map(v => walletPluginMap[v.name].provider);
+  const providers = state.wallets.map(v => walletPluginMap[v.name]?.provider);
   return providers.filter(provider => provider);
 }
 
