@@ -50,6 +50,8 @@ export default class ScomDappContainer extends Module {
   set theme(value: string) {
     this._theme = value;
     this.setTag(this.tag);
+    const parent = this.parentElement as any;
+    if (parent?.setTheme) parent.setTheme(this.theme);
   }
   get theme() {
     return this._theme ?? 'dark';
@@ -114,6 +116,7 @@ export default class ScomDappContainer extends Module {
   }
   set showHeader(value: boolean) {
     this._data.showHeader = value;
+    this.dappContainerHeader.visible = this.showHeader;
   }
 
   get showFooter() {
@@ -121,6 +124,7 @@ export default class ScomDappContainer extends Module {
   }
   set showFooter(value: boolean) {
     this._data.showFooter = value;
+    this.dappContainerFooter.visible = this.showFooter;
   }
 
   get showWalletNetwork() {
@@ -129,14 +133,6 @@ export default class ScomDappContainer extends Module {
   set showWalletNetwork(value: boolean) {
     this._data.showWalletNetwork = value;
   }
-
-  // get content() {
-  //   return this._data?.content;
-  // }
-  // set content(value: IDappContainerContent) {
-  //   this._data.content = value;
-  //   if (!this.isRendering) this.renderContent();
-  // }
 
   setRootDir(value: string) {
     this._rootDir = value || '';
@@ -158,8 +154,10 @@ export default class ScomDappContainer extends Module {
     this.dappContainerHeader.visible = this.showHeader;
     this.dappContainerHeader.showWalletNetwork = this.showWalletNetwork;
     this.dappContainerFooter.visible = this.showFooter;
-    updateStore(this._data);
-    this.dappContainerHeader.reloadWalletsAndNetworks();
+    if (this.showWalletNetwork) {
+      updateStore(this._data);
+      this.dappContainerHeader.reloadWalletsAndNetworks();
+    }
     if (!this._data) {
       this.dappContainerBody.clear();
       return;
