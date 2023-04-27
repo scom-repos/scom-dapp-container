@@ -50,6 +50,8 @@ export default class ScomDappContainer extends Module {
   set theme(value: string) {
     this._theme = value;
     this.setTag(this.tag);
+    const parent = this.parentElement as any;
+    if (parent?.setTheme) parent.setTheme(this.theme);
   }
   get theme() {
     return this._theme ?? 'dark';

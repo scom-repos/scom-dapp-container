@@ -1514,6 +1514,9 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         set theme(value) {
             this._theme = value;
             this.setTag(this.tag);
+            const parent = this.parentElement;
+            if (parent === null || parent === void 0 ? void 0 : parent.setTheme)
+                parent.setTheme(this.theme);
         }
         get theme() {
             var _a;
