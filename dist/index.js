@@ -1516,6 +1516,9 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         set theme(value) {
             this._theme = value;
             this.setTag(this.tag);
+            const parent = this.parentElement;
+            if (parent === null || parent === void 0 ? void 0 : parent.setTheme)
+                parent.setTheme(this.theme);
         }
         get theme() {
             var _a;
@@ -1621,8 +1624,10 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerHeader.visible = this.showHeader;
             this.dappContainerHeader.showWalletNetwork = this.showWalletNetwork;
             this.dappContainerFooter.visible = this.showFooter;
-            index_3.updateStore(this._data);
-            this.dappContainerHeader.reloadWalletsAndNetworks();
+            if (this.showWalletNetwork) {
+                index_3.updateStore(this._data);
+                this.dappContainerHeader.reloadWalletsAndNetworks();
+            }
             if (!this._data) {
                 this.dappContainerBody.clear();
                 return;
