@@ -1000,8 +1000,10 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     const updateStore = (data) => {
         if (data.defaultChainId)
             setDefaultChainId(data.defaultChainId);
-        setNetworkList(data.networks);
-        setWalletList(data.wallets);
+        if (data.networks)
+            setNetworkList(data.networks);
+        if (data.wallets)
+            setWalletList(data.wallets);
         if (!eth_wallet_2.Wallet.getClientInstance().chainId && data.defaultChainId) { //FIXME: make sure there's data
             const clientWalletConfig = {
                 defaultChainId: state.defaultChainId,

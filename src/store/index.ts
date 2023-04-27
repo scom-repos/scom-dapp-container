@@ -224,8 +224,8 @@ const state = {
 
 export const updateStore = (data: IDappContainerData) => {
   if (data.defaultChainId) setDefaultChainId(data.defaultChainId);
-  setNetworkList(data.networks);
-  setWalletList(data.wallets);
+  if (data.networks) setNetworkList(data.networks);
+  if (data.wallets) setWalletList(data.wallets);
   if (!Wallet.getClientInstance().chainId && data.defaultChainId) { //FIXME: make sure there's data
     const clientWalletConfig: IClientWalletConfig = {
       defaultChainId: state.defaultChainId,
