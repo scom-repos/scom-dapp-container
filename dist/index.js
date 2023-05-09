@@ -1584,6 +1584,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         set showHeader(value) {
             this._data.showHeader = value;
+            this.dappContainerHeader.visible = this.showHeader;
         }
         get showFooter() {
             var _a, _b;
@@ -1591,6 +1592,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         set showFooter(value) {
             this._data.showFooter = value;
+            this.dappContainerFooter.visible = this.showFooter;
         }
         get showWalletNetwork() {
             var _a, _b;
@@ -1599,13 +1601,6 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         set showWalletNetwork(value) {
             this._data.showWalletNetwork = value;
         }
-        // get content() {
-        //   return this._data?.content;
-        // }
-        // set content(value: IDappContainerContent) {
-        //   this._data.content = value;
-        //   if (!this.isRendering) this.renderContent();
-        // }
         setRootDir(value) {
             this._rootDir = value || '';
         }
@@ -1694,10 +1689,14 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
         setTag(value) {
             const newValue = value || {};
-            if (newValue.light)
-                this.updateTag('light', newValue.light);
-            if (newValue.dark)
-                this.updateTag('dark', newValue.dark);
+            for (let prop in newValue) {
+                if (newValue.hasOwnProperty(prop)) {
+                    if (prop === 'light' || prop === 'dark')
+                        this.updateTag(prop, newValue[prop]);
+                    else
+                        this.tag[prop] = newValue[prop];
+                }
+            }
             this.updateTheme();
         }
         initTag(value) {
