@@ -1383,9 +1383,9 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             if (!selectedProvider && index_2.hasMetaMask()) {
                 selectedProvider = index_2.WalletPlugin.MetaMask;
             }
-            if (index_2.hasWallet()) {
-                await index_2.connectWallet(selectedProvider);
-            }
+            // if (hasWallet()) {
+            //   await connectWallet(selectedProvider);
+            // }
         }
         onThemeChanged() {
             const parent = this.closest('i-scom-dapp-container');

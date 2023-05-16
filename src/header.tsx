@@ -371,9 +371,9 @@ export class DappContainerHeader extends Module {
     if (!selectedProvider && hasMetaMask()) {
       selectedProvider = WalletPlugin.MetaMask;
     }
-    if (hasWallet()) {
-      await connectWallet(selectedProvider);
-    }
+    // if (hasWallet()) {
+    //   await connectWallet(selectedProvider);
+    // }
   }
 
   private onThemeChanged() {
