@@ -67,7 +67,8 @@ export default class ScomDappContainer extends Module {
       const showHeader = this.getAttribute('showHeader', true) ?? this.showHeader;
       const showFooter = this.getAttribute('showFooter', true) ?? this.showFooter;
       const showWalletNetwork = this.getAttribute('showWalletNetwork', true) ?? this.showWalletNetwork;
-      await this.setData({networks, wallets, showHeader, showFooter, showWalletNetwork})
+      const defaultChainId = this.getAttribute('defaultChainId', true) ?? this._data?.defaultChainId;
+      await this.setData({defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork});
     }
   }
 
@@ -148,7 +149,7 @@ export default class ScomDappContainer extends Module {
 
   async setData(data: IDappContainerData) {
     this._data = data;
-    if (!this.isInited) return;
+    if (!this.isInited) await this.ready();
     this.pnlLoading.visible = true;
     this.gridMain.visible = false;
     this.dappContainerHeader.visible = this.showHeader;
