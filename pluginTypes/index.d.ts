@@ -8,8 +8,8 @@ declare module "@scom/scom-dapp-container/interface.ts" {
     }
     interface IDappContainerData {
         defaultChainId?: number;
-        networks: INetworkConfig[];
-        wallets: IWalletPlugin[];
+        networks?: INetworkConfig[];
+        wallets?: IWalletPlugin[];
         showHeader?: boolean;
         showFooter?: boolean;
         showWalletNetwork?: boolean;
@@ -425,6 +425,7 @@ declare module "@scom/scom-dapp-container" {
         chainId: number;
     }
     interface ScomDappElement extends ControlElement {
+        lazyLoad?: boolean;
         networks?: INetworkConfig[];
         wallets?: IWalletPlugin[];
         showHeader?: boolean;

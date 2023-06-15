@@ -1296,7 +1296,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             this.isInited = true;
             this.classList.add(header_css_1.default);
             this.initTheme();
-            await this.reloadWalletsAndNetworks();
+            // await this.reloadWalletsAndNetworks();
             await this.initData();
         }
         async reloadWalletsAndNetworks() {
@@ -1552,10 +1552,13 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             }
             this.isReadyCallbackQueued = true;
             super.init();
-            this.classList.add('main-dapp');
-            const tag = this.getAttribute('tag', true);
-            tag && this.setTag(tag);
-            await this.initData();
+            // this.classList.add('main-dapp');
+            const lazyLoad = this.getAttribute('lazyLoad', true, false);
+            if (!lazyLoad) {
+                const tag = this.getAttribute('tag', true);
+                tag && this.setTag(tag);
+                await this.initData();
+            }
             this.isReadyCallbackQueued = false;
             this.executeReadyCallback();
             for (let item of children) {

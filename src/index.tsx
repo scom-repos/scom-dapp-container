@@ -17,6 +17,7 @@ interface INetworkConfig {
 }
 
 interface ScomDappElement extends ControlElement {
+  lazyLoad?: boolean;
   networks?: INetworkConfig[];
   wallets?: IWalletPlugin[];
   showHeader?: boolean;
@@ -79,10 +80,13 @@ export default class ScomDappContainer extends Module {
     }
     this.isReadyCallbackQueued = true;
     super.init();
-    this.classList.add('main-dapp');
-    const tag = this.getAttribute('tag', true)
-    tag && this.setTag(tag)
-    await this.initData();
+    // this.classList.add('main-dapp');
+    const lazyLoad = this.getAttribute('lazyLoad', true, false);
+    if (!lazyLoad) {
+      const tag = this.getAttribute('tag', true)
+      tag && this.setTag(tag)
+      await this.initData();
+    }
     this.isReadyCallbackQueued = false;
     this.executeReadyCallback();
     for (let item of children) {

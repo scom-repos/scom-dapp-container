@@ -136,7 +136,7 @@ export class DappContainerHeader extends Module {
     this.isInited = true;
     this.classList.add(styleClass);
     this.initTheme();
-    await this.reloadWalletsAndNetworks();
+    // await this.reloadWalletsAndNetworks();
     await this.initData();
   }
 

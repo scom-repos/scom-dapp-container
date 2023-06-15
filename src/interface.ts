@@ -14,8 +14,8 @@ interface IWalletPlugin {
 
 interface IDappContainerData {
   defaultChainId?: number;
-  networks: INetworkConfig[];
-  wallets: IWalletPlugin[];
+  networks?: INetworkConfig[];
+  wallets?: IWalletPlugin[];
   showHeader?: boolean;
   showFooter?: boolean;
   showWalletNetwork?: boolean;
