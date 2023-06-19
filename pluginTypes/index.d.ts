@@ -219,10 +219,16 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
         };
         text: {
             primary: string;
+            secondary: string;
         };
         colors: {
+            primary: {
+                main: string;
+                contrastText: string;
+            };
             secondary: {
                 main: string;
+                contrastText: string;
             };
         };
     };
@@ -237,10 +243,16 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
         };
         text: {
             primary: string;
+            secondary: string;
         };
         colors: {
+            primary: {
+                main: string;
+                contrastText: string;
+            };
             secondary: {
                 main: string;
+                contrastText: string;
             };
         };
     };

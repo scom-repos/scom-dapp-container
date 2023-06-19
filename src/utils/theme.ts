@@ -9,11 +9,17 @@ export const darkTheme = {
     "fontColor": "rgba(255, 255, 255, 0.3)"
   },
   "text": {
-    "primary": "#fff"
+    "primary": "#fff",
+    "secondary": "#fff"
   },
   "colors": {
+    "primary": {
+      "main": "#ff9800",
+      "contrastText": "#fff"
+    },
     "secondary": {
-      "main": "#222237"
+      "main": "#222237",
+      "contrastText": "#fff"
     }
   }
 }
@@ -27,11 +33,17 @@ export const lightTheme = {
     "fontColor": "#323232"
   },
   "text": {
-    "primary": "#333333"
+    "primary": "#333333",
+    "secondary": "#33333"
   },
   "colors": {
+    "primary": {
+      "main": "#ff9800",
+      "contrastText": "#fff"
+    },
     "secondary": {
-      "main": "#222237"
+      "main": "#222237",
+      "contrastText": "#fff"
     }
   }
 }
