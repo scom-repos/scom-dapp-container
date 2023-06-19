@@ -392,8 +392,11 @@ export class DappContainerHeader extends Module {
         inputFontColor: themeVars?.input?.fontColor,
         inputBackgroundColor: themeVars?.input?.background,
         buttonBackgroundColor: themeVars?.colors?.primary?.main,
+        buttonFontColor: themeVars?.colors?.primary?.contrastText,
         modalColor: themeVars?.background?.modal,
-        secondaryColor: themeVars?.colors?.secondary?.main
+        secondaryColor: themeVars?.colors?.secondary?.main,
+        secondaryFontColor: themeVars?.colors?.secondary?.contrastText,
+        textSecondary: themeVars?.text?.secondary,
       }
     }
     const parent = this.closest('i-scom-dapp-container') as any;
