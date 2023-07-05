@@ -57,26 +57,6 @@ async function getWalletPluginConfigProvider(
 
 export async function initWalletPlugins(eventHandlers?: { [key: string]: Function }) {
   let wallet: any = Wallet.getClientInstance();
-  const events = {
-    onAccountChanged: (account: string) => {
-      if (eventHandlers && eventHandlers.accountsChanged) {
-        eventHandlers.accountsChanged(account);
-      }
-      const connected = !!account;
-      if (connected) {
-        localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
-      }
-      application.EventBus.dispatch(EventId.IsWalletConnected, connected);
-    },
-    onChainChanged: (chainIdHex: string) => {
-      const chainId = Number(chainIdHex);
-
-      if (eventHandlers && eventHandlers.chainChanged) {
-        eventHandlers.chainChanged(chainId);
-      }
-      application.EventBus.dispatch(EventId.chainChanged, chainId);
-    }
-  }
   let networkList = getSiteSupportedNetworks();
   const rpcs: { [chainId: number]: string } = {}
   for (const network of networkList) {
@@ -104,7 +84,7 @@ export async function initWalletPlugins(eventHandlers?: { [key: string]: Functio
         useDefaultProvider: true
       }
     }
-    let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, events, providerOptions);
+    let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
     setWalletPluginProvider(pluginName, {
       name: pluginName,
       packageName: walletPlugin.packageName,
@@ -126,11 +106,11 @@ export async function connectWallet(walletPlugin: string):Promise<IWallet> {
 }
 
 export async function switchNetwork(chainId: number) {
-  const wallet = Wallet.getClientInstance();
-  await wallet.switchNetwork(chainId);
-  if (!isWalletConnected()) {
-    application.EventBus.dispatch(EventId.chainChanged, chainId);
-  }
+  // const wallet = Wallet.getClientInstance();
+  // await wallet.switchNetwork(chainId);
+  const rpcWallet = getRpcWallet();
+  await rpcWallet.switchNetwork(chainId);
+  application.EventBus.dispatch(EventId.chainChanged, chainId);
 }
 
 export async function logoutWallet() {
@@ -201,7 +181,8 @@ export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) 
   })
 };
 export function getChainId() {
-  return Wallet.getInstance().chainId;
+  const rpcWallet = getRpcWallet();
+  return rpcWallet.chainId;
 };
 export function getWallet() {
   return Wallet.getInstance();
@@ -219,13 +200,17 @@ const state = {
   infuraId: "",
   env: "",
   wallets: [] as IWalletPlugin[],
-  walletPluginMap: {} as Record<string, IWalletPlugin>
+  walletPluginMap: {} as Record<string, IWalletPlugin>,
+  rpcWalletId: ""
 }
 
 export const updateStore = (data: IDappContainerData) => {
   if (data.defaultChainId) setDefaultChainId(data.defaultChainId);
   if (data.networks) setNetworkList(data.networks);
   if (data.wallets) setWalletList(data.wallets);
+  if (data.rpcWalletId) {
+    state.rpcWalletId = data.rpcWalletId;
+  }
   if (!Wallet.getClientInstance().chainId && data.defaultChainId) { //FIXME: make sure there's data
     const clientWalletConfig: IClientWalletConfig = {
       defaultChainId: state.defaultChainId,
@@ -336,4 +321,8 @@ export const getWalletPluginMap = () => {
 
 export const getWalletPluginProvider = (name: string) => {
   return state.walletPluginMap[name]?.provider;
+}
+
+export const getRpcWallet = () => {
+  return Wallet.getRpcWalletInstance(state.rpcWalletId);
 }

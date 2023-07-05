@@ -58,6 +58,10 @@ export default class ScomDappContainer extends Module {
     return this._theme ?? 'dark';
   }
 
+  isEmptyData(value: IDappContainerData) {
+    return !value || !value.networks || value.networks.length === 0;
+  }
+
   private async initData() {
     if (!this.dappContainerBody.isConnected) await this.dappContainerBody.ready();
     if (!this.dappContainerHeader.isConnected) await this.dappContainerHeader.ready();
@@ -69,7 +73,10 @@ export default class ScomDappContainer extends Module {
       const showFooter = this.getAttribute('showFooter', true) ?? this.showFooter;
       const showWalletNetwork = this.getAttribute('showWalletNetwork', true) ?? this.showWalletNetwork;
       const defaultChainId = this.getAttribute('defaultChainId', true) ?? this._data?.defaultChainId;
-      await this.setData({defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork});
+      let data = {defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork};
+      if (!this.isEmptyData(data)) {
+        await this.setData(data);
+      }
     }
   }
 

@@ -16,7 +16,7 @@ import {
   Container,
   Switch,
 } from '@ijstech/components';
-import { Wallet } from '@ijstech/eth-wallet';
+import { Constants, Wallet } from '@ijstech/eth-wallet';
 import { formatNumber, darkTheme, lightTheme } from './utils/index';
 import styleClass from './header.css';
 import {
@@ -37,7 +37,9 @@ import {
   WalletPlugin,
   getWalletPluginProvider,
   getSupportedWalletProviders,
-  initWalletPlugins
+  initWalletPlugins,
+  getChainId,
+  getRpcWallet
 } from './store/index';
 import { IExtendedNetwork } from './interface';
 
@@ -108,23 +110,36 @@ export class DappContainerHeader extends Module {
   }
 
   registerEvent() {
-    let wallet = Wallet.getInstance();
-    this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
-    this.$eventBus.register(this, EventId.IsWalletConnected, async (connected: boolean) => {
+    let clientWallet = Wallet.getClientInstance();
+    // this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
+    // this.$eventBus.register(this, EventId.IsWalletConnected, async (connected: boolean) => {
+    //   if (connected) {
+    //     this.walletInfo.address = wallet.address;
+    //     this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
+    //     this.walletInfo.networkId = wallet.chainId;
+    //   }
+    //   this.selectedNetwork = getNetworkInfo(wallet.chainId);
+    //   this.updateConnectedStatus(connected);
+    //   this.updateList(connected);
+    // })
+    // this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
+    //   this.selectedNetwork = getNetworkInfo(wallet.chainId);
+    //   this.updateConnectedStatus(connected);
+    //   this.updateList(connected);
+    // })
+    clientWallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (payload: Record<string, any>) => {
+      const { userTriggeredConnect, account } = payload;
+      let connected = !!account;
       if (connected) {
-        this.walletInfo.address = wallet.address;
-        this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
-        this.walletInfo.networkId = wallet.chainId;
-      }
-      this.selectedNetwork = getNetworkInfo(wallet.chainId);
-      this.updateConnectedStatus(connected);
-      this.updateList(connected);
-    })
-    this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
-      this.selectedNetwork = getNetworkInfo(wallet.chainId);
-      this.updateConnectedStatus(connected);
-      this.updateList(connected);
-    })
+          this.walletInfo.address = clientWallet.address;
+          // this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
+          const rpcWallet = getRpcWallet();
+          const balance = await rpcWallet.balanceOf(clientWallet.address);
+          this.walletInfo.balance = formatNumber(balance.toFixed(), 2);
+        }
+        this.updateConnectedStatus(connected);
+        this.updateList(connected);
+    });
     this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
       this.onChainChanged(chainId);
     })
@@ -142,12 +157,16 @@ export class DappContainerHeader extends Module {
 
   async reloadWalletsAndNetworks() {
     this.selectedNetwork = this.selectedNetwork || getNetworkInfo(getDefaultChainId());
-    let wallet = Wallet.getClientInstance();
-    const isConnected = wallet.isConnected;
+    let clientWallet = Wallet.getClientInstance();
+    const isConnected = clientWallet.isConnected;
     if (isConnected) {
-      this.walletInfo.address = wallet.address;
-      this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
-      this.walletInfo.networkId = wallet.chainId;
+      this.walletInfo.address = clientWallet.address;
+      // this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
+      const walletChainId = getChainId();
+      this.walletInfo.networkId = walletChainId;
+      const rpcWallet = getRpcWallet();
+      const balance = await rpcWallet.balanceOf(clientWallet.address);
+      this.walletInfo.balance = formatNumber(balance.toFixed(), 2);
     }
     await this.renderWalletList();
     this.renderNetworks();
@@ -157,9 +176,11 @@ export class DappContainerHeader extends Module {
   onChainChanged = async (chainId: number) => {
     this.walletInfo.networkId = chainId;
     this.selectedNetwork = getNetworkInfo(chainId);
-    let wallet = Wallet.getClientInstance();
-    const isConnected = wallet.isConnected;
-    this.walletInfo.balance = isConnected ? formatNumber((await wallet.balance).toFixed(), 2) : '0';
+    let clientWallet = Wallet.getClientInstance();
+    const isConnected = clientWallet.isConnected;
+    const rpcWallet = getRpcWallet();
+    const balance = await rpcWallet.balanceOf(clientWallet.address);
+    this.walletInfo.balance = formatNumber(balance.toFixed(), 2);
     this.updateConnectedStatus(isConnected);
     this.updateList(isConnected);
   };
@@ -172,7 +193,8 @@ export class DappContainerHeader extends Module {
       this.btnWalletDetail.caption = this.shortlyAddress;
       if (!this.lblWalletAddress.isConnected) await this.lblWalletAddress.ready();
       this.lblWalletAddress.caption = this.shortlyAddress;
-      const networkInfo = getNetworkInfo(Wallet.getInstance().chainId);
+      const walletChainId = getChainId();
+      const networkInfo = getNetworkInfo(walletChainId);
       this.hsViewAccount.visible = !!networkInfo?.explorerAddressUrl;
     } else {
       this.hsViewAccount.visible = false;
@@ -193,16 +215,17 @@ export class DappContainerHeader extends Module {
   }
 
   updateDot(connected: boolean, type: 'network' | 'wallet') {
-    const wallet = Wallet.getClientInstance();
     if (type === 'network') {
+      const walletChainId = getChainId();
       if (this.currActiveNetworkId !== undefined && this.currActiveNetworkId !== null && this.networkMapper.has(this.currActiveNetworkId)) {
         this.networkMapper.get(this.currActiveNetworkId).classList.remove('is-actived');
       }
-      if (connected && this.networkMapper.has(wallet.chainId)) {
-        this.networkMapper.get(wallet.chainId).classList.add('is-actived');
+      if (connected && this.networkMapper.has(walletChainId)) {
+        this.networkMapper.get(walletChainId).classList.add('is-actived');
       }
-      this.currActiveNetworkId = wallet.chainId;
+      this.currActiveNetworkId = walletChainId;
     } else {
+      const wallet = Wallet.getClientInstance();
       if (this.currActiveWallet && this.walletMapper.has(this.currActiveWallet)) {
         this.walletMapper.get(this.currActiveWallet).classList.remove('is-actived');
       }
@@ -259,7 +282,8 @@ export class DappContainerHeader extends Module {
   }
 
   viewOnExplorerByAddress() {
-    viewOnExplorerByAddress(Wallet.getInstance().chainId, this.walletInfo.address)
+    const walletChainId = getChainId();
+    viewOnExplorerByAddress(walletChainId, this.walletInfo.address)
   }
 
   async switchNetwork(chainId: number) {
@@ -294,7 +318,8 @@ export class DappContainerHeader extends Module {
   }
 
   isNetworkActive(chainId: number) {
-    return Wallet.getInstance().chainId === chainId;
+    const walletChainId = getChainId();
+    return walletChainId === chainId;
   }
 
   renderWalletList = async () => {

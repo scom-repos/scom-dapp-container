@@ -19,6 +19,7 @@ interface IDappContainerData {
   showHeader?: boolean;
   showFooter?: boolean;
   showWalletNetwork?: boolean;
+  rpcWalletId?: string;
 }
 
 interface IPageBlockData {

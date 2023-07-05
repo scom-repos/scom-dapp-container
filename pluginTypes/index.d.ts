@@ -1,3 +1,4 @@
+/// <reference path="@ijstech/eth-wallet/index.d.ts" />
 /// <amd-module name="@scom/scom-dapp-container/interface.ts" />
 declare module "@scom/scom-dapp-container/interface.ts" {
     import { IClientSideProvider, INetwork } from "@ijstech/eth-wallet";
@@ -13,6 +14,7 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         showHeader?: boolean;
         showFooter?: boolean;
         showWalletNetwork?: boolean;
+        rpcWalletId?: string;
     }
     interface IPageBlockData {
         name: string;
@@ -333,6 +335,7 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     export const setWalletPluginProvider: (name: string, wallet: IWalletPlugin) => void;
     export const getWalletPluginMap: () => Record<string, IWalletPlugin>;
     export const getWalletPluginProvider: (name: string) => IClientSideProvider;
+    export const getRpcWallet: () => import("wallet").IRpcWallet;
 }
 /// <amd-module name="@scom/scom-dapp-container/header.tsx" />
 declare module "@scom/scom-dapp-container/header.tsx" {
@@ -464,6 +467,7 @@ declare module "@scom/scom-dapp-container" {
         tag: any;
         set theme(value: string);
         get theme(): string;
+        isEmptyData(value: IDappContainerData): boolean;
         private initData;
         init(): Promise<void>;
         static create(options?: ScomDappElement, parent?: Container): Promise<ScomDappContainer>;
