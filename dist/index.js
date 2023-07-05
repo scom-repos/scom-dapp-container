@@ -1765,7 +1765,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.updateStyle('--text-secondary', (_k = this.tag[this.theme]) === null || _k === void 0 ? void 0 : _k.textSecondary);
         }
         render() {
-            return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main } },
+            return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main }, overflow: "hidden" },
                 this.$render("dapp-container-header", { visible: false, id: "dappContainerHeader" }),
                 this.$render("i-panel", { stack: { grow: "1" }, overflow: "hidden" },
                     this.$render("i-vstack", { id: "pnlLoading", height: "100%", horizontalAlignment: "center", verticalAlignment: "center", padding: { top: "1rem", bottom: "1rem", left: "1rem", right: "1rem" }, visible: false },
