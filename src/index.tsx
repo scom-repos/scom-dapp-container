@@ -281,7 +281,7 @@ export default class ScomDappContainer extends Module {
   
   render() {
     return (
-      <i-vstack class={styleClass} width="100%" height="100%" background={{ color: Theme.background.main }}>
+      <i-vstack class={styleClass} width="100%" height="100%" background={{ color: Theme.background.main }} overflow="hidden">
         <dapp-container-header visible={false} id="dappContainerHeader"></dapp-container-header>
         <i-panel stack={{ grow: "1" }} overflow="hidden">
           <i-vstack
