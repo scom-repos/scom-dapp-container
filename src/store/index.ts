@@ -182,7 +182,7 @@ export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) 
 };
 export function getChainId() {
   const rpcWallet = getRpcWallet();
-  return rpcWallet.chainId;
+  return rpcWallet?.chainId;
 };
 export function getWallet() {
   return Wallet.getInstance();

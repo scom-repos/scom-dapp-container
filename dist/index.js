@@ -966,7 +966,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     ;
     function getChainId() {
         const rpcWallet = (0, exports.getRpcWallet)();
-        return rpcWallet.chainId;
+        return rpcWallet === null || rpcWallet === void 0 ? void 0 : rpcWallet.chainId;
     }
     exports.getChainId = getChainId;
     ;
