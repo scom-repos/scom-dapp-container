@@ -29,7 +29,7 @@ export const enum EventId {
   IsWalletDisconnected = "IsWalletDisconnected"
 };
 
-export function isWalletConnected() {
+export function isClientWalletConnected() {
   const wallet = Wallet.getClientInstance();
   return wallet.isConnected;
 }
@@ -95,19 +95,16 @@ export async function initWalletPlugins(eventHandlers?: { [key: string]: Functio
 
 export async function connectWallet(walletPlugin: string):Promise<IWallet> {
   let wallet = Wallet.getClientInstance();
-  // if (!wallet.chainId) {
-  //   wallet.chainId = getDefaultChainId();
-  // }
-  let provider = getWalletPluginProvider(walletPlugin);
-  if (provider?.installed()) {
-    await wallet.connect(provider);
+  if (!wallet.isConnected) {
+    let provider = getWalletPluginProvider(walletPlugin);
+    if (provider?.installed()) {
+      await wallet.connect(provider);
+    }
   }
   return wallet;
 }
 
 export async function switchNetwork(chainId: number) {
-  // const wallet = Wallet.getClientInstance();
-  // await wallet.switchNetwork(chainId);
   const rpcWallet = getRpcWallet();
   await rpcWallet.switchNetwork(chainId);
   application.EventBus.dispatch(EventId.chainChanged, chainId);

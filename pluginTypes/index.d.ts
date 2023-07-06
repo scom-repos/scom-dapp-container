@@ -294,7 +294,7 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
         chainChanged = "chainChanged",
         IsWalletDisconnected = "IsWalletDisconnected"
     }
-    export function isWalletConnected(): boolean;
+    export function isClientWalletConnected(): boolean;
     export function initWalletPlugins(eventHandlers?: {
         [key: string]: Function;
     }): Promise<void>;
@@ -395,7 +395,6 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         isNetworkActive(chainId: number): boolean;
         renderWalletList: () => Promise<void>;
         renderNetworks(): void;
-        initData(): Promise<void>;
         private onThemeChanged;
         private initTheme;
         render(): any;

@@ -22,7 +22,7 @@ import styleClass from './header.css';
 import {
   EventId,
   truncateAddress,
-  isWalletConnected,
+  isClientWalletConnected,
   connectWallet,
   logoutWallet,
   switchNetwork,
@@ -151,26 +151,37 @@ export class DappContainerHeader extends Module {
     this.isInited = true;
     this.classList.add(styleClass);
     this.initTheme();
-    // await this.reloadWalletsAndNetworks();
-    await this.initData();
   }
 
   async reloadWalletsAndNetworks() {
-    this.selectedNetwork = this.selectedNetwork || getNetworkInfo(getDefaultChainId());
-    let clientWallet = Wallet.getClientInstance();
-    const isConnected = clientWallet.isConnected;
-    if (isConnected) {
-      this.walletInfo.address = clientWallet.address;
-      // this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
-      const walletChainId = getChainId();
-      this.walletInfo.networkId = walletChainId;
-      const rpcWallet = getRpcWallet();
-      const balance = await rpcWallet.balanceOf(clientWallet.address);
-      this.walletInfo.balance = formatNumber(balance.toFixed(), 2);
-    }
+    const chainId = getChainId();
+    this.selectedNetwork = this.selectedNetwork || getNetworkInfo(chainId);
     await this.renderWalletList();
     this.renderNetworks();
-    this.updateConnectedStatus(isWalletConnected());
+    const rpcWallet = getRpcWallet();
+    let clientWallet = Wallet.getClientInstance();
+    const isConnected = isClientWalletConnected();
+    if (!isConnected) {
+      let selectedProvider = localStorage.getItem('walletProvider');
+      if (!selectedProvider && hasMetaMask()) {
+        selectedProvider = WalletPlugin.MetaMask;
+      }
+      await connectWallet(selectedProvider);
+      if (rpcWallet) rpcWallet.address = clientWallet.address;
+    }
+    if (isConnected) {
+      this.walletInfo.address = clientWallet.address;
+      const walletChainId = chainId;
+      this.walletInfo.networkId = walletChainId;
+      if (rpcWallet) {
+        const balance = await rpcWallet.balanceOf(clientWallet.address);
+        this.walletInfo.balance = formatNumber(balance.toFixed(), 2);
+      }
+      else {
+        this.walletInfo.balance = formatNumber((await clientWallet.balance).toFixed(), 2); //To be removed
+      }
+    }
+    this.updateConnectedStatus(isConnected);
   }
 
   onChainChanged = async (chainId: number) => {
@@ -389,16 +400,6 @@ export class DappContainerHeader extends Module {
       this.networkMapper.set(network.chainId, hsNetwork);
       return hsNetwork;
     }));
-  }
-
-  async initData() {
-    let selectedProvider = localStorage.getItem('walletProvider');
-    if (!selectedProvider && hasMetaMask()) {
-      selectedProvider = WalletPlugin.MetaMask;
-    }
-    // if (hasWallet()) {
-    //   await connectWallet(selectedProvider);
-    // }
   }
 
   private onThemeChanged() {
