@@ -93,13 +93,14 @@ export async function initWalletPlugins(eventHandlers?: { [key: string]: Functio
   }
 }
 
-export async function connectWallet(walletPlugin: string):Promise<IWallet> {
+export async function connectWallet(walletPlugin: string, triggeredByUser: boolean = false):Promise<IWallet> {
   let wallet = Wallet.getClientInstance();
-  if (!wallet.isConnected) {
+  if (triggeredByUser || state.isFirstLoad) {
     let provider = getWalletPluginProvider(walletPlugin);
     if (provider?.installed()) {
       await wallet.connect(provider);
     }
+    state.isFirstLoad = false;
   }
   return wallet;
 }
@@ -198,7 +199,8 @@ const state = {
   env: "",
   wallets: [] as IWalletPlugin[],
   walletPluginMap: {} as Record<string, IWalletPlugin>,
-  rpcWalletId: ""
+  rpcWalletId: "",
+  isFirstLoad: true
 }
 
 export const updateStore = (data: IDappContainerData) => {

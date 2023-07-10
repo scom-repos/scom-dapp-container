@@ -298,7 +298,7 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     export function initWalletPlugins(eventHandlers?: {
         [key: string]: Function;
     }): Promise<void>;
-    export function connectWallet(walletPlugin: string): Promise<IWallet>;
+    export function connectWallet(walletPlugin: string, triggeredByUser?: boolean): Promise<IWallet>;
     export function switchNetwork(chainId: number): Promise<void>;
     export function logoutWallet(): Promise<void>;
     export const hasWallet: () => boolean;

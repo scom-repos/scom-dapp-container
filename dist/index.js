@@ -884,13 +884,14 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         }
     }
     exports.initWalletPlugins = initWalletPlugins;
-    async function connectWallet(walletPlugin) {
+    async function connectWallet(walletPlugin, triggeredByUser = false) {
         let wallet = eth_wallet_2.Wallet.getClientInstance();
-        if (!wallet.isConnected) {
+        if (triggeredByUser || state.isFirstLoad) {
             let provider = (0, exports.getWalletPluginProvider)(walletPlugin);
             if (provider === null || provider === void 0 ? void 0 : provider.installed()) {
                 await wallet.connect(provider);
             }
+            state.isFirstLoad = false;
         }
         return wallet;
     }
@@ -990,7 +991,8 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         env: "",
         wallets: [],
         walletPluginMap: {},
-        rpcWalletId: ""
+        rpcWalletId: "",
+        isFirstLoad: true
     };
     const updateStore = (data) => {
         if (data.defaultChainId)
@@ -1207,7 +1209,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             this.connectToProviderFunc = async (walletPlugin) => {
                 const provider = (0, index_2.getWalletPluginProvider)(walletPlugin);
                 if (provider === null || provider === void 0 ? void 0 : provider.installed()) {
-                    await (0, index_2.connectWallet)(walletPlugin);
+                    await (0, index_2.connectWallet)(walletPlugin, true);
                 }
                 else {
                     let homepage = provider.homepage;

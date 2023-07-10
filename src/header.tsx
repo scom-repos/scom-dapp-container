@@ -310,7 +310,7 @@ export class DappContainerHeader extends Module {
   connectToProviderFunc = async (walletPlugin: string) => {
     const provider = getWalletPluginProvider(walletPlugin);
     if (provider?.installed()) {
-      await connectWallet(walletPlugin);
+      await connectWallet(walletPlugin, true);
     }
     else {
       let homepage = provider.homepage;
