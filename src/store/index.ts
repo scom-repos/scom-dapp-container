@@ -34,7 +34,7 @@ export function isClientWalletConnected() {
   return wallet.isConnected;
 }
 
-async function getWalletPluginConfigProvider(
+async function createWalletPluginConfigProvider(
   wallet: Wallet, 
   pluginName: string, 
   packageName?: string,
@@ -84,12 +84,15 @@ export async function initWalletPlugins(eventHandlers?: { [key: string]: Functio
         useDefaultProvider: true
       }
     }
-    let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
-    setWalletPluginProvider(pluginName, {
-      name: pluginName,
-      packageName: walletPlugin.packageName,
-      provider
-    });
+    let clientSideProvider = getWalletPluginProvider(pluginName);
+    if (!clientSideProvider) {
+      let provider = await createWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
+      setWalletPluginProvider(pluginName, {
+        name: pluginName,
+        packageName: walletPlugin.packageName,
+        provider
+      });
+    }
   }
 }
 

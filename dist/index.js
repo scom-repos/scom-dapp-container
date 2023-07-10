@@ -832,7 +832,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         return wallet.isConnected;
     }
     exports.isClientWalletConnected = isClientWalletConnected;
-    async function getWalletPluginConfigProvider(wallet, pluginName, packageName, events, options) {
+    async function createWalletPluginConfigProvider(wallet, pluginName, packageName, events, options) {
         switch (pluginName) {
             case WalletPlugin.MetaMask:
                 return new eth_wallet_2.MetaMaskProvider(wallet, events, options);
@@ -875,12 +875,15 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
                     useDefaultProvider: true
                 };
             }
-            let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
-            (0, exports.setWalletPluginProvider)(pluginName, {
-                name: pluginName,
-                packageName: walletPlugin.packageName,
-                provider
-            });
+            let clientSideProvider = (0, exports.getWalletPluginProvider)(pluginName);
+            if (!clientSideProvider) {
+                let provider = await createWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
+                (0, exports.setWalletPluginProvider)(pluginName, {
+                    name: pluginName,
+                    packageName: walletPlugin.packageName,
+                    provider
+                });
+            }
         }
     }
     exports.initWalletPlugins = initWalletPlugins;
