@@ -4,7 +4,7 @@ import {} from "@ijstech/eth-contract";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
-import { updateStore } from "./store/index";
+import { getChainId, getRpcWallet, switchNetwork, updateStore } from "./store/index";
 import { DappContainerFooter } from "./footer";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
@@ -101,6 +101,12 @@ export default class ScomDappContainer extends Module {
     }
   }
 
+  onHide() {
+    this.dappContainerBody.onHide();
+    this.dappContainerHeader.onHide();
+    this.dappContainerFooter.onHide();
+  }
+
   static async create(options?: ScomDappElement, parent?: Container){
     let self = new this(parent, options);
     await self.ready();
@@ -168,6 +174,12 @@ export default class ScomDappContainer extends Module {
     this.dappContainerFooter.visible = this.showFooter;
     if (this.showWalletNetwork) {
       updateStore(this._data);
+      if (this._data.defaultChainId) {
+        const chainId = getChainId();
+        if (chainId !== this._data.defaultChainId) {
+          await switchNetwork(this._data.defaultChainId);
+        }
+      }
       this.dappContainerHeader.reloadWalletsAndNetworks();
     }
     if (!this._data) {

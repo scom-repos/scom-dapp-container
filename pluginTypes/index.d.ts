@@ -367,11 +367,14 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         isInited: boolean;
         private walletInfo;
         private _showWalletNetwork;
+        private walletEvents;
+        private clientEvents;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
         get shortlyAddress(): string;
         get showWalletNetwork(): boolean;
         set showWalletNetwork(value: boolean);
+        onHide(): void;
         registerEvent(): void;
         init(): Promise<void>;
         reloadWalletsAndNetworks(): Promise<void>;
@@ -468,6 +471,7 @@ declare module "@scom/scom-dapp-container" {
         isEmptyData(value: IDappContainerData): boolean;
         private initData;
         init(): Promise<void>;
+        onHide(): void;
         static create(options?: ScomDappElement, parent?: Container): Promise<ScomDappContainer>;
         get networks(): INetworkConfig[];
         set networks(value: INetworkConfig[]);

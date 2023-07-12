@@ -1134,6 +1134,8 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 networkId: 0
             };
             this._showWalletNetwork = true;
+            this.walletEvents = [];
+            this.clientEvents = [];
             this.onChainChanged = async (chainId) => {
                 this.walletInfo.networkId = chainId;
                 this.selectedNetwork = (0, index_2.getNetworkInfo)(chainId);
@@ -1273,6 +1275,17 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             this._showWalletNetwork = value;
             this.pnlWallet.visible = this.showWalletNetwork;
         }
+        onHide() {
+            let clientWallet = eth_wallet_3.Wallet.getClientInstance();
+            for (let event of this.walletEvents) {
+                clientWallet.unregisterWalletEvent(event);
+            }
+            this.walletEvents = [];
+            for (let event of this.clientEvents) {
+                event.unregister();
+            }
+            this.clientEvents = [];
+        }
         registerEvent() {
             let clientWallet = eth_wallet_3.Wallet.getClientInstance();
             // this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
@@ -1291,7 +1304,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             //   this.updateConnectedStatus(connected);
             //   this.updateList(connected);
             // })
-            clientWallet.registerWalletEvent(this, eth_wallet_3.Constants.ClientWalletEvent.AccountsChanged, async (payload) => {
+            this.walletEvents.push(clientWallet.registerWalletEvent(this, eth_wallet_3.Constants.ClientWalletEvent.AccountsChanged, async (payload) => {
                 const { userTriggeredConnect, account } = payload;
                 let connected = !!account;
                 if (connected) {
@@ -1303,10 +1316,10 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 }
                 this.updateConnectedStatus(connected);
                 this.updateList(connected);
-            });
-            this.$eventBus.register(this, "chainChanged" /* EventId.chainChanged */, async (chainId) => {
+            }));
+            this.clientEvents.push(this.$eventBus.register(this, "chainChanged" /* EventId.chainChanged */, async (chainId) => {
                 this.onChainChanged(chainId);
-            });
+            }));
         }
         async init() {
             if (this.isInited)
@@ -1603,6 +1616,11 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.dappContainerBody.setModule(item);
             }
         }
+        onHide() {
+            this.dappContainerBody.onHide();
+            this.dappContainerHeader.onHide();
+            this.dappContainerFooter.onHide();
+        }
         static async create(options, parent) {
             let self = new this(parent, options);
             await self.ready();
@@ -1667,6 +1685,12 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerFooter.visible = this.showFooter;
             if (this.showWalletNetwork) {
                 (0, index_3.updateStore)(this._data);
+                if (this._data.defaultChainId) {
+                    const chainId = (0, index_3.getChainId)();
+                    if (chainId !== this._data.defaultChainId) {
+                        await (0, index_3.switchNetwork)(this._data.defaultChainId);
+                    }
+                }
                 this.dappContainerHeader.reloadWalletsAndNetworks();
             }
             if (!this._data) {

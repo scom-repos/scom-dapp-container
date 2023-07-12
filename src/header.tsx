@@ -16,7 +16,7 @@ import {
   Container,
   Switch,
 } from '@ijstech/components';
-import { Constants, Wallet } from '@ijstech/eth-wallet';
+import { Constants, IEventBusRegistry, Wallet } from '@ijstech/eth-wallet';
 import { formatNumber, darkTheme, lightTheme } from './utils/index';
 import styleClass from './header.css';
 import {
@@ -80,6 +80,8 @@ export class DappContainerHeader extends Module {
     networkId: 0
   }
   private _showWalletNetwork: boolean = true;
+  private walletEvents: IEventBusRegistry[] = [];
+  private clientEvents: any[] = [];
 
   constructor(parent?: Container, options?: any) {
     super(parent, options);
@@ -109,6 +111,18 @@ export class DappContainerHeader extends Module {
     this.pnlWallet.visible = this.showWalletNetwork;
   }
 
+  onHide() {
+    let clientWallet = Wallet.getClientInstance();
+    for (let event of this.walletEvents) {
+      clientWallet.unregisterWalletEvent(event);
+    }
+    this.walletEvents = [];
+    for (let event of this.clientEvents) {
+      event.unregister();
+    }
+    this.clientEvents = [];
+  }
+
   registerEvent() {
     let clientWallet = Wallet.getClientInstance();
     // this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
@@ -127,7 +141,7 @@ export class DappContainerHeader extends Module {
     //   this.updateConnectedStatus(connected);
     //   this.updateList(connected);
     // })
-    clientWallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (payload: Record<string, any>) => {
+    this.walletEvents.push(clientWallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (payload: Record<string, any>) => {
       const { userTriggeredConnect, account } = payload;
       let connected = !!account;
       if (connected) {
@@ -139,10 +153,10 @@ export class DappContainerHeader extends Module {
         }
         this.updateConnectedStatus(connected);
         this.updateList(connected);
-    });
-    this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
+    }));
+    this.clientEvents.push(this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
       this.onChainChanged(chainId);
-    })
+    }));
   }
 
   async init() {
