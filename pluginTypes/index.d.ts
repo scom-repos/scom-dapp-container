@@ -1,3 +1,4 @@
+/// <reference path="@ijstech/eth-wallet/index.d.ts" />
 /// <amd-module name="@scom/scom-dapp-container/interface.ts" />
 declare module "@scom/scom-dapp-container/interface.ts" {
     import { IClientSideProvider, INetwork } from "@ijstech/eth-wallet";
@@ -317,7 +318,7 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
         isNative?: boolean | null;
     }
     export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions): void;
-    export function getChainId(): any;
+    export function getChainId(): number;
     export function getWallet(): IWallet;
     export function getWalletProvider(): string;
     export function getErc20(address: string): Erc20;
@@ -334,7 +335,7 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     export const setWalletPluginProvider: (name: string, wallet: IWalletPlugin) => void;
     export const getWalletPluginMap: () => Record<string, IWalletPlugin>;
     export const getWalletPluginProvider: (name: string) => IClientSideProvider;
-    export const getRpcWallet: () => any;
+    export const getRpcWallet: () => import("@ijstech/eth-wallet").IRpcWallet;
 }
 /// <amd-module name="@scom/scom-dapp-container/header.tsx" />
 declare module "@scom/scom-dapp-container/header.tsx" {
