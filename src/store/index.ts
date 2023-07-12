@@ -325,6 +325,6 @@ export const getWalletPluginProvider = (name: string) => {
   return state.walletPluginMap[name]?.provider;
 }
 
-export const getRpcWallet = () => {
+export const getRpcWallet = (): any => { //FIXME: workaround for compile error
   return Wallet.getRpcWalletInstance(state.rpcWalletId);
 }
