@@ -1,6 +1,5 @@
 import { customElements, ControlElement, customModule, GridLayout, Module, Panel, Styles, Container } from "@ijstech/components";
 import { IWalletPlugin, IDappContainerData, IExtendedNetwork } from "./interface";
-import {} from "@ijstech/eth-contract";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
