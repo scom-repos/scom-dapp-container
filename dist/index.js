@@ -901,6 +901,8 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     exports.connectWallet = connectWallet;
     async function switchNetwork(chainId) {
         const rpcWallet = (0, exports.getRpcWallet)();
+        if (!rpcWallet)
+            return;
         await rpcWallet.switchNetwork(chainId);
         components_5.application.EventBus.dispatch("chainChanged" /* EventId.chainChanged */, chainId);
     }
@@ -1577,7 +1579,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             return !value || !value.networks || value.networks.length === 0;
         }
         async initData() {
-            var _a, _b, _c, _d, _e, _f, _g;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             if (!this.dappContainerBody.isConnected)
                 await this.dappContainerBody.ready();
             if (!this.dappContainerHeader.isConnected)
@@ -1590,7 +1592,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 const showFooter = (_d = this.getAttribute('showFooter', true)) !== null && _d !== void 0 ? _d : this.showFooter;
                 const showWalletNetwork = (_e = this.getAttribute('showWalletNetwork', true)) !== null && _e !== void 0 ? _e : this.showWalletNetwork;
                 const defaultChainId = (_f = this.getAttribute('defaultChainId', true)) !== null && _f !== void 0 ? _f : (_g = this._data) === null || _g === void 0 ? void 0 : _g.defaultChainId;
-                let data = { defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork };
+                const rpcWalletId = (_h = this.getAttribute('rpcWalletId', true)) !== null && _h !== void 0 ? _h : (_j = this._data) === null || _j === void 0 ? void 0 : _j.rpcWalletId;
+                let data = { defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork, rpcWalletId };
                 if (!this.isEmptyData(data)) {
                     await this.setData(data);
                 }
@@ -1675,7 +1678,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             return this._data;
         }
         async setData(data) {
-            this._data = data;
+            this._data = JSON.parse(JSON.stringify(data));
             if (!this.isInited)
                 await this.ready();
             this.pnlLoading.visible = true;

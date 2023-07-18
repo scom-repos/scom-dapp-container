@@ -110,6 +110,7 @@ export async function connectWallet(walletPlugin: string, triggeredByUser: boole
 
 export async function switchNetwork(chainId: number) {
   const rpcWallet = getRpcWallet();
+  if (!rpcWallet) return;
   await rpcWallet.switchNetwork(chainId);
   application.EventBus.dispatch(EventId.chainChanged, chainId);
 }

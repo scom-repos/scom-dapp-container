@@ -1,9 +1,9 @@
 import { customElements, ControlElement, customModule, GridLayout, Module, Panel, Styles, Container } from "@ijstech/components";
-import { IWalletPlugin, IDappContainerData, IExtendedNetwork } from "./interface";
+import { IWalletPlugin, IDappContainerData } from "./interface";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
-import { getChainId, getRpcWallet, switchNetwork, updateStore } from "./store/index";
+import { getChainId, switchNetwork, updateStore } from "./store/index";
 import { DappContainerFooter } from "./footer";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
@@ -22,6 +22,7 @@ interface ScomDappElement extends ControlElement {
   showHeader?: boolean;
   showFooter?: boolean;
   showWalletNetwork?: boolean;
+  rpcWalletId?: string;
 }
 
 declare global {
@@ -72,7 +73,8 @@ export default class ScomDappContainer extends Module {
       const showFooter = this.getAttribute('showFooter', true) ?? this.showFooter;
       const showWalletNetwork = this.getAttribute('showWalletNetwork', true) ?? this.showWalletNetwork;
       const defaultChainId = this.getAttribute('defaultChainId', true) ?? this._data?.defaultChainId;
-      let data = {defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork};
+      const rpcWalletId = this.getAttribute('rpcWalletId', true) ?? this._data?.rpcWalletId;
+      let data = {defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork, rpcWalletId};
       if (!this.isEmptyData(data)) {
         await this.setData(data);
       }
@@ -164,7 +166,7 @@ export default class ScomDappContainer extends Module {
   }
 
   async setData(data: IDappContainerData) {
-    this._data = data;
+    this._data = JSON.parse(JSON.stringify(data));
     if (!this.isInited) await this.ready();
     this.pnlLoading.visible = true;
     this.gridMain.visible = false;
