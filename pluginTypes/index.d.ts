@@ -448,6 +448,7 @@ declare module "@scom/scom-dapp-container" {
         showHeader?: boolean;
         showFooter?: boolean;
         showWalletNetwork?: boolean;
+        rpcWalletId?: string;
     }
     global {
         namespace JSX {
