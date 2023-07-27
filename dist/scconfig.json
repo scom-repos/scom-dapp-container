@@ -1,0 +1,11 @@
+{
+    "name": "@scom/scom-dapp-container",
+    "type": "widget",
+    "version": "0.1.10",
+    "dependencies": [
+        "@ijstech/components",
+        "@ijstech/eth-wallet",
+        "@scom/scom-network-list",
+        "@scom/scom-multicall"
+    ]
+}

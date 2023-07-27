@@ -3,7 +3,7 @@ import { IWalletPlugin, IDappContainerData } from "./interface";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
-import { getChainId, switchNetwork, updateStore } from "./store/index";
+import { State, switchNetwork } from "./store/index";
 import { DappContainerFooter } from "./footer";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
@@ -36,6 +36,7 @@ declare global {
 @customModule
 @customElements('i-scom-dapp-container')
 export default class ScomDappContainer extends Module {
+  private state: State;
   private pnlLoading: Panel;
   private gridMain: GridLayout;
   private dappContainerHeader: DappContainerHeader;
@@ -47,6 +48,11 @@ export default class ScomDappContainer extends Module {
   private _theme: string;
 
   tag: any = {};
+
+  constructor(parent?: Container, options?: any) {
+    super(parent, options);
+    this.state = new State();
+  }
 
   set theme(value: string) {
     this._theme = value;
@@ -119,7 +125,7 @@ export default class ScomDappContainer extends Module {
   }
   set networks(value: INetworkConfig[]) {
     this._data.networks = value;
-    updateStore(this._data);
+    this.state.update(this._data);
   }
 
   get wallets() {
@@ -127,7 +133,7 @@ export default class ScomDappContainer extends Module {
   }
   set wallets(value: IWalletPlugin[]) {
     this._data.wallets = value;
-    updateStore(this._data);
+    this.state.update(this._data);
   }
 
   get showHeader() {
@@ -170,15 +176,16 @@ export default class ScomDappContainer extends Module {
     if (!this.isInited) await this.ready();
     this.pnlLoading.visible = true;
     this.gridMain.visible = false;
+    this.dappContainerHeader.setState(this.state);
     this.dappContainerHeader.visible = this.showHeader;
     this.dappContainerHeader.showWalletNetwork = this.showWalletNetwork;
     this.dappContainerFooter.visible = this.showFooter;
     if (this.showWalletNetwork) {
-      updateStore(this._data);
+      this.state.update(this._data);
       if (this._data.defaultChainId) {
-        const chainId = getChainId();
+        const chainId = this.state.getChainId();
         if (chainId !== this._data.defaultChainId) {
-          await switchNetwork(this._data.defaultChainId);
+          await switchNetwork(this.state, this._data.defaultChainId);
         }
       }
       this.dappContainerHeader.reloadWalletsAndNetworks();

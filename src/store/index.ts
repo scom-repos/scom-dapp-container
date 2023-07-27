@@ -55,51 +55,10 @@ async function createWalletPluginConfigProvider(
   }
 } 
 
-export async function initWalletPlugins(eventHandlers?: { [key: string]: Function }) {
-  let wallet: any = Wallet.getClientInstance();
-  let networkList = getSiteSupportedNetworks();
-  const rpcs: { [chainId: number]: string } = {}
-  for (const network of networkList) {
-    let rpc = network.rpcUrls[0];
-    if (rpc) rpcs[network.chainId] = rpc;
-  }
-
-  for (let walletPlugin of state.wallets) {
-    let pluginName = walletPlugin.name;
-    let providerOptions;
-    if (pluginName == WalletPlugin.WalletConnect) {
-      providerOptions = {
-        name: pluginName,
-        infuraId: getInfuraId(),
-        bridge: "https://bridge.walletconnect.org",
-        rpc: rpcs,
-        useDefaultProvider: true
-      }
-    }
-    else {
-      providerOptions = {
-        name: pluginName,
-        infuraId: getInfuraId(),
-        rpc: rpcs,
-        useDefaultProvider: true
-      }
-    }
-    let clientSideProvider = getWalletPluginProvider(pluginName);
-    if (!clientSideProvider) {
-      let provider = await createWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
-      setWalletPluginProvider(pluginName, {
-        name: pluginName,
-        packageName: walletPlugin.packageName,
-        provider
-      });
-    }
-  }
-}
-
-export async function connectWallet(walletPlugin: string, triggeredByUser: boolean = false):Promise<IWallet> {
+export async function connectWallet(state: State, walletPlugin: string, triggeredByUser: boolean = false):Promise<IWallet> {
   let wallet = Wallet.getClientInstance();
   if (triggeredByUser || state.isFirstLoad) {
-    let provider = getWalletPluginProvider(walletPlugin);
+    let provider = state.getWalletPluginProvider(walletPlugin);
     if (provider?.installed()) {
       await wallet.connect(provider);
     }
@@ -108,8 +67,8 @@ export async function connectWallet(walletPlugin: string, triggeredByUser: boole
   return wallet;
 }
 
-export async function switchNetwork(chainId: number) {
-  const rpcWallet = getRpcWallet();
+export async function switchNetwork(state: State, chainId: number) {
+  const rpcWallet = state.getRpcWallet();
   if (!rpcWallet) return;
   await rpcWallet.switchNetwork(chainId);
   application.EventBus.dispatch(EventId.chainChanged, chainId);
@@ -122,37 +81,9 @@ export async function logoutWallet() {
   application.EventBus.dispatch(EventId.IsWalletDisconnected, false);
 }
 
-export const hasWallet = function () {
-  let hasWallet = false;
-  const walletPluginMap = getWalletPluginMap();
-  for (let pluginName in walletPluginMap) {
-    const provider = walletPluginMap[pluginName]?.provider;
-    if (provider.installed()) {
-      hasWallet = true;
-      break;
-    } 
-  }
-  return hasWallet;
-}
-
-export const hasMetaMask = function () {
-  const provider = getWalletPluginProvider(WalletPlugin.MetaMask);
-  return provider?.installed() || false
-}
-
 export const truncateAddress = (address: string) => {
   if (address === undefined || address === null) return '';
   return address.substring(0, 6) + '...' + address.substring(address.length - 4);
-}
-
-export const getSupportedWallets = () => {
-  return state.wallets;
-}
-
-export const getSupportedWalletProviders = (): IClientSideProvider[] => {
-  const walletPluginMap = getWalletPluginMap();
-  const providers = state.wallets.map(v => walletPluginMap[v.name]?.provider);
-  return providers.filter(provider => provider);
 }
 
 export interface ITokenObject {
@@ -182,150 +113,156 @@ export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) 
     },
   })
 };
-export function getChainId() {
-  const rpcWallet = getRpcWallet();
-  return rpcWallet?.chainId;
-};
 export function getWallet() {
   return Wallet.getInstance();
 };
 export function getWalletProvider() {
   return localStorage.getItem('walletProvider') || '';
 };
-export function getErc20(address: string) {
-  const wallet = getWallet();
-  return new Erc20(wallet, address);
-};
-const state = {
-  networkMap: {} as { [key: number]: IExtendedNetwork },
-  defaultChainId: 0,
-  infuraId: "",
-  env: "",
-  wallets: [] as IWalletPlugin[],
-  walletPluginMap: {} as Record<string, IWalletPlugin>,
-  rpcWalletId: "",
-  isFirstLoad: true
-}
 
-export const updateStore = (data: IDappContainerData) => {
-  if (data.defaultChainId) setDefaultChainId(data.defaultChainId);
-  if (data.networks) setNetworkList(data.networks);
-  if (data.wallets) setWalletList(data.wallets);
-  if (data.rpcWalletId) {
-    state.rpcWalletId = data.rpcWalletId;
+export class State {
+  networkMap: { [key: number]: IExtendedNetwork } = {};
+  defaultChainId: number = 0;
+  infuraId: string = "";
+  wallets: IWalletPlugin[] = [];
+  walletPluginMap: Record<string, IWalletPlugin> = {};
+  rpcWalletId: string = "";
+  isFirstLoad: boolean = true;
+
+  constructor() {
   }
-  if (!Wallet.getClientInstance().chainId && data.defaultChainId) { //FIXME: make sure there's data
-    const clientWalletConfig: IClientWalletConfig = {
-      defaultChainId: state.defaultChainId,
-      networks: Object.values(state.networkMap),
-      infuraId: state.infuraId,
-      multicalls: getMulticallInfoList()
+
+  update(data: IDappContainerData) {
+    if (data.defaultChainId) this.defaultChainId = data.defaultChainId;
+    if (data.networks) this.setNetworkList(data.networks);
+    if (data.wallets) this.wallets = data.wallets;
+    if (data.rpcWalletId) {
+      this.rpcWalletId = data.rpcWalletId;
     }
-    Wallet.getClientInstance().initClientWallet(clientWalletConfig);
+    if (!Wallet.getClientInstance().chainId && data.defaultChainId) { //FIXME: make sure there's data
+      const clientWalletConfig: IClientWalletConfig = {
+        defaultChainId: this.defaultChainId,
+        networks: Object.values(this.networkMap),
+        infuraId: this.infuraId,
+        multicalls: getMulticallInfoList()
+      }
+      Wallet.getClientInstance().initClientWallet(clientWalletConfig);
+    }
   }
-}
-const setWalletList = (wallets: IWalletPlugin[]) => {
-  state.wallets = wallets;
-}
-const setNetworkList = (networkList: INetworkConfig[], infuraId?: string) => {
-  const wallet = Wallet.getClientInstance();
-  state.networkMap = {};
-  const defaultNetworkList = getNetworkList();
-  const defaultNetworkMap = defaultNetworkList.reduce((acc, cur) => {
-    acc[cur.chainId] = cur;
-    return acc;
-  }, {});
-  for (let network of networkList) {
-    const networkInfo = defaultNetworkMap[network.chainId];
-    if (!networkInfo) continue;
-    if (infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
-      for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
-        networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+
+  async initWalletPlugins() {
+    let wallet: any = Wallet.getClientInstance();
+    let networkList = this.getSiteSupportedNetworks();
+    const rpcs: { [chainId: number]: string } = {}
+    for (const network of networkList) {
+      let rpc = network.rpcUrls[0];
+      if (rpc) rpcs[network.chainId] = rpc;
+    }
+  
+    for (let walletPlugin of this.wallets) {
+      let pluginName = walletPlugin.name;
+      let providerOptions;
+      if (pluginName == WalletPlugin.WalletConnect) {
+        providerOptions = {
+          name: pluginName,
+          infuraId: this.infuraId,
+          bridge: "https://bridge.walletconnect.org",
+          rpc: rpcs,
+          useDefaultProvider: true
+        }
+      }
+      else {
+        providerOptions = {
+          name: pluginName,
+          infuraId: this.infuraId,
+          rpc: rpcs,
+          useDefaultProvider: true
+        }
+      }
+      let clientSideProvider = this.getWalletPluginProvider(pluginName);
+      if (!clientSideProvider) {
+        let provider = await createWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
+        this.walletPluginMap[pluginName] = {
+          name: pluginName,
+          packageName: walletPlugin.packageName,
+          provider
+        };
       }
     }
-    state.networkMap[network.chainId] = {
-      ...networkInfo,
-      ...network
-    };
-    wallet.setNetworkInfo(state.networkMap[network.chainId]);
   }
+
+  private setNetworkList(networkList: INetworkConfig[], infuraId?: string) {
+    const wallet = Wallet.getClientInstance();
+    this.networkMap = {};
+    const defaultNetworkList = getNetworkList();
+    const defaultNetworkMap = defaultNetworkList.reduce((acc, cur) => {
+      acc[cur.chainId] = cur;
+      return acc;
+    }, {});
+    for (let network of networkList) {
+      const networkInfo = defaultNetworkMap[network.chainId];
+      if (!networkInfo) continue;
+      if (infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+        for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+          networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+        }
+      }
+      this.networkMap[network.chainId] = {
+        ...networkInfo,
+        ...network
+      };
+      wallet.setNetworkInfo(this.networkMap[network.chainId]);
+    }
+  }
+
+  getSupportedWalletProviders(): IClientSideProvider[] {
+    const providers = this.wallets.map(v => this.walletPluginMap[v.name]?.provider);
+    return providers.filter(provider => provider);
+  }
+
+  getSiteSupportedNetworks() {
+    let networkFullList = Object.values(this.networkMap);
+    let list = networkFullList.filter(network =>
+      !network.isDisabled
+    );
+    return list
+  }
+
+  getNetworkInfo = (chainId: number): IExtendedNetwork | undefined => {
+    return this.networkMap[chainId];
+  }
+
+  getWalletPluginProvider(name: string) {
+    return this.walletPluginMap[name]?.provider;
+  }
+  
+  getRpcWallet() {
+    return Wallet.getRpcWalletInstance(this.rpcWalletId);
+  }
+
+  getChainId() {
+    const rpcWallet = this.getRpcWallet();
+    return rpcWallet?.chainId;
+  };
+
+  hasMetaMask() {
+    const provider = this.getWalletPluginProvider(WalletPlugin.MetaMask);
+    return provider?.installed() || false
+  }  
 }
 
-export const getNetworkInfo = (chainId: number): IExtendedNetwork | undefined => {
-  return state.networkMap[chainId];
-}
-
-
-export const viewOnExplorerByTxHash = (chainId: number, txHash: string) => {
-  let network = getNetworkInfo(chainId);
+export const viewOnExplorerByTxHash = (state: State, chainId: number, txHash: string) => {
+  let network = state.getNetworkInfo(chainId);
   if (network && network.explorerTxUrl) {
     let url = `${network.explorerTxUrl}${txHash}`;
     window.open(url);
   }
 }
 
-export const viewOnExplorerByAddress = (chainId: number, address: string) => {
-  let network = getNetworkInfo(chainId);
+export const viewOnExplorerByAddress = (state: State, chainId: number, address: string) => {
+  let network = state.getNetworkInfo(chainId);
   if (network && network.explorerAddressUrl) {
     let url = `${network.explorerAddressUrl}${address}`;
     window.open(url);
   }
-}
-
-export const getNetworkType = (chainId: number) => {
-  let network = getNetworkInfo(chainId);
-  return network?.explorerName ?? 'Unknown';
-}
-
-const setDefaultChainId = (chainId: number) => {
-  state.defaultChainId = chainId;
-}
-
-export const getDefaultChainId = () => {
-  return state.defaultChainId;
-}
-
-export const getSiteSupportedNetworks = () => {
-  let networkFullList = Object.values(state.networkMap);
-  let list = networkFullList.filter(network =>
-    !network.isDisabled && isValidEnv(network.env)
-  );
-  return list
-}
-
-export const isValidEnv = (env: string) => {
-  const _env = state.env === 'testnet' || state.env === 'mainnet' ? state.env : "";
-  return !_env || !env || env === _env;
-}
-
-const setInfuraId = (infuraId: string) => {
-  state.infuraId = infuraId;
-}
-
-export const getInfuraId = () => {
-  return state.infuraId;
-}
-
-const setEnv = (env: string) => {
-  state.env = env;
-}
-
-export const getEnv = () => {
-  return state.env;
-}
-
-export const setWalletPluginProvider = (name: string, wallet: IWalletPlugin) => {
-  state.walletPluginMap[name] = wallet;
-}
-
-export const getWalletPluginMap = () => {
-  return state.walletPluginMap;
-}
-
-export const getWalletPluginProvider = (name: string) => {
-  return state.walletPluginMap[name]?.provider;
-}
-
-export const getRpcWallet = () => {
-  return Wallet.getRpcWalletInstance(state.rpcWalletId);
 }
