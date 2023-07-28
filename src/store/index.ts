@@ -71,7 +71,6 @@ export async function switchNetwork(state: State, chainId: number) {
   const rpcWallet = state.getRpcWallet();
   if (!rpcWallet) return;
   await rpcWallet.switchNetwork(chainId);
-  application.EventBus.dispatch(EventId.chainChanged, chainId);
 }
 
 export async function logoutWallet() {

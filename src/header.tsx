@@ -72,7 +72,6 @@ export class DappContainerHeader extends Module {
   }
   private _showWalletNetwork: boolean = true;
   private walletEvents: IEventBusRegistry[] = [];
-  private clientEvents: any[] = [];
 
   constructor(parent?: Container, options?: any) {
     super(parent, options);
@@ -108,10 +107,6 @@ export class DappContainerHeader extends Module {
       clientWallet.unregisterWalletEvent(event);
     }
     this.walletEvents = [];
-    for (let event of this.clientEvents) {
-      event.unregister();
-    }
-    this.clientEvents = [];
   }
 
   registerEvent() {
@@ -128,9 +123,6 @@ export class DappContainerHeader extends Module {
         }
         this.updateConnectedStatus(connected);
         this.updateList(connected);
-    }));
-    this.clientEvents.push(this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
-      this.onChainChanged(chainId);
     }));
   }
 

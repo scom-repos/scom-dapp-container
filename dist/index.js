@@ -863,7 +863,6 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         if (!rpcWallet)
             return;
         await rpcWallet.switchNetwork(chainId);
-        components_5.application.EventBus.dispatch("chainChanged" /* EventId.chainChanged */, chainId);
     }
     exports.switchNetwork = switchNetwork;
     async function logoutWallet() {
@@ -1062,7 +1061,6 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             };
             this._showWalletNetwork = true;
             this.walletEvents = [];
-            this.clientEvents = [];
             this.onChainChanged = async (chainId) => {
                 this.walletInfo.networkId = chainId;
                 this.selectedNetwork = this.state.getNetworkInfo(chainId);
@@ -1200,10 +1198,6 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 clientWallet.unregisterWalletEvent(event);
             }
             this.walletEvents = [];
-            for (let event of this.clientEvents) {
-                event.unregister();
-            }
-            this.clientEvents = [];
         }
         registerEvent() {
             let clientWallet = eth_wallet_3.Wallet.getClientInstance();
@@ -1219,9 +1213,6 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 }
                 this.updateConnectedStatus(connected);
                 this.updateList(connected);
-            }));
-            this.clientEvents.push(this.$eventBus.register(this, "chainChanged" /* EventId.chainChanged */, async (chainId) => {
-                this.onChainChanged(chainId);
             }));
         }
         async init() {
@@ -1454,7 +1445,7 @@ define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/
     ], DappContainerFooter);
     exports.DappContainerFooter = DappContainerFooter;
 });
-define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_8, index_css_1, index_3, body_1, header_1, footer_1) {
+define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@ijstech/eth-wallet", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_8, index_css_1, index_3, eth_wallet_4, body_1, header_1, footer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
@@ -1466,6 +1457,7 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         constructor(parent, options) {
             super(parent, options);
             this.isInited = false;
+            this.rpcWalletEvents = [];
             this.tag = {};
             this.state = new index_3.State();
         }
@@ -1528,6 +1520,14 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerBody.onHide();
             this.dappContainerHeader.onHide();
             this.dappContainerFooter.onHide();
+            this.removeRpcWalletEvents();
+        }
+        removeRpcWalletEvents() {
+            const rpcWallet = this.state.getRpcWallet();
+            for (let event of this.rpcWalletEvents) {
+                rpcWallet.unregisterWalletEvent(event);
+            }
+            this.rpcWalletEvents = [];
         }
         static async create(options, parent) {
             let self = new this(parent, options);
@@ -1594,6 +1594,12 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerFooter.visible = this.showFooter;
             if (this.showWalletNetwork) {
                 this.state.update(this._data);
+                this.removeRpcWalletEvents();
+                const rpcWallet = this.state.getRpcWallet();
+                const event = rpcWallet.registerWalletEvent(this, eth_wallet_4.Constants.RpcWalletEvent.ChainChanged, async (chainId) => {
+                    this.dappContainerHeader.onChainChanged(chainId);
+                });
+                this.rpcWalletEvents.push(event);
                 if (this._data.defaultChainId) {
                     const chainId = this.state.getChainId();
                     if (chainId !== this._data.defaultChainId) {
