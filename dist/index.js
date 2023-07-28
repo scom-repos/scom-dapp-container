@@ -1596,17 +1596,19 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.state.update(this._data);
                 this.removeRpcWalletEvents();
                 const rpcWallet = this.state.getRpcWallet();
-                const event = rpcWallet.registerWalletEvent(this, eth_wallet_4.Constants.RpcWalletEvent.ChainChanged, async (chainId) => {
-                    this.dappContainerHeader.onChainChanged(chainId);
-                });
-                this.rpcWalletEvents.push(event);
-                if (this._data.defaultChainId) {
-                    const chainId = this.state.getChainId();
-                    if (chainId !== this._data.defaultChainId) {
-                        await (0, index_3.switchNetwork)(this.state, this._data.defaultChainId);
+                if (rpcWallet) {
+                    const event = rpcWallet.registerWalletEvent(this, eth_wallet_4.Constants.RpcWalletEvent.ChainChanged, async (chainId) => {
+                        this.dappContainerHeader.onChainChanged(chainId);
+                    });
+                    this.rpcWalletEvents.push(event);
+                    if (this._data.defaultChainId) {
+                        const chainId = this.state.getChainId();
+                        if (chainId !== this._data.defaultChainId) {
+                            await (0, index_3.switchNetwork)(this.state, this._data.defaultChainId);
+                        }
                     }
+                    this.dappContainerHeader.reloadWalletsAndNetworks();
                 }
-                this.dappContainerHeader.reloadWalletsAndNetworks();
             }
             if (!this._data) {
                 this.dappContainerBody.clear();

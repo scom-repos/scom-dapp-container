@@ -195,17 +195,19 @@ export default class ScomDappContainer extends Module {
       this.state.update(this._data);
       this.removeRpcWalletEvents();
       const rpcWallet = this.state.getRpcWallet();
-      const event = rpcWallet.registerWalletEvent(this, Constants.RpcWalletEvent.ChainChanged, async (chainId: number) => {
-        this.dappContainerHeader.onChainChanged(chainId);
-      });
-      this.rpcWalletEvents.push(event);
-      if (this._data.defaultChainId) {
-        const chainId = this.state.getChainId();
-        if (chainId !== this._data.defaultChainId) {
-          await switchNetwork(this.state, this._data.defaultChainId);
+      if (rpcWallet){
+        const event = rpcWallet.registerWalletEvent(this, Constants.RpcWalletEvent.ChainChanged, async (chainId: number) => {
+          this.dappContainerHeader.onChainChanged(chainId);
+        });
+        this.rpcWalletEvents.push(event);
+        if (this._data.defaultChainId) {
+          const chainId = this.state.getChainId();
+          if (chainId !== this._data.defaultChainId) {
+            await switchNetwork(this.state, this._data.defaultChainId);
+          }
         }
+        this.dappContainerHeader.reloadWalletsAndNetworks();
       }
-      this.dappContainerHeader.reloadWalletsAndNetworks();
     }
     if (!this._data) {
       this.dappContainerBody.clear();
