@@ -213,50 +213,27 @@ export default class ScomDappContainer extends Module {
       this.dappContainerBody.clear();
       return;
     }
-    // await this.renderContent();
     this.pnlLoading.visible = false;
     this.gridMain.visible = true;
   }
 
-  // private async renderContent() {
-  //   if (this._data?.content?.module) {
-  //     try {
-  //       console.log('this._data.content.module', this._data.content.module)
-  //       const rootDir = this.getRootDir();
-  //       const module: any = await getEmbedElement(rootDir ? `${rootDir}/${this._data.content.module.localPath}` : this._data.content.module.localPath);
-  //       console.log(module)
-  //       if (module) {
-  //         this.setModule(module);
-  //         await module.ready();
-  //         if (this._data.content?.properties)
-  //           await module.setData(this._data.content.properties);
-  //         const tagData = this._data.tag || this._data?.content?.tag || null;
-  //         if (tagData) {
-  //           module.setTag(tagData);
-  //           this.setTag(tagData);
-  //         }
-  //       }
-  //     } catch {}
+  // getActions() {
+  //   let module = this.dappContainerBody.getModule();
+  //   let actions;
+  //   if (module && module.getActions) {
+  //     actions = module.getActions();
   //   }
+  //   return actions;
   // }
 
-  getActions() {
-    let module = this.dappContainerBody.getModule();
-    let actions;
-    if (module && module.getActions) {
-      actions = module.getActions();
-    }
-    return actions;
-  }
-
-  getEmbedderActions() {
-    let module = this.dappContainerBody.getModule();
-    let actions;
-    if (module && module.getEmbedderActions) {
-      actions = module.getEmbedderActions();
-    }
-    return actions;
-  }
+  // getEmbedderActions() {
+  //   let module = this.dappContainerBody.getModule();
+  //   let actions;
+  //   if (module && module.getEmbedderActions) {
+  //     actions = module.getEmbedderActions();
+  //   }
+  //   return actions;
+  // }
 
   getModule() {
     let module = this.dappContainerBody.getModule();

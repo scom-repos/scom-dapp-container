@@ -2,7 +2,6 @@ import {
   application
 } from '@ijstech/components';
 import {
-  Erc20, 
   IClientProviderOptions, 
   IClientSideProvider, 
   IClientSideProviderEvents, 
@@ -84,18 +83,6 @@ export const truncateAddress = (address: string) => {
   if (address === undefined || address === null) return '';
   return address.substring(0, 6) + '...' + address.substring(address.length - 4);
 }
-
-export interface ITokenObject {
-  address?: string;
-  name: string;
-  decimals: number;
-  symbol: string;
-  status?: boolean | null;
-  logoURI?: string;
-  isCommon?: boolean | null;
-  balance?: string | number;
-  isNative?: boolean | null;
-};
 
 export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) {
   const wallet = Wallet.getClientInstance();

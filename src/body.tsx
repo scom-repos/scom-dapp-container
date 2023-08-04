@@ -31,50 +31,11 @@ export class DappContainerBody extends Module {
     this.pnlModule.append(this.module);
   }
 
-  // async setData(rootDir: string, data: IDappContainerData) {
-  //   if (this.isLoading) return;
-  //   this.isLoading = true;
-  //   if (data.content && data.content.module) {
-  //     this.clear();
-  //     try {
-  //       this.module = await this.loadModule(rootDir, data.content.module);
-  //       if (this.module) {
-  //         await this.module.setData(data.content.properties);
-  //         const tagData = data.tag || data?.content?.tag || null;
-  //         if (tagData) {
-  //           this.module.setTag(tagData);
-  //           const parent = this.parentElement.closest('.main-dapp');
-  //           if (parent) (parent as any).setTag(tagData);
-  //         }
-  //       }
-  //     } catch (err) {}
-  //   }
-  //   this.isLoading = false;
-  // }
-
-  // getTag() {
-  //   return this.module?.getTag();
-  // }
-
-  // setTag(data: any) {
-  //   if (this.module) this.module.setTag(data);
-  // }
-
   init() {
     super.init();
     this.isInited = true;
   }
   
-  // async loadModule(rootDir: string, moduleData: IPageBlockData) {
-  //   this.clear();
-  //   let module: any = await getModule(rootDir, moduleData);
-  //   if (module) {
-  //     module.parent = this.pnlModule;
-  //     this.pnlModule.append(module);
-  //   }
-  //   return module;
-  // }
-
   render() {
     return (
       <i-panel id="pnlModule"></i-panel>

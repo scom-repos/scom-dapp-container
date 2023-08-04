@@ -77,45 +77,10 @@ define("@scom/scom-dapp-container/body.tsx", ["require", "exports", "@ijstech/co
             this.module.parent = this.pnlModule;
             this.pnlModule.append(this.module);
         }
-        // async setData(rootDir: string, data: IDappContainerData) {
-        //   if (this.isLoading) return;
-        //   this.isLoading = true;
-        //   if (data.content && data.content.module) {
-        //     this.clear();
-        //     try {
-        //       this.module = await this.loadModule(rootDir, data.content.module);
-        //       if (this.module) {
-        //         await this.module.setData(data.content.properties);
-        //         const tagData = data.tag || data?.content?.tag || null;
-        //         if (tagData) {
-        //           this.module.setTag(tagData);
-        //           const parent = this.parentElement.closest('.main-dapp');
-        //           if (parent) (parent as any).setTag(tagData);
-        //         }
-        //       }
-        //     } catch (err) {}
-        //   }
-        //   this.isLoading = false;
-        // }
-        // getTag() {
-        //   return this.module?.getTag();
-        // }
-        // setTag(data: any) {
-        //   if (this.module) this.module.setTag(data);
-        // }
         init() {
             super.init();
             this.isInited = true;
         }
-        // async loadModule(rootDir: string, moduleData: IPageBlockData) {
-        //   this.clear();
-        //   let module: any = await getModule(rootDir, moduleData);
-        //   if (module) {
-        //     module.parent = this.pnlModule;
-        //     this.pnlModule.append(module);
-        //   }
-        //   return module;
-        // }
         render() {
             return (this.$render("i-panel", { id: "pnlModule" }));
         }
@@ -589,37 +554,11 @@ define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], funct
         }
     };
 });
-define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/pathToRegexp.ts", "@scom/scom-dapp-container/utils/theme.ts"], function (require, exports, components_3, eth_wallet_1, pathToRegexp_1, theme_1) {
+define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/pathToRegexp.ts", "@scom/scom-dapp-container/utils/theme.ts"], function (require, exports, eth_wallet_1, pathToRegexp_1, theme_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getEmbedElement = exports.match = exports.formatNumberWithSeparators = exports.formatNumber = exports.getSCConfigByCodeCid = exports.fetchFileContentByCid = exports.IPFS_SCOM_URL = void 0;
+    exports.match = exports.formatNumberWithSeparators = exports.formatNumber = void 0;
     Object.defineProperty(exports, "match", { enumerable: true, get: function () { return pathToRegexp_1.match; } });
-    const IPFS_SCOM_URL = "https://ipfs.scom.dev/ipfs";
-    exports.IPFS_SCOM_URL = IPFS_SCOM_URL;
-    async function fetchFileContentByCid(ipfsCid) {
-        let response;
-        try {
-            response = await fetch(`${IPFS_SCOM_URL}/${ipfsCid}`);
-        }
-        catch (err) {
-            const IPFS_Gateway = 'https://ipfs.io/ipfs/{CID}';
-            response = await fetch(IPFS_Gateway.replace('{CID}', ipfsCid));
-        }
-        return response;
-    }
-    exports.fetchFileContentByCid = fetchFileContentByCid;
-    ;
-    async function getSCConfigByCodeCid(codeCid) {
-        let scConfig;
-        try {
-            let scConfigRes = await fetchFileContentByCid(`${codeCid}/dist/scconfig.json`);
-            if (scConfigRes)
-                scConfig = await scConfigRes.json();
-        }
-        catch (err) { }
-        return scConfig;
-    }
-    exports.getSCConfigByCodeCid = getSCConfigByCodeCid;
     const formatNumber = (value, decimals) => {
         let val = value;
         const minValue = '0.0000001';
@@ -656,53 +595,13 @@ define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@ijst
         }
     };
     exports.formatNumberWithSeparators = formatNumberWithSeparators;
-    // const getModule = async (rootDir: string, options: IGetModuleOptions) => {
-    //   let module: Module;
-    //   if (options.localPath) {
-    //       const localRootPath = rootDir ? `${rootDir}/${options.localPath}` : options.localPath;
-    //       const scconfigRes = await fetch(`${localRootPath}/scconfig.json`);
-    //       const scconfig = await scconfigRes.json();
-    //       scconfig.rootDir = localRootPath;
-    //       module = await application.newModule(scconfig.main, scconfig);
-    //   }
-    //   else {
-    //     const response = await fetchFileContentByCid(options.ipfscid);
-    //     const result: ICodeInfoFileContent = await response.json();
-    //     const codeCID = result.codeCID;
-    //     const scConfig = await getSCConfigByCodeCid(codeCID);
-    //     if (!scConfig) return;
-    //     const main: string = scConfig.main;
-    //     if (main.startsWith("@")) {
-    //       scConfig.rootDir = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-    //       module = await application.newModule(main, scConfig);
-    //     } else {
-    //       const root = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-    //       const mainScriptPath = main.replace('{root}', root);
-    //       const dependencies = scConfig.dependencies;
-    //       for (let key in dependencies) {
-    //         dependencies[key] = dependencies[key].replace('{root}', root);
-    //       }
-    //       module = await application.newModule(mainScriptPath, { dependencies });
-    //     }
-    //   }
-    //   return module;
-    // }
-    const getEmbedElement = async (path) => {
-        components_3.application.currentModuleDir = path;
-        await components_3.application.loadScript(`${path}/index.js`);
-        components_3.application.currentModuleDir = '';
-        const elementName = `i-${path.split('/').pop()}`;
-        const element = document.createElement(elementName);
-        return element;
-    };
-    exports.getEmbedElement = getEmbedElement;
     __exportStar(theme_1, exports);
 });
-define("@scom/scom-dapp-container/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_4) {
+define("@scom/scom-dapp-container/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const Theme = components_4.Styles.Theme.ThemeVars;
-    exports.default = components_4.Styles.style({
+    const Theme = components_3.Styles.Theme.ThemeVars;
+    exports.default = components_3.Styles.style({
         $nest: {
             '::-webkit-scrollbar-track': {
                 borderRadius: '12px',
@@ -817,7 +716,7 @@ define("@scom/scom-dapp-container/header.css.ts", ["require", "exports", "@ijste
         }
     });
 });
-define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-network-list", "@scom/scom-multicall"], function (require, exports, components_5, eth_wallet_2, scom_network_list_1, scom_multicall_1) {
+define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-network-list", "@scom/scom-multicall"], function (require, exports, components_4, eth_wallet_2, scom_network_list_1, scom_multicall_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.State = exports.getWalletProvider = exports.getWallet = exports.registerSendTxEvents = exports.truncateAddress = exports.logoutWallet = exports.switchNetwork = exports.connectWallet = exports.isClientWalletConnected = exports.WalletPlugin = void 0;
@@ -840,7 +739,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
                 return new eth_wallet_2.Web3ModalProvider(wallet, events, options);
             default: {
                 if (packageName) {
-                    const provider = await components_5.application.loadPackage(packageName, '*');
+                    const provider = await components_4.application.loadPackage(packageName, '*');
                     return new provider(wallet, events, options);
                 }
             }
@@ -869,7 +768,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         const wallet = eth_wallet_2.Wallet.getClientInstance();
         await wallet.disconnect();
         localStorage.setItem('walletProvider', '');
-        components_5.application.EventBus.dispatch("IsWalletDisconnected" /* EventId.IsWalletDisconnected */, false);
+        components_4.application.EventBus.dispatch("IsWalletDisconnected" /* EventId.IsWalletDisconnected */, false);
     }
     exports.logoutWallet = logoutWallet;
     const truncateAddress = (address) => {
@@ -878,7 +777,6 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         return address.substring(0, 6) + '...' + address.substring(address.length - 4);
     };
     exports.truncateAddress = truncateAddress;
-    ;
     function registerSendTxEvents(sendTxEventHandlers) {
         const wallet = eth_wallet_2.Wallet.getClientInstance();
         wallet.registerSendTxEvents({
@@ -1044,12 +942,12 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     };
     exports.viewOnExplorerByAddress = viewOnExplorerByAddress;
 });
-define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/header.css.ts", "@scom/scom-dapp-container/store/index.ts"], function (require, exports, components_6, eth_wallet_3, index_1, header_css_1, index_2) {
+define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/header.css.ts", "@scom/scom-dapp-container/store/index.ts"], function (require, exports, components_5, eth_wallet_3, index_1, header_css_1, index_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerHeader = void 0;
-    const Theme = components_6.Styles.Theme.ThemeVars;
-    let DappContainerHeader = class DappContainerHeader extends components_6.Module {
+    const Theme = components_5.Styles.Theme.ThemeVars;
+    let DappContainerHeader = class DappContainerHeader extends components_5.Module {
         constructor(parent, options) {
             super(parent, options);
             this.supportedNetworks = [];
@@ -1148,7 +1046,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 this.mdConnect.visible = false;
             };
             this.copyWalletAddress = () => {
-                components_6.application.copyToClipboard(this.walletInfo.address || "");
+                components_5.application.copyToClipboard(this.walletInfo.address || "");
             };
             this.renderWalletList = async () => {
                 await this.state.initWalletPlugins();
@@ -1166,7 +1064,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                     this.gridWalletList.append(hsWallet);
                 });
             };
-            this.$eventBus = components_6.application.EventBus;
+            this.$eventBus = components_5.application.EventBus;
             this.registerEvent();
         }
         ;
@@ -1405,19 +1303,19 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
         }
     };
     __decorate([
-        (0, components_6.observable)()
+        (0, components_5.observable)()
     ], DappContainerHeader.prototype, "walletInfo", void 0);
     DappContainerHeader = __decorate([
-        (0, components_6.customElements)('dapp-container-header')
+        (0, components_5.customElements)('dapp-container-header')
     ], DappContainerHeader);
     exports.DappContainerHeader = DappContainerHeader;
 });
-define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/components"], function (require, exports, components_7) {
+define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/components"], function (require, exports, components_6) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerFooter = void 0;
-    const Theme = components_7.Styles.Theme.ThemeVars;
-    let DappContainerFooter = class DappContainerFooter extends components_7.Module {
+    const Theme = components_6.Styles.Theme.ThemeVars;
+    let DappContainerFooter = class DappContainerFooter extends components_6.Module {
         constructor(parent) {
             super(parent);
         }
@@ -1441,19 +1339,19 @@ define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/
         }
     };
     DappContainerFooter = __decorate([
-        (0, components_7.customElements)('dapp-container-footer')
+        (0, components_6.customElements)('dapp-container-footer')
     ], DappContainerFooter);
     exports.DappContainerFooter = DappContainerFooter;
 });
-define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@ijstech/eth-wallet", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_8, index_css_1, index_3, eth_wallet_4, body_1, header_1, footer_1) {
+define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@ijstech/eth-wallet", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_7, index_css_1, index_3, eth_wallet_4, body_1, header_1, footer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
     Object.defineProperty(exports, "DappContainerBody", { enumerable: true, get: function () { return body_1.DappContainerBody; } });
     Object.defineProperty(exports, "DappContainerHeader", { enumerable: true, get: function () { return header_1.DappContainerHeader; } });
     Object.defineProperty(exports, "DappContainerFooter", { enumerable: true, get: function () { return footer_1.DappContainerFooter; } });
-    const Theme = components_8.Styles.Theme.ThemeVars;
-    let ScomDappContainer = class ScomDappContainer extends components_8.Module {
+    const Theme = components_7.Styles.Theme.ThemeVars;
+    let ScomDappContainer = class ScomDappContainer extends components_7.Module {
         constructor(parent, options) {
             super(parent, options);
             this.isInited = false;
@@ -1614,47 +1512,25 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.dappContainerBody.clear();
                 return;
             }
-            // await this.renderContent();
             this.pnlLoading.visible = false;
             this.gridMain.visible = true;
         }
-        // private async renderContent() {
-        //   if (this._data?.content?.module) {
-        //     try {
-        //       console.log('this._data.content.module', this._data.content.module)
-        //       const rootDir = this.getRootDir();
-        //       const module: any = await getEmbedElement(rootDir ? `${rootDir}/${this._data.content.module.localPath}` : this._data.content.module.localPath);
-        //       console.log(module)
-        //       if (module) {
-        //         this.setModule(module);
-        //         await module.ready();
-        //         if (this._data.content?.properties)
-        //           await module.setData(this._data.content.properties);
-        //         const tagData = this._data.tag || this._data?.content?.tag || null;
-        //         if (tagData) {
-        //           module.setTag(tagData);
-        //           this.setTag(tagData);
-        //         }
-        //       }
-        //     } catch {}
+        // getActions() {
+        //   let module = this.dappContainerBody.getModule();
+        //   let actions;
+        //   if (module && module.getActions) {
+        //     actions = module.getActions();
         //   }
+        //   return actions;
         // }
-        getActions() {
-            let module = this.dappContainerBody.getModule();
-            let actions;
-            if (module && module.getActions) {
-                actions = module.getActions();
-            }
-            return actions;
-        }
-        getEmbedderActions() {
-            let module = this.dappContainerBody.getModule();
-            let actions;
-            if (module && module.getEmbedderActions) {
-                actions = module.getEmbedderActions();
-            }
-            return actions;
-        }
+        // getEmbedderActions() {
+        //   let module = this.dappContainerBody.getModule();
+        //   let actions;
+        //   if (module && module.getEmbedderActions) {
+        //     actions = module.getEmbedderActions();
+        //   }
+        //   return actions;
+        // }
         getModule() {
             let module = this.dappContainerBody.getModule();
             return module;
@@ -1722,8 +1598,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
         }
     };
     ScomDappContainer = __decorate([
-        components_8.customModule,
-        (0, components_8.customElements)('i-scom-dapp-container')
+        components_7.customModule,
+        (0, components_7.customElements)('i-scom-dapp-container')
     ], ScomDappContainer);
     exports.default = ScomDappContainer;
 });

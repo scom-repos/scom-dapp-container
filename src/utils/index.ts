@@ -1,34 +1,5 @@
-import { application, Module } from '@ijstech/components';
 import { BigNumber } from '@ijstech/eth-wallet';
-import { ICodeInfoFileContent } from '../interface';
 import { match, MatchFunction } from './pathToRegexp';
-
-const IPFS_SCOM_URL = "https://ipfs.scom.dev/ipfs";
-
-interface IGetModuleOptions {
-  ipfscid?: string;
-  localPath?: string;
-}
-
-async function fetchFileContentByCid(ipfsCid: string): Promise<Response | undefined> {
-  let response;
-  try {
-    response = await fetch(`${IPFS_SCOM_URL}/${ipfsCid}`);
-  } catch (err) {
-    const IPFS_Gateway = 'https://ipfs.io/ipfs/{CID}';
-    response = await fetch(IPFS_Gateway.replace('{CID}', ipfsCid));
-  }
-  return response;
-};
-
-async function getSCConfigByCodeCid(codeCid: string) {
-  let scConfig;
-  try {
-    let scConfigRes = await fetchFileContentByCid(`${codeCid}/dist/scconfig.json`);
-    if (scConfigRes) scConfig = await scConfigRes.json();
-  } catch (err) { }
-  return scConfig;
-}
 
 const formatNumber = (value: any, decimals?: number) => {
   let val = value;
@@ -66,57 +37,11 @@ const formatNumberWithSeparators = (value: number, precision?: number) => {
   }
 }
 
-// const getModule = async (rootDir: string, options: IGetModuleOptions) => {
-//   let module: Module;
-//   if (options.localPath) {
-//       const localRootPath = rootDir ? `${rootDir}/${options.localPath}` : options.localPath;
-//       const scconfigRes = await fetch(`${localRootPath}/scconfig.json`);
-//       const scconfig = await scconfigRes.json();
-//       scconfig.rootDir = localRootPath;
-//       module = await application.newModule(scconfig.main, scconfig);
-//   }
-//   else {
-//     const response = await fetchFileContentByCid(options.ipfscid);
-//     const result: ICodeInfoFileContent = await response.json();
-//     const codeCID = result.codeCID;
-//     const scConfig = await getSCConfigByCodeCid(codeCID);
-//     if (!scConfig) return;
-//     const main: string = scConfig.main;
-//     if (main.startsWith("@")) {
-//       scConfig.rootDir = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-//       module = await application.newModule(main, scConfig);
-//     } else {
-//       const root = `${IPFS_SCOM_URL}/${codeCID}/dist`;
-//       const mainScriptPath = main.replace('{root}', root);
-//       const dependencies = scConfig.dependencies;
-//       for (let key in dependencies) {
-//         dependencies[key] = dependencies[key].replace('{root}', root);
-//       }
-//       module = await application.newModule(mainScriptPath, { dependencies });
-//     }
-//   }
-//   return module;
-// }
-
-const getEmbedElement = async (path: string) => {
-  application.currentModuleDir = path;
-  await application.loadScript(`${path}/index.js`);
-  application.currentModuleDir = '';
-  const elementName = `i-${path.split('/').pop()}`;
-  const element = document.createElement(elementName);
-  return element;
-}
-
 export {
-  IPFS_SCOM_URL,
-  fetchFileContentByCid,
-  getSCConfigByCodeCid,
   formatNumber,
   formatNumberWithSeparators,
   match,
-  MatchFunction,
-  IGetModuleOptions,
-  getEmbedElement
+  MatchFunction
 }
 
 export * from './theme';

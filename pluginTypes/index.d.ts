@@ -262,17 +262,9 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
 /// <amd-module name="@scom/scom-dapp-container/utils/index.ts" />
 declare module "@scom/scom-dapp-container/utils/index.ts" {
     import { match, MatchFunction } from "@scom/scom-dapp-container/utils/pathToRegexp.ts";
-    const IPFS_SCOM_URL = "https://ipfs.scom.dev/ipfs";
-    interface IGetModuleOptions {
-        ipfscid?: string;
-        localPath?: string;
-    }
-    function fetchFileContentByCid(ipfsCid: string): Promise<Response | undefined>;
-    function getSCConfigByCodeCid(codeCid: string): Promise<any>;
     const formatNumber: (value: any, decimals?: number) => string;
     const formatNumberWithSeparators: (value: number, precision?: number) => string;
-    const getEmbedElement: (path: string) => Promise<HTMLElement>;
-    export { IPFS_SCOM_URL, fetchFileContentByCid, getSCConfigByCodeCid, formatNumber, formatNumberWithSeparators, match, MatchFunction, IGetModuleOptions, getEmbedElement };
+    export { formatNumber, formatNumberWithSeparators, match, MatchFunction };
     export * from "@scom/scom-dapp-container/utils/theme.ts";
 }
 /// <amd-module name="@scom/scom-dapp-container/header.css.ts" />
@@ -299,17 +291,6 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     export function switchNetwork(state: State, chainId: number): Promise<void>;
     export function logoutWallet(): Promise<void>;
     export const truncateAddress: (address: string) => string;
-    export interface ITokenObject {
-        address?: string;
-        name: string;
-        decimals: number;
-        symbol: string;
-        status?: boolean | null;
-        logoURI?: string;
-        isCommon?: boolean | null;
-        balance?: string | number;
-        isNative?: boolean | null;
-    }
     export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions): void;
     export function getWallet(): IWallet;
     export function getWalletProvider(): string;
@@ -496,8 +477,6 @@ declare module "@scom/scom-dapp-container" {
         getRootDir(): string;
         getData(): Promise<IDappContainerData>;
         setData(data: IDappContainerData): Promise<void>;
-        getActions(): any;
-        getEmbedderActions(): any;
         getModule(): any;
         setModule(module: Module): void;
         getTag(): any;
