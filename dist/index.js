@@ -1064,8 +1064,6 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                     this.gridWalletList.append(hsWallet);
                 });
             };
-            this.$eventBus = components_5.application.EventBus;
-            this.registerEvent();
         }
         ;
         get symbol() {
@@ -1117,6 +1115,8 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             if (this.isInited)
                 return;
             super.init();
+            this.$eventBus = components_5.application.EventBus;
+            this.registerEvent();
             this.isInited = true;
             this.classList.add(header_css_1.default);
             this.initTheme();

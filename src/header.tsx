@@ -75,8 +75,6 @@ export class DappContainerHeader extends Module {
 
   constructor(parent?: Container, options?: any) {
     super(parent, options);
-    this.$eventBus = application.EventBus;
-    this.registerEvent();
   };
 
   get symbol() {
@@ -129,6 +127,8 @@ export class DappContainerHeader extends Module {
   async init() {
     if (this.isInited) return;
     super.init();
+    this.$eventBus = application.EventBus;
+    this.registerEvent();
     this.isInited = true;
     this.classList.add(styleClass);
     this.initTheme();
