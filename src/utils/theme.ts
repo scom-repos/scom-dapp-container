@@ -21,6 +21,18 @@ export const darkTheme = {
       "main": "#222237",
       "contrastText": "#fff"
     }
+  },
+  "buttons": {
+    "primary": {
+      "background": "transparent linear-gradient(90deg, #AC1D78 0%, #E04862 100%) 0% 0% no-repeat padding-box",
+      "hoverBackground": "linear-gradient(255deg,#f15e61,#b52082)",
+      "disabledBackground": "transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box",
+    },
+    "secondary": {
+      "background": "transparent linear-gradient(255deg,#e75b66,#b52082) 0% 0% no-repeat padding-box",
+      "hoverBackground": "linear-gradient(255deg,#f15e61,#b52082)",
+      "disabledBackground": "transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box",
+    }
   }
 }
 export const lightTheme = {
@@ -44,6 +56,18 @@ export const lightTheme = {
     "secondary": {
       "main": "#222237",
       "contrastText": "#fff"
+    }
+  },
+  "buttons": {
+    "primary": {
+      "background": "transparent linear-gradient(90deg, #AC1D78 0%, #E04862 100%) 0% 0% no-repeat padding-box",
+      "hoverBackground": "linear-gradient(255deg,#f15e61,#b52082)",
+      "disabledBackground": "transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box",
+    },
+    "secondary": {
+      "background": "transparent linear-gradient(255deg,#e75b66,#b52082) 0% 0% no-repeat padding-box",
+      "hoverBackground": "linear-gradient(255deg,#f15e61,#b52082)",
+      "disabledBackground": "transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box",
     }
   }
 }

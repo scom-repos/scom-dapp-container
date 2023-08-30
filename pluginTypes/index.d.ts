@@ -233,6 +233,18 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
                 contrastText: string;
             };
         };
+        buttons: {
+            primary: {
+                background: string;
+                hoverBackground: string;
+                disabledBackground: string;
+            };
+            secondary: {
+                background: string;
+                hoverBackground: string;
+                disabledBackground: string;
+            };
+        };
     };
     export const lightTheme: {
         background: {
@@ -255,6 +267,18 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
             secondary: {
                 main: string;
                 contrastText: string;
+            };
+        };
+        buttons: {
+            primary: {
+                background: string;
+                hoverBackground: string;
+                disabledBackground: string;
+            };
+            secondary: {
+                background: string;
+                hoverBackground: string;
+                disabledBackground: string;
             };
         };
     };

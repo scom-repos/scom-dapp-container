@@ -388,18 +388,23 @@ export class DappContainerHeader extends Module {
 
   private initTheme() {
     const getThemeVars = (theme: 'light' | 'dark') => {
-      const themeVars: any = theme === 'light' ? lightTheme : darkTheme;
+      const themeVars = theme === 'light' ? lightTheme : darkTheme;
       return {
-        fontColor: themeVars?.text?.primary,
-        backgroundColor: themeVars?.background?.main,
-        inputFontColor: themeVars?.input?.fontColor,
-        inputBackgroundColor: themeVars?.input?.background,
-        buttonBackgroundColor: themeVars?.colors?.primary?.main,
-        buttonFontColor: themeVars?.colors?.primary?.contrastText,
-        modalColor: themeVars?.background?.modal,
-        secondaryColor: themeVars?.colors?.secondary?.main,
-        secondaryFontColor: themeVars?.colors?.secondary?.contrastText,
-        textSecondary: themeVars?.text?.secondary,
+        fontColor: themeVars.text.primary,
+        backgroundColor: themeVars.background.main,
+        inputFontColor: themeVars.input.fontColor,
+        inputBackgroundColor: themeVars.input.background,
+        buttonBackgroundColor: themeVars.colors.primary.main,
+        buttonFontColor: themeVars.colors.primary.contrastText,
+        modalColor: themeVars.background.modal,
+        secondaryColor: themeVars.colors.secondary.main,
+        secondaryFontColor: themeVars.colors.secondary.contrastText,
+        textSecondary: themeVars.text.secondary,
+        primaryButtonBackground: themeVars.buttons.primary.background,
+        primaryButtonHoverBackground: themeVars.buttons.primary.hoverBackground,
+        primaryButtonDisabledBackground: themeVars.buttons.primary.disabledBackground,
+        maxButtonBackground: themeVars.buttons.secondary.background,
+        maxButtonHoverBackground: themeVars.buttons.secondary.hoverBackground
       }
     }
     const parent = this.closest('i-scom-dapp-container') as any;
