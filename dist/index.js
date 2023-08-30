@@ -527,6 +527,18 @@ define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], funct
                 "main": "#222237",
                 "contrastText": "#fff"
             }
+        },
+        "buttons": {
+            "primary": {
+                "background": "transparent linear-gradient(90deg, #AC1D78 0%, #E04862 100%) 0% 0% no-repeat padding-box",
+                "hoverBackground": "linear-gradient(255deg,#f15e61,#b52082)",
+                "disabledBackground": "transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box",
+            },
+            "secondary": {
+                "background": "transparent linear-gradient(255deg,#e75b66,#b52082) 0% 0% no-repeat padding-box",
+                "hoverBackground": "linear-gradient(255deg,#f15e61,#b52082)",
+                "disabledBackground": "transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box",
+            }
         }
     };
     exports.lightTheme = {
@@ -550,6 +562,18 @@ define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], funct
             "secondary": {
                 "main": "#222237",
                 "contrastText": "#fff"
+            }
+        },
+        "buttons": {
+            "primary": {
+                "background": "transparent linear-gradient(90deg, #AC1D78 0%, #E04862 100%) 0% 0% no-repeat padding-box",
+                "hoverBackground": "linear-gradient(255deg,#f15e61,#b52082)",
+                "disabledBackground": "transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box",
+            },
+            "secondary": {
+                "background": "transparent linear-gradient(255deg,#e75b66,#b52082) 0% 0% no-repeat padding-box",
+                "hoverBackground": "linear-gradient(255deg,#f15e61,#b52082)",
+                "disabledBackground": "transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box",
             }
         }
     };
@@ -1236,19 +1260,23 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
         }
         initTheme() {
             const getThemeVars = (theme) => {
-                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
                 const themeVars = theme === 'light' ? index_1.lightTheme : index_1.darkTheme;
                 return {
-                    fontColor: (_a = themeVars === null || themeVars === void 0 ? void 0 : themeVars.text) === null || _a === void 0 ? void 0 : _a.primary,
-                    backgroundColor: (_b = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _b === void 0 ? void 0 : _b.main,
-                    inputFontColor: (_c = themeVars === null || themeVars === void 0 ? void 0 : themeVars.input) === null || _c === void 0 ? void 0 : _c.fontColor,
-                    inputBackgroundColor: (_d = themeVars === null || themeVars === void 0 ? void 0 : themeVars.input) === null || _d === void 0 ? void 0 : _d.background,
-                    buttonBackgroundColor: (_f = (_e = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _e === void 0 ? void 0 : _e.primary) === null || _f === void 0 ? void 0 : _f.main,
-                    buttonFontColor: (_h = (_g = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _g === void 0 ? void 0 : _g.primary) === null || _h === void 0 ? void 0 : _h.contrastText,
-                    modalColor: (_j = themeVars === null || themeVars === void 0 ? void 0 : themeVars.background) === null || _j === void 0 ? void 0 : _j.modal,
-                    secondaryColor: (_l = (_k = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _k === void 0 ? void 0 : _k.secondary) === null || _l === void 0 ? void 0 : _l.main,
-                    secondaryFontColor: (_o = (_m = themeVars === null || themeVars === void 0 ? void 0 : themeVars.colors) === null || _m === void 0 ? void 0 : _m.secondary) === null || _o === void 0 ? void 0 : _o.contrastText,
-                    textSecondary: (_p = themeVars === null || themeVars === void 0 ? void 0 : themeVars.text) === null || _p === void 0 ? void 0 : _p.secondary,
+                    fontColor: themeVars.text.primary,
+                    backgroundColor: themeVars.background.main,
+                    inputFontColor: themeVars.input.fontColor,
+                    inputBackgroundColor: themeVars.input.background,
+                    buttonBackgroundColor: themeVars.colors.primary.main,
+                    buttonFontColor: themeVars.colors.primary.contrastText,
+                    modalColor: themeVars.background.modal,
+                    secondaryColor: themeVars.colors.secondary.main,
+                    secondaryFontColor: themeVars.colors.secondary.contrastText,
+                    textSecondary: themeVars.text.secondary,
+                    primaryButtonBackground: themeVars.buttons.primary.background,
+                    primaryButtonHoverBackground: themeVars.buttons.primary.hoverBackground,
+                    primaryButtonDisabledBackground: themeVars.buttons.primary.disabledBackground,
+                    maxButtonBackground: themeVars.buttons.secondary.background,
+                    maxButtonHoverBackground: themeVars.buttons.secondary.hoverBackground
                 };
             };
             const parent = this.closest('i-scom-dapp-container');
@@ -1574,17 +1602,21 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 this.style.removeProperty(name);
         }
         updateTheme() {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
-            this.updateStyle('--text-primary', (_a = this.tag[this.theme]) === null || _a === void 0 ? void 0 : _a.fontColor);
-            this.updateStyle('--background-main', (_b = this.tag[this.theme]) === null || _b === void 0 ? void 0 : _b.backgroundColor);
-            this.updateStyle('--input-font_color', (_c = this.tag[this.theme]) === null || _c === void 0 ? void 0 : _c.inputFontColor);
-            this.updateStyle('--input-background', (_d = this.tag[this.theme]) === null || _d === void 0 ? void 0 : _d.inputBackgroundColor);
-            this.updateStyle('--colors-primary-main', (_e = this.tag[this.theme]) === null || _e === void 0 ? void 0 : _e.buttonBackgroundColor);
-            this.updateStyle('--colors-primary-contrast_text', (_f = this.tag[this.theme]) === null || _f === void 0 ? void 0 : _f.buttonFontColor);
-            this.updateStyle('--background-modal', (_g = this.tag[this.theme]) === null || _g === void 0 ? void 0 : _g.modalColor);
-            this.updateStyle('--colors-secondary-main', (_h = this.tag[this.theme]) === null || _h === void 0 ? void 0 : _h.secondaryColor);
-            this.updateStyle('--colors-secondary-contrast_text', (_j = this.tag[this.theme]) === null || _j === void 0 ? void 0 : _j.secondaryFontColor);
-            this.updateStyle('--text-secondary', (_k = this.tag[this.theme]) === null || _k === void 0 ? void 0 : _k.textSecondary);
+            const theme = this.tag[this.theme] || {};
+            this.updateStyle('--text-primary', theme.fontColor);
+            this.updateStyle('--background-main', theme.backgroundColor);
+            this.updateStyle('--input-font_color', theme.inputFontColor);
+            this.updateStyle('--input-background', theme.inputBackgroundColor);
+            this.updateStyle('--colors-primary-main', theme.buttonBackgroundColor);
+            this.updateStyle('--colors-primary-contrast_text', theme.buttonFontColor);
+            this.updateStyle('--background-modal', theme.modalColor);
+            this.updateStyle('--colors-secondary-main', theme.secondaryColor);
+            this.updateStyle('--colors-secondary-contrast_text', theme.secondaryFontColor);
+            this.updateStyle('--primary-button-background', theme.primaryButtonBackground);
+            this.updateStyle('--primary-button-hover-background', theme.primaryButtonHoverBackground);
+            this.updateStyle('--primary-button-disabled-background', theme.primaryButtonDisabledBackground);
+            this.updateStyle('--max-button-background', theme.maxButtonBackground);
+            this.updateStyle('--max-button-hover-background', theme.maxButtonHoverBackground);
         }
         render() {
             return (this.$render("i-vstack", { class: index_css_1.default, width: "100%", height: "100%", background: { color: Theme.background.main }, overflow: "hidden" },

@@ -283,16 +283,21 @@ export default class ScomDappContainer extends Module {
   }
 
   private updateTheme() {
-    this.updateStyle('--text-primary', this.tag[this.theme]?.fontColor);
-    this.updateStyle('--background-main', this.tag[this.theme]?.backgroundColor);
-    this.updateStyle('--input-font_color', this.tag[this.theme]?.inputFontColor);
-    this.updateStyle('--input-background', this.tag[this.theme]?.inputBackgroundColor);
-    this.updateStyle('--colors-primary-main', this.tag[this.theme]?.buttonBackgroundColor);
-    this.updateStyle('--colors-primary-contrast_text', this.tag[this.theme]?.buttonFontColor);
-    this.updateStyle('--background-modal', this.tag[this.theme]?.modalColor);
-    this.updateStyle('--colors-secondary-main', this.tag[this.theme]?.secondaryColor);
-    this.updateStyle('--colors-secondary-contrast_text', this.tag[this.theme]?.secondaryFontColor);
-    this.updateStyle('--text-secondary', this.tag[this.theme]?.textSecondary);
+    const theme = this.tag[this.theme] || {};
+    this.updateStyle('--text-primary', theme.fontColor);
+    this.updateStyle('--background-main', theme.backgroundColor);
+    this.updateStyle('--input-font_color', theme.inputFontColor);
+    this.updateStyle('--input-background', theme.inputBackgroundColor);
+    this.updateStyle('--colors-primary-main', theme.buttonBackgroundColor);
+    this.updateStyle('--colors-primary-contrast_text', theme.buttonFontColor);
+    this.updateStyle('--background-modal', theme.modalColor);
+    this.updateStyle('--colors-secondary-main', theme.secondaryColor);
+    this.updateStyle('--colors-secondary-contrast_text', theme.secondaryFontColor);
+    this.updateStyle('--primary-button-background', theme.primaryButtonBackground);
+    this.updateStyle('--primary-button-hover-background', theme.primaryButtonHoverBackground);
+    this.updateStyle('--primary-button-disabled-background', theme.primaryButtonDisabledBackground);
+    this.updateStyle('--max-button-background', theme.maxButtonBackground);
+    this.updateStyle('--max-button-hover-background', theme.maxButtonHoverBackground);
   }
   
   render() {
