@@ -774,7 +774,9 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         if (triggeredByUser || state.isFirstLoad) {
             let provider = state.getWalletPluginProvider(walletPlugin);
             if (provider === null || provider === void 0 ? void 0 : provider.installed()) {
-                await wallet.connect(provider);
+                await wallet.connect(provider, {
+                    userTriggeredConnect: triggeredByUser
+                });
             }
             state.isFirstLoad = false;
         }

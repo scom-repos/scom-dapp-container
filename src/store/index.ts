@@ -59,7 +59,9 @@ export async function connectWallet(state: State, walletPlugin: string, triggere
   if (triggeredByUser || state.isFirstLoad) {
     let provider = state.getWalletPluginProvider(walletPlugin);
     if (provider?.installed()) {
-      await wallet.connect(provider);
+      await wallet.connect(provider, {
+        userTriggeredConnect: triggeredByUser
+      });
     }
     state.isFirstLoad = false;
   }
