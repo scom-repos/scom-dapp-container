@@ -476,7 +476,6 @@ declare module "@scom/scom-dapp-container" {
         private _rootDir;
         private isInited;
         private _theme;
-        private rpcWalletEvents;
         tag: any;
         constructor(parent?: Container, options?: any);
         set theme(value: string);
@@ -485,7 +484,6 @@ declare module "@scom/scom-dapp-container" {
         private initData;
         init(): Promise<void>;
         onHide(): void;
-        removeRpcWalletEvents(): void;
         static create(options?: ScomDappElement, parent?: Container): Promise<ScomDappContainer>;
         get networks(): INetworkConfig[];
         set networks(value: INetworkConfig[]);

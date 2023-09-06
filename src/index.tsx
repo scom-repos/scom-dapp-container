@@ -47,7 +47,6 @@ export default class ScomDappContainer extends Module {
   private _rootDir: string;
   private isInited: boolean = false;
   private _theme: string;
-  private rpcWalletEvents: IEventBusRegistry[] = [];
 
   tag: any = {};
 
@@ -114,15 +113,6 @@ export default class ScomDappContainer extends Module {
     this.dappContainerBody.onHide();
     this.dappContainerHeader.onHide();
     this.dappContainerFooter.onHide();
-    this.removeRpcWalletEvents();
-  }
-
-  removeRpcWalletEvents() {
-    const rpcWallet = this.state.getRpcWallet();
-    for (let event of this.rpcWalletEvents) {
-      rpcWallet.unregisterWalletEvent(event);
-    }
-    this.rpcWalletEvents = [];
   }
 
   static async create(options?: ScomDappElement, parent?: Container){
@@ -193,13 +183,11 @@ export default class ScomDappContainer extends Module {
     this.dappContainerFooter.visible = this.showFooter;
     if (this.showWalletNetwork) {
       this.state.update(this._data);
-      this.removeRpcWalletEvents();
       const rpcWallet = this.state.getRpcWallet();
       if (rpcWallet){
-        const event = rpcWallet.registerWalletEvent(this, Constants.RpcWalletEvent.ChainChanged, async (chainId: number) => {
+        rpcWallet.registerWalletEvent(this, Constants.RpcWalletEvent.ChainChanged, async (chainId: number) => {
           this.dappContainerHeader.onChainChanged(chainId);
         });
-        this.rpcWalletEvents.push(event);
         if (this._data.defaultChainId) {
           const chainId = this.state.getChainId();
           if (chainId !== this._data.defaultChainId) {
