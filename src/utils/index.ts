@@ -1,45 +1,15 @@
 import { BigNumber } from '@ijstech/eth-wallet';
 import { match, MatchFunction } from './pathToRegexp';
+import { FormatUtils } from '@ijstech/components';
 
-const formatNumber = (value: any, decimals?: number) => {
-  let val = value;
+const formatNumber = (value: number | string | BigNumber, decimalFigures?: number) => {
+  const newValue = (typeof value === 'object') ? value.toFixed() : value;
   const minValue = '0.0000001';
-  if (typeof value === 'string') {
-    val = new BigNumber(value).toNumber();
-  } else if (typeof value === 'object') {
-    val = value.toNumber();
-  }
-  if (val != 0 && new BigNumber(val).lt(minValue)) {
-    return `<${minValue}`;
-  }
-  return formatNumberWithSeparators(val, decimals || 4);
+  return FormatUtils.formatNumber(newValue, {decimalFigures: decimalFigures || 4, minValue});
 };
-
-
-const formatNumberWithSeparators = (value: number, precision?: number) => {
-  if (!value) value = 0;
-  if (precision) {
-    let outputStr = '';
-    if (value >= 1) {
-      outputStr = value.toLocaleString('en-US', { maximumFractionDigits: precision });
-    }
-    else {
-      outputStr = value.toLocaleString('en-US', { maximumSignificantDigits: precision });
-    }
-
-    if (outputStr.length > 18) {
-      outputStr = outputStr.substr(0, 18) + '...'
-    }
-    return outputStr;
-  }
-  else {
-    return value.toLocaleString('en-US');
-  }
-}
 
 export {
   formatNumber,
-  formatNumberWithSeparators,
   match,
   MatchFunction
 }
