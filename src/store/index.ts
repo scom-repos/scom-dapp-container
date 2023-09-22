@@ -81,11 +81,6 @@ export async function logoutWallet() {
   application.EventBus.dispatch(EventId.IsWalletDisconnected, false);
 }
 
-export const truncateAddress = (address: string) => {
-  if (address === undefined || address === null) return '';
-  return address.substring(0, 6) + '...' + address.substring(address.length - 4);
-}
-
 export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) {
   const wallet = Wallet.getClientInstance();
   wallet.registerSendTxEvents({

@@ -285,10 +285,10 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
 }
 /// <amd-module name="@scom/scom-dapp-container/utils/index.ts" />
 declare module "@scom/scom-dapp-container/utils/index.ts" {
+    import { BigNumber } from '@ijstech/eth-wallet';
     import { match, MatchFunction } from "@scom/scom-dapp-container/utils/pathToRegexp.ts";
-    const formatNumber: (value: any, decimals?: number) => string;
-    const formatNumberWithSeparators: (value: number, precision?: number) => string;
-    export { formatNumber, formatNumberWithSeparators, match, MatchFunction };
+    const formatNumber: (value: number | string | BigNumber, decimalFigures?: number) => string;
+    export { formatNumber, match, MatchFunction };
     export * from "@scom/scom-dapp-container/utils/theme.ts";
 }
 /// <amd-module name="@scom/scom-dapp-container/header.css.ts" />
@@ -314,7 +314,6 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     export function connectWallet(state: State, walletPlugin: string, triggeredByUser?: boolean): Promise<IWallet>;
     export function switchNetwork(state: State, chainId: number): Promise<void>;
     export function logoutWallet(): Promise<void>;
-    export const truncateAddress: (address: string) => string;
     export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions): void;
     export function getWallet(): IWallet;
     export function getWalletProvider(): string;

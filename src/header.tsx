@@ -15,13 +15,12 @@ import {
   GridLayout,
   Container,
   Switch,
+  FormatUtils,
 } from '@ijstech/components';
 import { Constants, IEventBusRegistry, Wallet } from '@ijstech/eth-wallet';
 import { formatNumber, darkTheme, lightTheme } from './utils/index';
 import styleClass from './header.css';
 import {
-  EventId,
-  truncateAddress,
   isClientWalletConnected,
   connectWallet,
   logoutWallet,
@@ -88,7 +87,7 @@ export class DappContainerHeader extends Module {
   get shortlyAddress() {
     const address = this.walletInfo.address;
     if (!address) return 'No address selected';
-    return truncateAddress(address);
+    return FormatUtils.truncateWalletAddress(address);
   }
 
   get showWalletNetwork() {
