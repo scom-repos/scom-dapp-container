@@ -53,6 +53,7 @@ export default class ScomDappContainer extends Module {
   constructor(parent?: Container, options?: any) {
     super(parent, options);
     this.state = new State();
+    this.deferReadyCallback = true;
   }
 
   set theme(value: string) {
@@ -93,7 +94,6 @@ export default class ScomDappContainer extends Module {
     for (let child of this.children) {
       children.push(child)
     }
-    this.isReadyCallbackQueued = true;
     super.init();
     // this.classList.add('main-dapp');
     const lazyLoad = this.getAttribute('lazyLoad', true, false);
@@ -102,7 +102,6 @@ export default class ScomDappContainer extends Module {
       tag && this.setTag(tag)
       await this.initData();
     }
-    this.isReadyCallbackQueued = false;
     this.executeReadyCallback();
     for (let item of children) {
       this.dappContainerBody.setModule(item);
