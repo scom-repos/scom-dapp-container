@@ -972,12 +972,12 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                     if (!this.lblBalance.isConnected)
                         await this.lblBalance.ready();
                     this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
-                    if (!this.btnWalletDetail.isConnected)
-                        await this.btnWalletDetail.ready();
-                    this.btnWalletDetail.caption = this.shortlyAddress;
                     if (!this.lblWalletAddress.isConnected)
                         await this.lblWalletAddress.ready();
                     this.lblWalletAddress.caption = this.shortlyAddress;
+                    if (!this.lblWalletAddress2.isConnected)
+                        await this.lblWalletAddress2.ready();
+                    this.lblWalletAddress2.caption = this.shortlyAddress;
                     const walletChainId = this.state.getChainId();
                     const networkInfo = this.state.getNetworkInfo(walletChainId);
                     this.hsViewAccount.visible = !!networkInfo?.explorerAddressUrl;
@@ -985,17 +985,22 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                 else {
                     this.hsViewAccount.visible = false;
                 }
-                if (!this.btnNetwork.isConnected)
-                    await this.btnNetwork.ready();
+                if (!this.lblNetwork.isConnected)
+                    await this.lblNetwork.ready();
+                if (!this.imgNetwork.isConnected)
+                    await this.imgNetwork.ready();
                 const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network.chainId === this.selectedNetwork.chainId) !== -1;
                 if (isSupportedNetwork) {
                     const img = this.selectedNetwork?.image ? this.selectedNetwork.image : '';
-                    this.btnNetwork.icon = img ? this.$render("i-icon", { width: 26, height: 26, image: { url: img } }) : undefined;
-                    this.btnNetwork.caption = this.selectedNetwork?.chainName ?? "";
+                    this.imgNetwork.url = img || "";
+                    this.imgNetwork.visible = true;
+                    this.iconNetwork.image = new components_6.Image(this, { width: 26, height: 26, url: img || "" });
+                    this.lblNetwork.caption = this.selectedNetwork?.chainName ?? "";
                 }
                 else {
-                    this.btnNetwork.icon = undefined;
-                    this.btnNetwork.caption = "Unsupported Network";
+                    this.imgNetwork.visible = false;
+                    this.iconNetwork.name = "question-circle";
+                    this.lblNetwork.caption = "Unsupported Network";
                 }
                 this.btnConnectWallet.visible = !isConnected;
                 this.hsBalance.visible = isConnected;
@@ -1114,6 +1119,23 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             this.isInited = true;
             this.classList.add(header_css_1.default);
             this.initTheme();
+            this.observer = new ResizeObserver((entries) => {
+                if (this.getBoundingClientRect().width > 570) {
+                    this.btnConnectWallet.caption = "Connect Wallet";
+                    this.pnlNetwork.visible = true;
+                    this.pnlNetworkMobile.visible = false;
+                    this.pnlWalletAddress.visible = true;
+                    this.pnlWalletMobile.visible = false;
+                }
+                else {
+                    this.btnConnectWallet.caption = "Connect";
+                    this.pnlNetwork.visible = false;
+                    this.pnlNetworkMobile.visible = true;
+                    this.pnlWalletAddress.visible = false;
+                    this.pnlWalletMobile.visible = true;
+                }
+            });
+            this.observer.observe(this);
         }
         setState(state) {
             this.state = state;
@@ -1257,22 +1279,35 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             }
         }
         render() {
-            return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1.75rem', right: '1.75rem' }, background: { color: Theme.background.modal } },
+            return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.modal } },
                 this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'space-between', gap: "0.5rem" },
                     this.$render("i-panel", null,
                         this.$render("i-switch", { id: "switchTheme", checkedText: '\u263C', uncheckedText: '\u263E', checkedThumbColor: "transparent", uncheckedThumbColor: "transparent", class: "custom-switch", onChanged: this.onThemeChanged.bind(this) })),
                     this.$render("i-hstack", { id: "pnlWallet", verticalAlignment: 'center', horizontalAlignment: 'end' },
-                        this.$render("i-button", { id: "btnNetwork", margin: { right: '0.5rem' }, padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 12 }, font: { color: Theme.colors.secondary.contrastText }, background: { color: Theme.colors.secondary.main }, onClick: this.openNetworkModal, caption: "Unsupported Network" }),
-                        this.$render("i-hstack", { id: "hsBalance", visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 12 }, padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' } },
+                        this.$render("i-panel", { margin: { right: '0.5rem' }, cursor: "pointer", onClick: this.openNetworkModal },
+                            this.$render("i-stack", { id: "pnlNetwork", height: 32, direction: "horizontal", alignItems: "center", justifyContent: "center", background: { color: Theme.colors.secondary.main }, padding: { left: '0.75rem', right: '0.75rem' }, border: { radius: 12 }, gap: 6 },
+                                this.$render("i-image", { id: "imgNetwork", width: 26, height: 26, stack: { shrink: '0' } }),
+                                this.$render("i-label", { id: "lblNetwork", caption: "Unsupported Network", font: { color: Theme.colors.secondary.contrastText } })),
+                            this.$render("i-stack", { id: "pnlNetworkMobile", direction: "horizontal", alignItems: "center", background: { color: Theme.action.selectedBackground }, padding: { right: 10 }, border: { radius: 16 }, gap: 6, visible: false },
+                                this.$render("i-stack", { height: 32, width: 32, direction: "horizontal", alignItems: "center", justifyContent: "center", background: { color: Theme.background.paper }, border: { radius: '50%' } },
+                                    this.$render("i-icon", { id: "iconNetwork", width: 26, height: 26, stack: { shrink: '0' } })),
+                                this.$render("i-icon", { width: 13, height: 13, name: "chevron-down" }))),
+                        this.$render("i-hstack", { id: "hsBalance", height: 32, visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 12 }, padding: { left: '0.75rem', right: '0.75rem' } },
                             this.$render("i-label", { id: "lblBalance", font: { color: Theme.colors.primary.contrastText } })),
                         this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
-                            this.$render("i-button", { id: "btnWalletDetail", padding: { top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.background.gradient }, onClick: this.openWalletDetailModal }),
+                            this.$render("i-panel", { margin: { left: '0.5rem' }, cursor: "pointer", onClick: this.openWalletDetailModal },
+                                this.$render("i-stack", { id: "pnlWalletAddress", height: 32, direction: "horizontal", alignItems: "center", justifyContent: "center", background: { color: Theme.background.gradient }, padding: { left: '0.75rem', right: '0.75rem' }, border: { radius: 12 } },
+                                    this.$render("i-label", { id: "lblWalletAddress", font: { color: Theme.colors.error.contrastText } })),
+                                this.$render("i-stack", { id: "pnlWalletMobile", direction: "horizontal", alignItems: "center", background: { color: Theme.action.selectedBackground }, padding: { right: 10 }, border: { radius: 16 }, gap: 6, visible: false },
+                                    this.$render("i-stack", { height: 32, width: 32, direction: "horizontal", alignItems: "center", justifyContent: "center", background: { color: Theme.background.gradient }, border: { radius: '50%' } },
+                                        this.$render("i-icon", { width: 18, height: 18, name: "wallet" })),
+                                    this.$render("i-icon", { width: 13, height: 13, name: "chevron-down" }))),
                             this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
                                 this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
                                     this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
                                     this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
                                     this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
-                        this.$render("i-button", { id: "btnConnectWallet", height: 38, caption: "Connect Wallet", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.background.gradient }, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, onClick: this.openConnectModal }))),
+                        this.$render("i-button", { id: "btnConnectWallet", height: 32, caption: "Connect Wallet", border: { radius: 12 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.background.gradient }, padding: { top: '0.25rem', bottom: '0.25rem', left: '1rem', right: '1rem' }, onClick: this.openConnectModal }))),
                 this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
                     this.$render("i-vstack", { height: '100%', lineHeight: 1.5, padding: { left: '1rem', right: '1rem', bottom: '2rem' } },
                         this.$render("i-label", { id: 'lblNetworkDesc', margin: { top: '1rem' }, font: { size: '.875rem' }, wordBreak: "break-word", caption: 'We support the following networks, please click to connect.' }),
@@ -1288,7 +1323,7 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
                         this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: 'center' },
                             this.$render("i-label", { font: { size: '0.875rem' }, caption: 'Connected with' }),
                             this.$render("i-button", { caption: 'Logout', font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: 6, bottom: 6, left: 10, right: 10 }, border: { radius: 5 }, onClick: this.logout })),
-                        this.$render("i-label", { id: "lblWalletAddress", font: { size: '1.25rem', bold: true, color: Theme.colors.primary.main }, lineHeight: 1.5 }),
+                        this.$render("i-label", { id: "lblWalletAddress2", font: { size: '1.25rem', bold: true, color: Theme.colors.primary.main }, lineHeight: 1.5 }),
                         this.$render("i-hstack", { verticalAlignment: "center", gap: "2.5rem" },
                             this.$render("i-hstack", { class: "pointer", verticalAlignment: "center", tooltip: { content: `The address has been copied`, trigger: 'click' }, gap: "0.5rem", onClick: this.copyWalletAddress },
                                 this.$render("i-icon", { name: "copy", width: "16px", height: "16px", fill: Theme.text.secondary }),

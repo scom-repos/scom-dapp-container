@@ -348,18 +348,24 @@ declare module "@scom/scom-dapp-container/header.tsx" {
     import { State } from "@scom/scom-dapp-container/store/index.ts";
     export class DappContainerHeader extends Module {
         private state;
-        private btnNetwork;
+        private pnlNetwork;
+        private imgNetwork;
+        private lblNetwork;
+        private pnlNetworkMobile;
+        private iconNetwork;
         private hsBalance;
         private lblBalance;
         private pnlWalletDetail;
-        private btnWalletDetail;
+        private pnlWalletAddress;
+        private lblWalletAddress;
+        private pnlWalletMobile;
         private mdWalletDetail;
         private btnConnectWallet;
         private mdNetwork;
         private mdConnect;
         private mdAccount;
         private lblNetworkDesc;
-        private lblWalletAddress;
+        private lblWalletAddress2;
         private hsViewAccount;
         private gridWalletList;
         private gridNetworkGroup;
@@ -376,6 +382,7 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         private walletInfo;
         private _showWalletNetwork;
         private walletEvents;
+        private observer;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
         get shortlyAddress(): string;
