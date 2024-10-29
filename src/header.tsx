@@ -16,6 +16,9 @@ import {
   Container,
   Switch,
   FormatUtils,
+  StackLayout,
+  Image,
+  Icon,
 } from '@ijstech/components';
 import { Constants, IEventBusRegistry, Wallet } from '@ijstech/eth-wallet';
 import { formatNumber, darkTheme, lightTheme } from './utils/index';
@@ -37,18 +40,24 @@ const Theme = Styles.Theme.ThemeVars;
 @customElements('dapp-container-header')
 export class DappContainerHeader extends Module {
   private state: State;
-  private btnNetwork: Button;
+  private pnlNetwork: StackLayout;
+  private imgNetwork: Image;
+  private lblNetwork: Label;
+  private pnlNetworkMobile: StackLayout;
+  private iconNetwork: Icon;
   private hsBalance: HStack;
   private lblBalance: Label;
   private pnlWalletDetail: Panel;
-  private btnWalletDetail: Button;
+  private pnlWalletAddress: StackLayout;
+  private lblWalletAddress: Label;
+  private pnlWalletMobile: StackLayout;
   private mdWalletDetail: Modal;
   private btnConnectWallet: Button;
   private mdNetwork: Modal;
   private mdConnect: Modal;
   private mdAccount: Modal;
   private lblNetworkDesc: Label;
-  private lblWalletAddress: Label;
+  private lblWalletAddress2: Label;
   private hsViewAccount: HStack;
   private gridWalletList: GridLayout;
   private gridNetworkGroup: GridLayout;
@@ -71,6 +80,7 @@ export class DappContainerHeader extends Module {
   }
   private _showWalletNetwork: boolean = true;
   private walletEvents: IEventBusRegistry[] = [];
+  private observer: ResizeObserver;
 
   constructor(parent?: Container, options?: any) {
     super(parent, options);
@@ -131,6 +141,22 @@ export class DappContainerHeader extends Module {
     this.isInited = true;
     this.classList.add(styleClass);
     this.initTheme();
+    this.observer = new ResizeObserver((entries) => {
+      if (this.getBoundingClientRect().width > 570) {
+        this.btnConnectWallet.caption = "Connect Wallet";
+        this.pnlNetwork.visible = true;
+        this.pnlNetworkMobile.visible = false;
+        this.pnlWalletAddress.visible = true;
+        this.pnlWalletMobile.visible = false;
+      } else {
+        this.btnConnectWallet.caption = "Connect";
+        this.pnlNetwork.visible = false;
+        this.pnlNetworkMobile.visible = true;
+        this.pnlWalletAddress.visible = false;
+        this.pnlWalletMobile.visible = true;
+      }
+    });
+    this.observer.observe(this);
   }
 
   setState(state: State) {
@@ -184,25 +210,29 @@ export class DappContainerHeader extends Module {
     if (isConnected) {
       if (!this.lblBalance.isConnected) await this.lblBalance.ready();
       this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
-      if (!this.btnWalletDetail.isConnected) await this.btnWalletDetail.ready();
-      this.btnWalletDetail.caption = this.shortlyAddress;
       if (!this.lblWalletAddress.isConnected) await this.lblWalletAddress.ready();
       this.lblWalletAddress.caption = this.shortlyAddress;
+      if (!this.lblWalletAddress2.isConnected) await this.lblWalletAddress2.ready();
+      this.lblWalletAddress2.caption = this.shortlyAddress;
       const walletChainId = this.state.getChainId();
       const networkInfo = this.state.getNetworkInfo(walletChainId);
       this.hsViewAccount.visible = !!networkInfo?.explorerAddressUrl;
     } else {
       this.hsViewAccount.visible = false;
     }
-    if (!this.btnNetwork.isConnected) await this.btnNetwork.ready();
+    if (!this.lblNetwork.isConnected) await this.lblNetwork.ready();
+    if (!this.imgNetwork.isConnected) await this.imgNetwork.ready();
     const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network.chainId === this.selectedNetwork.chainId) !== -1;
     if (isSupportedNetwork) {
       const img = this.selectedNetwork?.image ? this.selectedNetwork.image : '';
-      this.btnNetwork.icon = img ? <i-icon width={26} height={26} image={{ url: img }} ></i-icon> : undefined;
-      this.btnNetwork.caption = this.selectedNetwork?.chainName ?? "";
+      this.imgNetwork.url = img || "";
+      this.imgNetwork.visible = true;
+      this.iconNetwork.image = new Image(this, { width: 26, height: 26, url: img || "" });
+      this.lblNetwork.caption = this.selectedNetwork?.chainName ?? "";
     } else {
-      this.btnNetwork.icon = undefined;
-      this.btnNetwork.caption = "Unsupported Network";
+      this.imgNetwork.visible = false;
+      this.iconNetwork.name = "question-circle";
+      this.lblNetwork.caption = "Unsupported Network";
     }
     this.btnConnectWallet.visible = !isConnected;
     this.hsBalance.visible = isConnected;
@@ -419,7 +449,7 @@ export class DappContainerHeader extends Module {
   render() {
     return (
       <i-panel
-        padding={{ top: '0.5rem', bottom: '0.5rem', left: '1.75rem', right: '1.75rem' }}
+        padding={{ top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }}
         background={{color: Theme.background.modal}}
       >
         <i-hstack verticalAlignment='center' horizontalAlignment='space-between' gap="0.5rem">
@@ -435,37 +465,95 @@ export class DappContainerHeader extends Module {
             ></i-switch>
           </i-panel>
           <i-hstack id="pnlWallet" verticalAlignment='center' horizontalAlignment='end'>
-            <i-button
-              id="btnNetwork"
-              margin={{ right: '0.5rem' }}
-              padding={{ top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }}
-              border={{ radius: 12 }}
-              font={{ color: Theme.colors.secondary.contrastText }}
-              background={{color: Theme.colors.secondary.main}}
-              onClick={this.openNetworkModal}
-              caption={"Unsupported Network"}
-            ></i-button>
+            <i-panel margin={{ right: '0.5rem' }} cursor="pointer" onClick={this.openNetworkModal}>
+              <i-stack
+                id="pnlNetwork"
+                height={32}
+                direction="horizontal"
+                alignItems="center"
+                justifyContent="center"
+                background={{color: Theme.colors.secondary.main}}
+                padding={{ left: '0.75rem', right: '0.75rem' }}
+                border={{ radius: 12 }}
+                gap={6}
+              >
+                <i-image id="imgNetwork" width={26} height={26} stack={{ shrink: '0' }}></i-image>
+                <i-label id="lblNetwork" caption="Unsupported Network" font={{ color: Theme.colors.secondary.contrastText }}></i-label>
+              </i-stack>
+              <i-stack
+                id="pnlNetworkMobile"
+                direction="horizontal"
+                alignItems="center" 
+                background={{ color: Theme.action.selectedBackground }}
+                padding={{ right: 10 }}
+                border={{ radius: 16 }}
+                gap={6}
+                visible={false}
+              >
+                <i-stack
+                  height={32}
+                  width={32}
+                  direction="horizontal"
+                  alignItems="center"
+                  justifyContent="center"
+                  background={{ color: Theme.background.paper }}
+                  border={{ radius: '50%' }}
+                >
+                  <i-icon id="iconNetwork" width={26} height={26} stack={{ shrink: '0' }}></i-icon>
+                </i-stack>
+                <i-icon width={13} height={13} name="chevron-down"></i-icon>
+              </i-stack>
+            </i-panel>
             <i-hstack
               id="hsBalance"
+              height={32}
               visible={false}
               horizontalAlignment="center"
               verticalAlignment="center"
               background={{ color: Theme.colors.primary.main }}
               border={{ radius: 12 }}
-              padding={{ top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }}
+              padding={{ left: '0.75rem', right: '0.75rem' }}
             >
               <i-label id="lblBalance" font={{ color: Theme.colors.primary.contrastText }}></i-label>
             </i-hstack>
             <i-panel id="pnlWalletDetail" visible={false}>
-              <i-button
-                id="btnWalletDetail"
-                padding={{ top: '0.45rem', bottom: '0.45rem', left: '0.75rem', right: '0.75rem' }}
-                margin={{ left: '0.5rem' }}
-                border={{ radius: 12 }}
-                font={{ color: Theme.colors.error.contrastText }}
-                background={{ color: Theme.background.gradient }}
-                onClick={this.openWalletDetailModal}
-              ></i-button>
+              <i-panel margin={{ left: '0.5rem' }} cursor="pointer" onClick={this.openWalletDetailModal}>
+                <i-stack
+                  id="pnlWalletAddress"
+                  height={32}
+                  direction="horizontal"
+                  alignItems="center"
+                  justifyContent="center"
+                  background={{ color: Theme.background.gradient }}
+                  padding={{ left: '0.75rem', right: '0.75rem' }}
+                  border={{ radius: 12 }}
+                >
+                  <i-label id="lblWalletAddress" font={{ color: Theme.colors.error.contrastText }}></i-label>
+                </i-stack>
+                <i-stack
+                  id="pnlWalletMobile"
+                  direction="horizontal"
+                  alignItems="center" 
+                  background={{ color: Theme.action.selectedBackground }}
+                  padding={{ right: 10 }}
+                  border={{ radius: 16 }}
+                  gap={6}
+                  visible={false}
+                >
+                  <i-stack
+                    height={32}
+                    width={32}
+                    direction="horizontal"
+                    alignItems="center"
+                    justifyContent="center"
+                    background={{ color: Theme.background.gradient }}
+                    border={{ radius: '50%' }}
+                  >
+                    <i-icon width={18} height={18} name="wallet"></i-icon>
+                  </i-stack>
+                  <i-icon width={13} height={13} name="chevron-down"></i-icon>
+                </i-stack>
+              </i-panel>
               <i-modal
                 id="mdWalletDetail"
                 class="wallet-modal"
@@ -510,12 +598,12 @@ export class DappContainerHeader extends Module {
             </i-panel>
             <i-button
               id="btnConnectWallet"
-              height={38}
+              height={32}
               caption="Connect Wallet"
               border={{ radius: 12 }}
               font={{ color: Theme.colors.error.contrastText }}
               background={{ color: Theme.background.gradient }}
-              padding={{ top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }}
+              padding={{ top: '0.25rem', bottom: '0.25rem', left: '1rem', right: '1rem' }}
               onClick={this.openConnectModal}
             ></i-button>
           </i-hstack>
@@ -608,7 +696,7 @@ export class DappContainerHeader extends Module {
                 onClick={this.logout}
               />
             </i-hstack>
-            <i-label id="lblWalletAddress" font={{ size: '1.25rem', bold: true, color: Theme.colors.primary.main }} lineHeight={1.5} />
+            <i-label id="lblWalletAddress2" font={{ size: '1.25rem', bold: true, color: Theme.colors.primary.main }} lineHeight={1.5} />
             <i-hstack verticalAlignment="center" gap="2.5rem">
               <i-hstack
                 class="pointer"
