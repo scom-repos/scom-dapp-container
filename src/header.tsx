@@ -21,8 +21,8 @@ import {
   Icon,
 } from '@ijstech/components';
 import { Constants, IEventBusRegistry, Wallet } from '@ijstech/eth-wallet';
-import { formatNumber, darkTheme, lightTheme } from './utils/index';
-import styleClass from './header.css';
+import { formatNumber, darkTheme, lightTheme, updateTheme } from './utils/index';
+import styleClass, { walletModalStyle } from './header.css';
 import {
   isClientWalletConnected,
   connectWallet,
@@ -34,6 +34,7 @@ import {
   State
 } from './store/index';
 import { IExtendedNetwork } from './interface';
+import { ConnectWalletModule } from './connectWalletModule';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -54,12 +55,11 @@ export class DappContainerHeader extends Module {
   private mdWalletDetail: Modal;
   private btnConnectWallet: Button;
   private mdNetwork: Modal;
-  private mdConnect: Modal;
+  private connectWalletModule: ConnectWalletModule
   private mdAccount: Modal;
   private lblNetworkDesc: Label;
   private lblWalletAddress2: Label;
   private hsViewAccount: HStack;
-  private gridWalletList: GridLayout;
   private gridNetworkGroup: GridLayout;
   private switchTheme: Switch;
   private pnlWallet: HStack;
@@ -67,9 +67,7 @@ export class DappContainerHeader extends Module {
   private $eventBus: IEventBus;
   private selectedNetwork: IExtendedNetwork | undefined;
   private networkMapper: Map<number, HStack>;
-  private walletMapper: Map<string, HStack>;
   private currActiveNetworkId: number;
-  private currActiveWallet: string;
   private supportedNetworks: IExtendedNetwork[] = [];
   isInited: boolean = false;
   @observable()
@@ -81,10 +79,19 @@ export class DappContainerHeader extends Module {
   private _showWalletNetwork: boolean = true;
   private walletEvents: IEventBusRegistry[] = [];
   private observer: ResizeObserver;
+  private _theme: any;
 
   constructor(parent?: Container, options?: any) {
     super(parent, options);
   };
+
+  get theme() {
+    return this._theme;
+  }
+
+  set theme(value: any) {
+    this._theme = value;
+  }
 
   get symbol() {
     let symbol = '';
@@ -166,7 +173,7 @@ export class DappContainerHeader extends Module {
   async reloadWalletsAndNetworks() {
     const chainId = this.state.getChainId();
     this.selectedNetwork = this.selectedNetwork || this.state.getNetworkInfo(chainId);
-    await this.renderWalletList();
+    if (this.connectWalletModule) await this.connectWalletModule.renderWalletList();
     this.renderNetworks();
     const rpcWallet = this.state.getRpcWallet();
     let clientWallet = Wallet.getClientInstance();
@@ -250,14 +257,7 @@ export class DappContainerHeader extends Module {
       }
       this.currActiveNetworkId = walletChainId;
     } else {
-      const wallet = Wallet.getClientInstance();
-      if (this.currActiveWallet && this.walletMapper.has(this.currActiveWallet)) {
-        this.walletMapper.get(this.currActiveWallet).classList.remove('is-actived');
-      }
-      if (connected && this.walletMapper.has(wallet.clientSideProvider?.name)) {
-        this.walletMapper.get(wallet.clientSideProvider?.name).classList.add('is-actived');
-      }
-      this.currActiveWallet = wallet.clientSideProvider?.name;
+      if (this.connectWalletModule) this.connectWalletModule.updateDot(connected);
     }
   }
 
@@ -270,10 +270,32 @@ export class DappContainerHeader extends Module {
     this.updateDot(isConnected, 'wallet');
     this.updateDot(isConnected, 'network');
   }
+  
+  private async initConnectWalletModule(title: string) {
+    let isFirstLoad = false;
+    if (!this.connectWalletModule) {
+      this.connectWalletModule = new ConnectWalletModule();
+      this.connectWalletModule.onWalletConnected = () => {
+        this.connectWalletModule.closeModal();
+      }
+      isFirstLoad = true;
+    }
+    this.connectWalletModule.setState(this.state);
+    const modal = this.connectWalletModule.openModal({
+      title: title,
+      class: walletModalStyle,
+      width: 440,
+      border: { radius: 10 }
+    });
+    if (isFirstLoad) {
+      if (this.theme) updateTheme(modal, this.theme);
+      await this.connectWalletModule.renderWalletList();
+      modal.refresh();
+    }
+  }
 
   openConnectModal = () => {
-    this.mdConnect.title = "Connect wallet"
-    this.mdConnect.visible = true;
+    this.initConnectWalletModule('Connect wallet');
   }
 
   openNetworkModal = () => {
@@ -293,8 +315,7 @@ export class DappContainerHeader extends Module {
   openSwitchModal = (target: Control, event: Event) => {
     event.stopPropagation();
     this.mdWalletDetail.visible = false;
-    this.mdConnect.title = "Switch wallet";
-    this.mdConnect.visible = true;
+    this.initConnectWalletModule('Switch wallet');
   }
 
   logout = async (target: Control, event: Event) => {
@@ -317,22 +338,6 @@ export class DappContainerHeader extends Module {
     this.mdNetwork.visible = false;
   }
 
-  openLink(link: any) {
-    return window.open(link, '_blank');
-  };
-
-  connectToProviderFunc = async (walletPlugin: string) => {
-    const provider = this.state.getWalletPluginProvider(walletPlugin);
-    if (provider?.installed()) {
-      await connectWallet(this.state, walletPlugin, true);
-    }
-    else {
-      let homepage = provider.homepage;
-      this.openLink(homepage);
-    }
-    this.mdConnect.visible = false;
-  }
-
   copyWalletAddress = () => {
     application.copyToClipboard(this.walletInfo.address || "");
   }
@@ -345,39 +350,6 @@ export class DappContainerHeader extends Module {
   isNetworkActive(chainId: number) {
     const walletChainId = this.state.getChainId();
     return walletChainId === chainId;
-  }
-
-  renderWalletList = async () => {
-    await this.state.initWalletPlugins();
-    this.gridWalletList.clearInnerHTML();
-    this.walletMapper = new Map();
-    const walletList = this.state.getSupportedWalletProviders();
-    walletList.forEach((wallet) => {
-      const isActive = this.isWalletActive(wallet.name);
-      if (isActive) this.currActiveWallet = wallet.name;
-      const hsWallet = (
-        <i-hstack
-          class={isActive ? 'is-actived list-item' : 'list-item'}
-          verticalAlignment='center'
-          gap={12}
-          background={{ color: Theme.colors.secondary.light }}
-          border={{ radius: 10 }} position="relative"
-          padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }}
-          horizontalAlignment="space-between"
-          onClick={() => this.connectToProviderFunc(wallet.name)}
-        >
-          <i-label
-            caption={wallet.displayName}
-            margin={{ left: '1rem' }}
-            wordBreak="break-word"
-            font={{ size: '.875rem', bold: true, color: Theme.colors.secondary.contrastText }}
-          />
-          <i-image width={34} height="auto" url={wallet.image || ''} />
-        </i-hstack>
-      );
-      this.walletMapper.set(wallet.name, hsWallet);
-      this.gridWalletList.append(hsWallet);
-    })
   }
 
   renderNetworks() {
@@ -645,34 +617,6 @@ export class DappContainerHeader extends Module {
                 gap={{ row: '0.5rem' }}
               ></i-grid-layout>
             </i-hstack>
-          </i-vstack>
-        </i-modal>
-        <i-modal
-          id='mdConnect'
-          title='Connect Wallet'
-          class='os-modal'
-          width={440}
-          closeIcon={{ name: 'times' }}
-          border={{ radius: 10 }}
-        >
-          <i-vstack padding={{ left: '1rem', right: '1rem', bottom: '2rem' }} lineHeight={1.5}>
-            <i-label
-              font={{ size: '.875rem' }}
-              caption='Recommended wallet for Chrome'
-              margin={{ top: '1rem' }}
-              wordBreak="break-word"
-            ></i-label>
-            <i-panel>
-              <i-grid-layout
-                id='gridWalletList'
-                class='list-view'
-                margin={{ top: '0.5rem' }}
-                columnsPerRow={1}
-                templateRows={['max-content']}
-                gap={{ row: 8 }}
-              >
-              </i-grid-layout>
-            </i-panel>
           </i-vstack>
         </i-modal>
         <i-modal

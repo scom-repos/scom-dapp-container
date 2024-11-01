@@ -6,6 +6,7 @@ import { DappContainerHeader } from "./header";
 import { State, switchNetwork } from "./store/index";
 import { DappContainerFooter } from "./footer";
 import { Constants, IEventBusRegistry } from "@ijstech/eth-wallet";
+import { updateTheme } from "./utils";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
 export { DappContainerFooter } from './footer';
@@ -254,37 +255,15 @@ export default class ScomDappContainer extends Module {
           this.tag[prop] = newValue[prop];
       }
     }
-    this.updateTheme();
+    const theme = this.tag[this.theme] || {};
+    updateTheme(this, theme);
+    if (this.dappContainerHeader) this.dappContainerHeader.theme = theme;
   }
 
   initTag(value: any) {
     this.setTag(value);
     const parent = this.parentElement as any;
     if (parent?.setTag) parent.setTag(this.tag);
-  }
-
-  private updateStyle(name: string, value: any) {
-    value ?
-      this.style.setProperty(name, value) :
-      this.style.removeProperty(name);
-  }
-
-  private updateTheme() {
-    const theme = this.tag[this.theme] || {};
-    this.updateStyle('--text-primary', theme.fontColor);
-    this.updateStyle('--background-main', theme.backgroundColor);
-    this.updateStyle('--input-font_color', theme.inputFontColor);
-    this.updateStyle('--input-background', theme.inputBackgroundColor);
-    this.updateStyle('--colors-primary-main', theme.buttonBackgroundColor);
-    this.updateStyle('--colors-primary-contrast_text', theme.buttonFontColor);
-    this.updateStyle('--background-modal', theme.modalColor);
-    this.updateStyle('--colors-secondary-main', theme.secondaryColor);
-    this.updateStyle('--colors-secondary-contrast_text', theme.secondaryFontColor);
-    this.updateStyle('--primary-button-background', theme.primaryButtonBackground);
-    this.updateStyle('--primary-button-hover-background', theme.primaryButtonHoverBackground);
-    this.updateStyle('--primary-button-disabled-background', theme.primaryButtonDisabledBackground);
-    this.updateStyle('--max-button-background', theme.maxButtonBackground);
-    this.updateStyle('--max-button-hover-background', theme.maxButtonHoverBackground);
   }
   
   render() {
