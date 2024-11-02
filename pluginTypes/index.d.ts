@@ -287,12 +287,15 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
 declare module "@scom/scom-dapp-container/utils/index.ts" {
     import { BigNumber } from '@ijstech/eth-wallet';
     import { match, MatchFunction } from "@scom/scom-dapp-container/utils/pathToRegexp.ts";
+    import { Control } from '@ijstech/components';
     const formatNumber: (value: number | string | BigNumber, decimalFigures?: number) => string;
-    export { formatNumber, match, MatchFunction };
+    function updateTheme(target: Control, theme: any): void;
+    export { formatNumber, updateTheme, match, MatchFunction };
     export * from "@scom/scom-dapp-container/utils/theme.ts";
 }
 /// <amd-module name="@scom/scom-dapp-container/header.css.ts" />
 declare module "@scom/scom-dapp-container/header.css.ts" {
+    export const walletModalStyle: string;
     const _default_1: string;
     export default _default_1;
 }
@@ -342,6 +345,35 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     export const viewOnExplorerByTxHash: (state: State, chainId: number, txHash: string) => void;
     export const viewOnExplorerByAddress: (state: State, chainId: number, address: string) => void;
 }
+/// <amd-module name="@scom/scom-dapp-container/connectWalletModule.tsx" />
+declare module "@scom/scom-dapp-container/connectWalletModule.tsx" {
+    import { Module, ControlElement } from '@ijstech/components';
+    import { State } from "@scom/scom-dapp-container/store/index.ts";
+    interface ConnectWalletElement extends ControlElement {
+        onWalletConnected?: () => void;
+    }
+    global {
+        namespace JSX {
+            interface IntrinsicElements {
+                ['dapp-container-connect-wallet-module']: ConnectWalletElement;
+            }
+        }
+    }
+    export class ConnectWalletModule extends Module {
+        private state;
+        private gridWalletList;
+        private walletMapper;
+        private currActiveWallet;
+        onWalletConnected: () => void;
+        setState(state: State): void;
+        openLink(link: any): Window;
+        connectToProviderFunc: (walletPlugin: string) => Promise<void>;
+        isWalletActive(walletPlugin: any): boolean;
+        updateDot(connected: boolean): void;
+        renderWalletList(): Promise<void>;
+        render(): any;
+    }
+}
 /// <amd-module name="@scom/scom-dapp-container/header.tsx" />
 declare module "@scom/scom-dapp-container/header.tsx" {
     import { Module, Control, ControlElement, Container } from '@ijstech/components';
@@ -362,28 +394,28 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         private mdWalletDetail;
         private btnConnectWallet;
         private mdNetwork;
-        private mdConnect;
+        private connectWalletModule;
         private mdAccount;
         private lblNetworkDesc;
         private lblWalletAddress2;
         private hsViewAccount;
-        private gridWalletList;
         private gridNetworkGroup;
         private switchTheme;
         private pnlWallet;
         private $eventBus;
         private selectedNetwork;
         private networkMapper;
-        private walletMapper;
         private currActiveNetworkId;
-        private currActiveWallet;
         private supportedNetworks;
         isInited: boolean;
         private walletInfo;
         private _showWalletNetwork;
         private walletEvents;
         private observer;
+        private _theme;
         constructor(parent?: Container, options?: any);
+        get theme(): any;
+        set theme(value: any);
         get symbol(): string;
         get shortlyAddress(): string;
         get showWalletNetwork(): boolean;
@@ -397,6 +429,7 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         updateConnectedStatus: (isConnected: boolean) => Promise<void>;
         updateDot(connected: boolean, type: 'network' | 'wallet'): void;
         updateList(isConnected: boolean): void;
+        private initConnectWalletModule;
         openConnectModal: () => void;
         openNetworkModal: () => void;
         openWalletDetailModal: () => void;
@@ -405,12 +438,9 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         logout: (target: Control, event: Event) => Promise<void>;
         viewOnExplorerByAddress(): void;
         switchNetwork(chainId: number): Promise<void>;
-        openLink(link: any): Window;
-        connectToProviderFunc: (walletPlugin: string) => Promise<void>;
         copyWalletAddress: () => void;
         isWalletActive(walletPlugin: any): boolean;
         isNetworkActive(chainId: number): boolean;
-        renderWalletList: () => Promise<void>;
         renderNetworks(): void;
         private onThemeChanged;
         private initTheme;
@@ -511,8 +541,6 @@ declare module "@scom/scom-dapp-container" {
         private updateTag;
         setTag(value: any): void;
         initTag(value: any): void;
-        private updateStyle;
-        private updateTheme;
         render(): any;
     }
 }
