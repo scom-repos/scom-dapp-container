@@ -1,6 +1,7 @@
 import { Module, customElements, ControlElement, Styles, GridLayout, HStack } from '@ijstech/components';
-import { IClientSideProvider, Wallet } from '@ijstech/eth-wallet';
+import { Wallet } from '@ijstech/eth-wallet';
 import { connectWallet, State } from './store';
+import translations from './translations.json';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -93,12 +94,17 @@ export class ConnectWalletModule extends Module {
         })
     }
 
+    init() {
+        this.i18n.init({...translations});
+        super.init();
+    }
+
     render() {
         return (
             <i-vstack padding={{ left: '1rem', right: '1rem', bottom: '2rem' }} lineHeight={1.5}>
                 <i-label
                     font={{ size: '.875rem' }}
-                    caption='Recommended wallet for Chrome'
+                    caption='$recommended_wallet_for_chrome'
                     margin={{ top: '1rem' }}
                     wordBreak="break-word"
                 ></i-label>

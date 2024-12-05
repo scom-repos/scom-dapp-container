@@ -35,6 +35,7 @@ import {
 } from './store/index';
 import { IExtendedNetwork } from './interface';
 import { ConnectWalletModule } from './connectWalletModule';
+import translations from './translations.json';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -142,6 +143,7 @@ export class DappContainerHeader extends Module {
 
   async init() {
     if (this.isInited) return;
+    this.i18n.init({...translations});
     super.init();
     this.$eventBus = application.EventBus;
     this.registerEvent();
@@ -150,13 +152,13 @@ export class DappContainerHeader extends Module {
     this.initTheme();
     this.observer = new ResizeObserver((entries) => {
       if (this.getBoundingClientRect().width > 570) {
-        this.btnConnectWallet.caption = "Connect Wallet";
+        this.btnConnectWallet.caption = "$connect_wallet";
         this.pnlNetwork.visible = true;
         this.pnlNetworkMobile.visible = false;
         this.pnlWalletAddress.visible = true;
         this.pnlWalletMobile.visible = false;
       } else {
-        this.btnConnectWallet.caption = "Connect";
+        this.btnConnectWallet.caption = "$connect";
         this.pnlNetwork.visible = false;
         this.pnlNetworkMobile.visible = true;
         this.pnlWalletAddress.visible = false;
@@ -239,7 +241,7 @@ export class DappContainerHeader extends Module {
     } else {
       this.imgNetwork.visible = false;
       this.iconNetwork.name = "question-circle";
-      this.lblNetwork.caption = "Unsupported Network";
+      this.lblNetwork.caption = "$unsupported_network";
     }
     this.btnConnectWallet.visible = !isConnected;
     this.hsBalance.visible = isConnected;
@@ -263,9 +265,9 @@ export class DappContainerHeader extends Module {
 
   updateList(isConnected: boolean) {
     if (isConnected && getWalletProvider() !== WalletPlugin.MetaMask) {
-      this.lblNetworkDesc.caption = "We support the following networks, please switch network in the connected wallet.";
+      this.lblNetworkDesc.caption = "$we_support_the_following_networks_please_switch_network_in_the_connected_wallet";
     } else {
-      this.lblNetworkDesc.caption = "We support the following networks, please click to connect.";
+      this.lblNetworkDesc.caption = "$we_support_the_following_networks_please_click_to_connect";
     }
     this.updateDot(isConnected, 'wallet');
     this.updateDot(isConnected, 'network');
@@ -295,7 +297,7 @@ export class DappContainerHeader extends Module {
   }
 
   openConnectModal = () => {
-    this.initConnectWalletModule('Connect wallet');
+    this.initConnectWalletModule('$connect_wallet');
   }
 
   openNetworkModal = () => {
@@ -315,7 +317,7 @@ export class DappContainerHeader extends Module {
   openSwitchModal = (target: Control, event: Event) => {
     event.stopPropagation();
     this.mdWalletDetail.visible = false;
-    this.initConnectWalletModule('Switch wallet');
+    this.initConnectWalletModule('$switch_wallet');
   }
 
   logout = async (target: Control, event: Event) => {
@@ -450,7 +452,7 @@ export class DappContainerHeader extends Module {
                 gap={6}
               >
                 <i-image id="imgNetwork" width={26} height={26} stack={{ shrink: '0' }}></i-image>
-                <i-label id="lblNetwork" caption="Unsupported Network" font={{ color: Theme.colors.secondary.contrastText }}></i-label>
+                <i-label id="lblNetwork" caption="$unsupported_network" font={{ color: Theme.colors.secondary.contrastText }}></i-label>
               </i-stack>
               <i-stack
                 id="pnlNetworkMobile"
@@ -536,7 +538,7 @@ export class DappContainerHeader extends Module {
               >
                 <i-vstack gap={15} padding={{ top: 10, left: 10, right: 10, bottom: 10 }}>
                   <i-button
-                    caption="Account"
+                    caption="$account"
                     width="100%"
                     height="auto"
                     border={{ radius: 12 }}
@@ -546,7 +548,7 @@ export class DappContainerHeader extends Module {
                     onClick={this.openAccountModal}
                   ></i-button>
                   <i-button
-                    caption="Switch wallet"
+                    caption="$switch_wallet"
                     width="100%"
                     height="auto"
                     border={{ radius: 12 }}
@@ -556,7 +558,7 @@ export class DappContainerHeader extends Module {
                     onClick={this.openSwitchModal}
                   ></i-button>
                   <i-button
-                    caption="Logout"
+                    caption="$logout"
                     width="100%"
                     height="auto"
                     border={{ radius: 12 }}
@@ -571,7 +573,7 @@ export class DappContainerHeader extends Module {
             <i-button
               id="btnConnectWallet"
               height={32}
-              caption="Connect Wallet"
+              caption="$connect_wallet"
               border={{ radius: 12 }}
               font={{ color: Theme.colors.error.contrastText }}
               background={{ color: Theme.background.gradient }}
@@ -582,7 +584,7 @@ export class DappContainerHeader extends Module {
         </i-hstack>
         <i-modal
           id='mdNetwork'
-          title='Supported Network'
+          title='$supported_networks'
           class='os-modal'
           width={440}
           closeIcon={{ name: 'times' }}
@@ -597,7 +599,7 @@ export class DappContainerHeader extends Module {
               margin={{ top: '1rem' }}
               font={{ size: '.875rem' }}
               wordBreak="break-word"
-              caption='We support the following networks, please click to connect.'
+              caption='$we_support_the_following_networks_please_click_to_connect'
             ></i-label>
             <i-hstack
               margin={{ left: '-1.25rem', right: '-1.25rem' }}
@@ -621,7 +623,7 @@ export class DappContainerHeader extends Module {
         </i-modal>
         <i-modal
           id='mdAccount'
-          title='Account'
+          title='$account'
           class='os-modal'
           width={440}
           height={200}
@@ -630,9 +632,9 @@ export class DappContainerHeader extends Module {
         >
           <i-vstack width="100%" padding={{ top: "1.75rem", bottom: "1rem", left: "2.75rem", right: "2.75rem" }} gap={5}>
             <i-hstack horizontalAlignment="space-between" verticalAlignment='center'>
-              <i-label font={{ size: '0.875rem' }} caption='Connected with' />
+              <i-label font={{ size: '0.875rem' }} caption='$connected_with' />
               <i-button
-                caption='Logout'
+                caption='$logout'
                 font={{ color: Theme.colors.error.contrastText }}
                 background={{ color: Theme.colors.error.light }}
                 padding={{ top: 6, bottom: 6, left: 10, right: 10 }}
@@ -645,7 +647,7 @@ export class DappContainerHeader extends Module {
               <i-hstack
                 class="pointer"
                 verticalAlignment="center"
-                tooltip={{ content: `The address has been copied`, trigger: 'click' }}
+                tooltip={{ content: `$the_address_has_been_copied`, trigger: 'click' }}
                 gap="0.5rem"
                 onClick={this.copyWalletAddress}
               >
@@ -655,11 +657,11 @@ export class DappContainerHeader extends Module {
                   height="16px"
                   fill={Theme.text.secondary}
                 ></i-icon>
-                <i-label caption="Copy Address" font={{ size: "0.875rem", bold: true }} />
+                <i-label caption="$copy_address" font={{ size: "0.875rem", bold: true }} />
               </i-hstack>
               <i-hstack id="hsViewAccount" class="pointer" verticalAlignment="center" onClick={this.viewOnExplorerByAddress.bind(this)}>
                 <i-icon name="external-link-alt" width="16" height="16" fill={Theme.text.secondary} display="inline-block" />
-                <i-label caption="View on Explorer" margin={{ left: "0.5rem" }} font={{ size: "0.875rem", bold: true }} />
+                <i-label caption="$view_on_explorer" margin={{ left: "0.5rem" }} font={{ size: "0.875rem", bold: true }} />
               </i-hstack>
             </i-hstack>
           </i-vstack>

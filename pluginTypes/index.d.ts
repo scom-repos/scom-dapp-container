@@ -345,6 +345,49 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     export const viewOnExplorerByTxHash: (state: State, chainId: number, txHash: string) => void;
     export const viewOnExplorerByAddress: (state: State, chainId: number, address: string) => void;
 }
+/// <amd-module name="@scom/scom-dapp-container/translations.json.ts" />
+declare module "@scom/scom-dapp-container/translations.json.ts" {
+    const _default_2: {
+        en: {
+            no_address_selected: string;
+            unsupported_network: string;
+            supported_networks: string;
+            switch_wallet: string;
+            connect: string;
+            connect_wallet: string;
+            we_support_the_following_networks_please_switch_network_in_the_connected_wallet: string;
+            we_support_the_following_networks_please_click_to_connect: string;
+            account: string;
+            logout: string;
+            the_address_has_been_copied: string;
+            connected_with: string;
+            copy_address: string;
+            view_on_explorer: string;
+            powered_by: string;
+            recommended_wallet_for_chrome: string;
+        };
+        "zh-hant": {};
+        vi: {
+            no_address_selected: string;
+            unsupported_network: string;
+            switch_wallet: string;
+            connect: string;
+            connect_wallet: string;
+            we_support_the_following_networks_please_switch_network_in_the_connected_wallet: string;
+            we_support_the_following_networks_please_click_to_connect: string;
+            account: string;
+            logout: string;
+            the_address_has_been_copied: string;
+            connected_with: string;
+            copy_address: string;
+            view_on_explorer: string;
+            powered_by: string;
+            recommended_wallet_for_chrome: string;
+            supported_networks: string;
+        };
+    };
+    export default _default_2;
+}
 /// <amd-module name="@scom/scom-dapp-container/connectWalletModule.tsx" />
 declare module "@scom/scom-dapp-container/connectWalletModule.tsx" {
     import { Module, ControlElement } from '@ijstech/components';
@@ -371,6 +414,7 @@ declare module "@scom/scom-dapp-container/connectWalletModule.tsx" {
         isWalletActive(walletPlugin: any): boolean;
         updateDot(connected: boolean): void;
         renderWalletList(): Promise<void>;
+        init(): void;
         render(): any;
     }
 }
