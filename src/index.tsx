@@ -5,7 +5,7 @@ import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
 import { State, switchNetwork } from "./store/index";
 import { DappContainerFooter } from "./footer";
-import { Constants, IEventBusRegistry } from "@ijstech/eth-wallet";
+import { Constants } from "@ijstech/eth-wallet";
 import { updateTheme } from "./utils";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';

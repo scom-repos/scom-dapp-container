@@ -6,6 +6,7 @@ import {
   HStack,
   Control
 } from '@ijstech/components';
+import translations from './translations.json';
 
 declare global {
   namespace JSX {
@@ -27,6 +28,7 @@ export class DappContainerFooter extends Module {
   }
 
   init() {
+    this.i18n.init({...translations});
     super.init();
   }
 
@@ -52,7 +54,7 @@ export class DappContainerFooter extends Module {
       >
         {/* <i-image height={30} width={30} url={Assets.logo}></i-image> */}
         <i-hstack id="lblFooter" gap={4} verticalAlignment="center">
-          <i-label caption="Powered By" font={{size: '0.75rem', color: Theme.text.primary}}></i-label>
+          <i-label caption="$powered_by" font={{size: '0.75rem', color: Theme.text.primary}}></i-label>
           <i-label caption="SECURE" font={{size: '0.75rem', color: '#F99E43', weight: 700}}></i-label>
           <i-label caption="COMPUTE" font={{size: '0.75rem', color: Theme.text.primary, weight: 700}}></i-label>
         </i-hstack>
