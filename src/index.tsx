@@ -1,15 +1,16 @@
 import { customElements, ControlElement, customModule, GridLayout, Module, Panel, Styles, Container } from "@ijstech/components";
-import { IWalletPlugin, IDappContainerData } from "./interface";
+import { IWalletPlugin, IDappContainerData, WidgetType } from "./interface";
 import styleClass from './index.css';
 import { DappContainerBody } from './body';
 import { DappContainerHeader } from "./header";
 import { State, switchNetwork } from "./store/index";
 import { DappContainerFooter } from "./footer";
 import { Constants } from "@ijstech/eth-wallet";
-import { updateTheme } from "./utils";
+import { embedTheme, getThemeVars, updateTheme } from "./utils";
 export { DappContainerBody } from './body';
 export { DappContainerHeader } from './header';
 export { DappContainerFooter } from './footer';
+export { WidgetType }
 
 const Theme = Styles.Theme.ThemeVars;
 interface INetworkConfig {
@@ -25,6 +26,7 @@ interface ScomDappElement extends ControlElement {
   showFooter?: boolean;
   showWalletNetwork?: boolean;
   rpcWalletId?: string;
+  widgetType?: WidgetType;
 }
 
 declare global {
@@ -83,7 +85,8 @@ export default class ScomDappContainer extends Module {
       const showWalletNetwork = this.getAttribute('showWalletNetwork', true) ?? this.showWalletNetwork;
       const defaultChainId = this.getAttribute('defaultChainId', true) ?? this._data?.defaultChainId;
       const rpcWalletId = this.getAttribute('rpcWalletId', true) ?? this._data?.rpcWalletId;
-      let data = {defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork, rpcWalletId};
+      const widgetType = this.getAttribute('widgetType', true) ?? this.widgetType;
+      let data = {defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork, rpcWalletId, widgetType};
       if (!this.isEmptyData(data)) {
         await this.setData(data);
       }
@@ -146,11 +149,22 @@ export default class ScomDappContainer extends Module {
   }
 
   get showFooter() {
+    if (this.widgetType === WidgetType.Embed) return false;
     return this._data?.showFooter ?? true;
   }
   set showFooter(value: boolean) {
     this._data.showFooter = value;
     this.dappContainerFooter.visible = this.showFooter;
+  }
+
+  get widgetType() {
+    return this._data?.widgetType ?? WidgetType.Standalone;
+  }
+  set widgetType(value: WidgetType) {
+    this._data.widgetType = value;
+    this.dappContainerHeader.enableThemeToggle = value === WidgetType.Standalone;
+    this.dappContainerFooter.visible = value === WidgetType.Standalone;
+    if (value === WidgetType.Embed) updateTheme(this, getThemeVars(embedTheme));
   }
 
   get showWalletNetwork() {
@@ -180,6 +194,8 @@ export default class ScomDappContainer extends Module {
     this.dappContainerHeader.setState(this.state);
     this.dappContainerHeader.visible = this.showHeader;
     this.dappContainerHeader.showWalletNetwork = this.showWalletNetwork;
+    this.dappContainerHeader.enableThemeToggle = this.widgetType === WidgetType.Standalone;
+    if (this.widgetType === WidgetType.Embed) updateTheme(this, getThemeVars(embedTheme));
     this.dappContainerFooter.visible = this.showFooter;
     if (this.showWalletNetwork) {
       this.state.update(this._data);

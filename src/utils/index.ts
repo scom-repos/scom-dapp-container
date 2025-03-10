@@ -14,6 +14,26 @@ function updateStyle(target: Control, name: string, value: any) {
     target.style.removeProperty(name);
 }
 
+function getThemeVars(themeVars: any) {
+  return {
+    fontColor: themeVars.text.primary,
+    backgroundColor: themeVars.background.main,
+    inputFontColor: themeVars.input.fontColor,
+    inputBackgroundColor: themeVars.input.background,
+    buttonBackgroundColor: themeVars.colors.primary.main,
+    buttonFontColor: themeVars.colors.primary.contrastText,
+    modalColor: themeVars.background.modal,
+    secondaryColor: themeVars.colors.secondary.main,
+    secondaryFontColor: themeVars.colors.secondary.contrastText,
+    textSecondary: themeVars.text.secondary,
+    primaryButtonBackground: themeVars.buttons.primary.background,
+    primaryButtonHoverBackground: themeVars.buttons.primary.hoverBackground,
+    primaryButtonDisabledBackground: themeVars.buttons.primary.disabledBackground,
+    maxButtonBackground: themeVars.buttons.secondary.background,
+    maxButtonHoverBackground: themeVars.buttons.secondary.hoverBackground
+  }
+}
+
 function updateTheme(target: Control, theme: any) {
   if (!theme) theme = {};
   updateStyle(target, '--text-primary', theme.fontColor);
@@ -34,6 +54,7 @@ function updateTheme(target: Control, theme: any) {
 
 export {
   formatNumber,
+  getThemeVars,
   updateTheme,
   match,
   MatchFunction

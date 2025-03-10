@@ -21,7 +21,7 @@ import {
   Icon,
 } from '@ijstech/components';
 import { Constants, IEventBusRegistry, Wallet } from '@ijstech/eth-wallet';
-import { formatNumber, darkTheme, lightTheme, updateTheme } from './utils/index';
+import { formatNumber, darkTheme, lightTheme, updateTheme, getThemeVars } from './utils/index';
 import styleClass, { walletModalStyle } from './header.css';
 import {
   isClientWalletConnected,
@@ -33,7 +33,7 @@ import {
   WalletPlugin,
   State
 } from './store/index';
-import { IExtendedNetwork } from './interface';
+import { IExtendedNetwork, ITheme } from './interface';
 import { ConnectWalletModule } from './connectWalletModule';
 import translations from './translations.json';
 
@@ -114,6 +114,10 @@ export class DappContainerHeader extends Module {
   set showWalletNetwork(value: boolean) {
     this._showWalletNetwork = value;
     this.pnlWallet.visible = this.showWalletNetwork;
+  }
+
+  set enableThemeToggle(value: boolean) {
+    this.switchTheme.visible = value;
   }
 
   onHide() {
@@ -390,32 +394,12 @@ export class DappContainerHeader extends Module {
   }
 
   private initTheme() {
-    const getThemeVars = (theme: 'light' | 'dark') => {
-      const themeVars = theme === 'light' ? lightTheme : darkTheme;
-      return {
-        fontColor: themeVars.text.primary,
-        backgroundColor: themeVars.background.main,
-        inputFontColor: themeVars.input.fontColor,
-        inputBackgroundColor: themeVars.input.background,
-        buttonBackgroundColor: themeVars.colors.primary.main,
-        buttonFontColor: themeVars.colors.primary.contrastText,
-        modalColor: themeVars.background.modal,
-        secondaryColor: themeVars.colors.secondary.main,
-        secondaryFontColor: themeVars.colors.secondary.contrastText,
-        textSecondary: themeVars.text.secondary,
-        primaryButtonBackground: themeVars.buttons.primary.background,
-        primaryButtonHoverBackground: themeVars.buttons.primary.hoverBackground,
-        primaryButtonDisabledBackground: themeVars.buttons.primary.disabledBackground,
-        maxButtonBackground: themeVars.buttons.secondary.background,
-        maxButtonHoverBackground: themeVars.buttons.secondary.hoverBackground
-      }
-    }
     const parent = this.closest('i-scom-dapp-container') as any;
     if (parent) {
       parent.theme = this.switchTheme.checked ? 'light' : 'dark';
       parent.initTag({
-        light: getThemeVars('light'),
-        dark: getThemeVars('dark') 
+        light: getThemeVars(lightTheme),
+        dark: getThemeVars(darkTheme) 
       })
     }
   }

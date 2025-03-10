@@ -7,6 +7,10 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         packageName?: string;
         provider?: IClientSideProvider;
     }
+    enum WidgetType {
+        Standalone = 0,
+        Embed = 1
+    }
     interface IDappContainerData {
         defaultChainId?: number;
         networks?: INetworkConfig[];
@@ -15,6 +19,7 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         showFooter?: boolean;
         showWalletNetwork?: boolean;
         rpcWalletId?: string;
+        widgetType?: WidgetType;
     }
     interface IPageBlockData {
         name: string;
@@ -48,7 +53,24 @@ declare module "@scom/scom-dapp-container/interface.ts" {
         chainName?: string;
         chainId: number;
     }
-    export { IWalletPlugin, IPageBlockData, IDappContainerData, ICodeInfoFileContent, EVENT, IExtendedNetwork, INetworkConfig };
+    interface ITheme {
+        fontColor: string;
+        backgroundColor: string;
+        inputFontColor: string;
+        inputBackgroundColor: string;
+        buttonBackgroundColor: string;
+        buttonFontColor: string;
+        modalColor: string;
+        secondaryColor: string;
+        secondaryFontColor: string;
+        textSecondary: string;
+        primaryButtonBackground: string;
+        primaryButtonHoverBackground: string;
+        primaryButtonDisabledBackground: string;
+        maxButtonBackground: string;
+        maxButtonHoverBackground: string;
+    }
+    export { IWalletPlugin, WidgetType, IPageBlockData, IDappContainerData, ICodeInfoFileContent, EVENT, IExtendedNetwork, INetworkConfig, ITheme };
 }
 /// <amd-module name="@scom/scom-dapp-container/index.css.ts" />
 declare module "@scom/scom-dapp-container/index.css.ts" {
@@ -282,6 +304,43 @@ declare module "@scom/scom-dapp-container/utils/theme.ts" {
             };
         };
     };
+    export const embedTheme: {
+        background: {
+            main: string;
+            modal: string;
+            gradient: string;
+        };
+        input: {
+            background: string;
+            fontColor: string;
+        };
+        text: {
+            primary: string;
+            secondary: string;
+        };
+        colors: {
+            primary: {
+                main: string;
+                contrastText: string;
+            };
+            secondary: {
+                main: string;
+                contrastText: string;
+            };
+        };
+        buttons: {
+            primary: {
+                background: string;
+                hoverBackground: string;
+                disabledBackground: string;
+            };
+            secondary: {
+                background: string;
+                hoverBackground: string;
+                disabledBackground: string;
+            };
+        };
+    };
 }
 /// <amd-module name="@scom/scom-dapp-container/utils/index.ts" />
 declare module "@scom/scom-dapp-container/utils/index.ts" {
@@ -289,8 +348,25 @@ declare module "@scom/scom-dapp-container/utils/index.ts" {
     import { match, MatchFunction } from "@scom/scom-dapp-container/utils/pathToRegexp.ts";
     import { Control } from '@ijstech/components';
     const formatNumber: (value: number | string | BigNumber, decimalFigures?: number) => string;
+    function getThemeVars(themeVars: any): {
+        fontColor: any;
+        backgroundColor: any;
+        inputFontColor: any;
+        inputBackgroundColor: any;
+        buttonBackgroundColor: any;
+        buttonFontColor: any;
+        modalColor: any;
+        secondaryColor: any;
+        secondaryFontColor: any;
+        textSecondary: any;
+        primaryButtonBackground: any;
+        primaryButtonHoverBackground: any;
+        primaryButtonDisabledBackground: any;
+        maxButtonBackground: any;
+        maxButtonHoverBackground: any;
+    };
     function updateTheme(target: Control, theme: any): void;
-    export { formatNumber, updateTheme, match, MatchFunction };
+    export { formatNumber, getThemeVars, updateTheme, match, MatchFunction };
     export * from "@scom/scom-dapp-container/utils/theme.ts";
 }
 /// <amd-module name="@scom/scom-dapp-container/header.css.ts" />
@@ -481,6 +557,7 @@ declare module "@scom/scom-dapp-container/header.tsx" {
         get shortlyAddress(): string;
         get showWalletNetwork(): boolean;
         set showWalletNetwork(value: boolean);
+        set enableThemeToggle(value: boolean);
         onHide(): void;
         registerEvent(): void;
         init(): Promise<void>;
@@ -538,10 +615,11 @@ declare module "@scom/scom-dapp-container/footer.tsx" {
 /// <amd-module name="@scom/scom-dapp-container" />
 declare module "@scom/scom-dapp-container" {
     import { ControlElement, Module, Container } from "@ijstech/components";
-    import { IWalletPlugin, IDappContainerData } from "@scom/scom-dapp-container/interface.ts";
+    import { IWalletPlugin, IDappContainerData, WidgetType } from "@scom/scom-dapp-container/interface.ts";
     export { DappContainerBody } from "@scom/scom-dapp-container/body.tsx";
     export { DappContainerHeader } from "@scom/scom-dapp-container/header.tsx";
     export { DappContainerFooter } from "@scom/scom-dapp-container/footer.tsx";
+    export { WidgetType };
     interface INetworkConfig {
         chainName?: string;
         chainId: number;
@@ -554,6 +632,7 @@ declare module "@scom/scom-dapp-container" {
         showFooter?: boolean;
         showWalletNetwork?: boolean;
         rpcWalletId?: string;
+        widgetType?: WidgetType;
     }
     global {
         namespace JSX {
@@ -590,6 +669,8 @@ declare module "@scom/scom-dapp-container" {
         set showHeader(value: boolean);
         get showFooter(): boolean;
         set showFooter(value: boolean);
+        get widgetType(): WidgetType;
+        set widgetType(value: WidgetType);
         get showWalletNetwork(): boolean;
         set showWalletNetwork(value: boolean);
         setRootDir(value: string): void;

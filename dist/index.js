@@ -21,7 +21,18 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 define("@scom/scom-dapp-container/interface.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.EVENT = void 0;
+    exports.EVENT = exports.WidgetType = void 0;
+    // interface IDappContainerContent {
+    //   module: IPageBlockData;
+    //   properties: any;
+    //   tag?: any;
+    // }
+    var WidgetType;
+    (function (WidgetType) {
+        WidgetType[WidgetType["Standalone"] = 0] = "Standalone";
+        WidgetType[WidgetType["Embed"] = 1] = "Embed";
+    })(WidgetType || (WidgetType = {}));
+    exports.WidgetType = WidgetType;
     var EVENT;
     (function (EVENT) {
         EVENT["UPDATE_TAG"] = "UPDATE_TAG";
@@ -502,7 +513,7 @@ define("@scom/scom-dapp-container/utils/pathToRegexp.ts", ["require", "exports"]
 define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.lightTheme = exports.darkTheme = void 0;
+    exports.embedTheme = exports.lightTheme = exports.darkTheme = void 0;
     ///<amd-module name='@scom/scom-dapp-container/utils/theme.ts'/> 
     exports.darkTheme = {
         "background": {
@@ -577,11 +588,48 @@ define("@scom/scom-dapp-container/utils/theme.ts", ["require", "exports"], funct
             }
         }
     };
+    exports.embedTheme = {
+        "background": {
+            "main": "#000",
+            "modal": "#1a1a1a",
+            "gradient": "linear-gradient(135deg, #ffefa6 0%, #fde192 20%, #f8bc5d 40%, #f39323 100%)"
+        },
+        "input": {
+            "background": "#222222",
+            "fontColor": "#fff"
+        },
+        "text": {
+            "primary": "#fff",
+            "secondary": "#666666"
+        },
+        "colors": {
+            "primary": {
+                "main": "#fe9f10",
+                "contrastText": "#fff"
+            },
+            "secondary": {
+                "main": "#444444",
+                "contrastText": "#fff"
+            }
+        },
+        "buttons": {
+            "primary": {
+                "background": "transparent linear-gradient(135deg, #ffefa6 0%, #fde192 20%, #f8bc5d 40%, #f39323 100%) 0% 0% no-repeat padding-box",
+                "hoverBackground": "linear-gradient(135deg, #efe1a6 0%, #f1dca2 20%, #f3c172 40%, #de923a 100%)",
+                "disabledBackground": "transparent linear-gradient(135deg, #827a56 0%, #7f6d38 20%, #735219 40%, #4f2e05 100%) 0% 0% no-repeat padding-box",
+            },
+            "secondary": {
+                "background": "transparent linear-gradient(135deg, #ffefa6 0%, #fde192 20%, #f8bc5d 40%, #f39323 100%) 0% 0% no-repeat padding-box",
+                "hoverBackground": "linear-gradient(135deg, #efe1a6 0%, #f1dca2 20%, #f3c172 40%, #de923a 100%)",
+                "disabledBackground": "transparent linear-gradient(135deg, #827a56 0%, #7f6d38 20%, #735219 40%, #4f2e05 100%) 0% 0% no-repeat padding-box",
+            }
+        }
+    };
 });
 define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@scom/scom-dapp-container/utils/pathToRegexp.ts", "@ijstech/components", "@scom/scom-dapp-container/utils/theme.ts"], function (require, exports, pathToRegexp_1, components_3, theme_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.match = exports.updateTheme = exports.formatNumber = void 0;
+    exports.match = exports.updateTheme = exports.getThemeVars = exports.formatNumber = void 0;
     Object.defineProperty(exports, "match", { enumerable: true, get: function () { return pathToRegexp_1.match; } });
     const formatNumber = (value, decimalFigures) => {
         const newValue = (typeof value === 'object') ? value.toFixed() : value;
@@ -594,6 +642,26 @@ define("@scom/scom-dapp-container/utils/index.ts", ["require", "exports", "@scom
             target.style.setProperty(name, value) :
             target.style.removeProperty(name);
     }
+    function getThemeVars(themeVars) {
+        return {
+            fontColor: themeVars.text.primary,
+            backgroundColor: themeVars.background.main,
+            inputFontColor: themeVars.input.fontColor,
+            inputBackgroundColor: themeVars.input.background,
+            buttonBackgroundColor: themeVars.colors.primary.main,
+            buttonFontColor: themeVars.colors.primary.contrastText,
+            modalColor: themeVars.background.modal,
+            secondaryColor: themeVars.colors.secondary.main,
+            secondaryFontColor: themeVars.colors.secondary.contrastText,
+            textSecondary: themeVars.text.secondary,
+            primaryButtonBackground: themeVars.buttons.primary.background,
+            primaryButtonHoverBackground: themeVars.buttons.primary.hoverBackground,
+            primaryButtonDisabledBackground: themeVars.buttons.primary.disabledBackground,
+            maxButtonBackground: themeVars.buttons.secondary.background,
+            maxButtonHoverBackground: themeVars.buttons.secondary.hoverBackground
+        };
+    }
+    exports.getThemeVars = getThemeVars;
     function updateTheme(target, theme) {
         if (!theme)
             theme = {};
@@ -1283,6 +1351,9 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             this._showWalletNetwork = value;
             this.pnlWallet.visible = this.showWalletNetwork;
         }
+        set enableThemeToggle(value) {
+            this.switchTheme.visible = value;
+        }
         onHide() {
             let clientWallet = eth_wallet_3.Wallet.getClientInstance();
             for (let event of this.walletEvents) {
@@ -1460,32 +1531,12 @@ define("@scom/scom-dapp-container/header.tsx", ["require", "exports", "@ijstech/
             }
         }
         initTheme() {
-            const getThemeVars = (theme) => {
-                const themeVars = theme === 'light' ? index_1.lightTheme : index_1.darkTheme;
-                return {
-                    fontColor: themeVars.text.primary,
-                    backgroundColor: themeVars.background.main,
-                    inputFontColor: themeVars.input.fontColor,
-                    inputBackgroundColor: themeVars.input.background,
-                    buttonBackgroundColor: themeVars.colors.primary.main,
-                    buttonFontColor: themeVars.colors.primary.contrastText,
-                    modalColor: themeVars.background.modal,
-                    secondaryColor: themeVars.colors.secondary.main,
-                    secondaryFontColor: themeVars.colors.secondary.contrastText,
-                    textSecondary: themeVars.text.secondary,
-                    primaryButtonBackground: themeVars.buttons.primary.background,
-                    primaryButtonHoverBackground: themeVars.buttons.primary.hoverBackground,
-                    primaryButtonDisabledBackground: themeVars.buttons.primary.disabledBackground,
-                    maxButtonBackground: themeVars.buttons.secondary.background,
-                    maxButtonHoverBackground: themeVars.buttons.secondary.hoverBackground
-                };
-            };
             const parent = this.closest('i-scom-dapp-container');
             if (parent) {
                 parent.theme = this.switchTheme.checked ? 'light' : 'dark';
                 parent.initTag({
-                    light: getThemeVars('light'),
-                    dark: getThemeVars('dark')
+                    light: (0, index_1.getThemeVars)(index_1.lightTheme),
+                    dark: (0, index_1.getThemeVars)(index_1.darkTheme)
                 });
             }
         }
@@ -1581,10 +1632,11 @@ define("@scom/scom-dapp-container/footer.tsx", ["require", "exports", "@ijstech/
     ], DappContainerFooter);
     exports.DappContainerFooter = DappContainerFooter;
 });
-define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_9, index_css_1, index_3, eth_wallet_4, utils_1, body_1, header_1, footer_1) {
+define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components", "@scom/scom-dapp-container/interface.ts", "@scom/scom-dapp-container/index.css.ts", "@scom/scom-dapp-container/store/index.ts", "@ijstech/eth-wallet", "@scom/scom-dapp-container/utils/index.ts", "@scom/scom-dapp-container/body.tsx", "@scom/scom-dapp-container/header.tsx", "@scom/scom-dapp-container/footer.tsx"], function (require, exports, components_9, interface_1, index_css_1, index_3, eth_wallet_4, utils_1, body_1, header_1, footer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
+    exports.WidgetType = exports.DappContainerFooter = exports.DappContainerHeader = exports.DappContainerBody = void 0;
+    Object.defineProperty(exports, "WidgetType", { enumerable: true, get: function () { return interface_1.WidgetType; } });
     Object.defineProperty(exports, "DappContainerBody", { enumerable: true, get: function () { return body_1.DappContainerBody; } });
     Object.defineProperty(exports, "DappContainerHeader", { enumerable: true, get: function () { return header_1.DappContainerHeader; } });
     Object.defineProperty(exports, "DappContainerFooter", { enumerable: true, get: function () { return footer_1.DappContainerFooter; } });
@@ -1624,7 +1676,8 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
                 const showWalletNetwork = this.getAttribute('showWalletNetwork', true) ?? this.showWalletNetwork;
                 const defaultChainId = this.getAttribute('defaultChainId', true) ?? this._data?.defaultChainId;
                 const rpcWalletId = this.getAttribute('rpcWalletId', true) ?? this._data?.rpcWalletId;
-                let data = { defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork, rpcWalletId };
+                const widgetType = this.getAttribute('widgetType', true) ?? this.widgetType;
+                let data = { defaultChainId, networks, wallets, showHeader, showFooter, showWalletNetwork, rpcWalletId, widgetType };
                 if (!this.isEmptyData(data)) {
                     await this.setData(data);
                 }
@@ -1680,11 +1733,23 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerHeader.visible = this.showHeader;
         }
         get showFooter() {
+            if (this.widgetType === interface_1.WidgetType.Embed)
+                return false;
             return this._data?.showFooter ?? true;
         }
         set showFooter(value) {
             this._data.showFooter = value;
             this.dappContainerFooter.visible = this.showFooter;
+        }
+        get widgetType() {
+            return this._data?.widgetType ?? interface_1.WidgetType.Standalone;
+        }
+        set widgetType(value) {
+            this._data.widgetType = value;
+            this.dappContainerHeader.enableThemeToggle = value === interface_1.WidgetType.Standalone;
+            this.dappContainerFooter.visible = value === interface_1.WidgetType.Standalone;
+            if (value === interface_1.WidgetType.Embed)
+                (0, utils_1.updateTheme)(this, (0, utils_1.getThemeVars)(utils_1.embedTheme));
         }
         get showWalletNetwork() {
             return this._data?.showWalletNetwork ?? true;
@@ -1710,6 +1775,9 @@ define("@scom/scom-dapp-container", ["require", "exports", "@ijstech/components"
             this.dappContainerHeader.setState(this.state);
             this.dappContainerHeader.visible = this.showHeader;
             this.dappContainerHeader.showWalletNetwork = this.showWalletNetwork;
+            this.dappContainerHeader.enableThemeToggle = this.widgetType === interface_1.WidgetType.Standalone;
+            if (this.widgetType === interface_1.WidgetType.Embed)
+                (0, utils_1.updateTheme)(this, (0, utils_1.getThemeVars)(utils_1.embedTheme));
             this.dappContainerFooter.visible = this.showFooter;
             if (this.showWalletNetwork) {
                 this.state.update(this._data);

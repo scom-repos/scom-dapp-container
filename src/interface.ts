@@ -12,6 +12,11 @@ interface IWalletPlugin {
 //   tag?: any;
 // }
 
+enum WidgetType {
+  Standalone,
+  Embed
+}
+
 interface IDappContainerData {
   defaultChainId?: number;
   networks?: INetworkConfig[];
@@ -20,6 +25,7 @@ interface IDappContainerData {
   showFooter?: boolean;
   showWalletNetwork?: boolean;
   rpcWalletId?: string;
+  widgetType?: WidgetType;
 }
 
 interface IPageBlockData {
@@ -60,12 +66,32 @@ interface INetworkConfig {
   chainId: number;
 }
 
+interface ITheme {
+  fontColor: string;
+  backgroundColor: string;
+  inputFontColor: string;
+  inputBackgroundColor: string;
+  buttonBackgroundColor: string;
+  buttonFontColor: string;
+  modalColor: string;
+  secondaryColor: string;
+  secondaryFontColor: string;
+  textSecondary: string;
+  primaryButtonBackground: string;
+  primaryButtonHoverBackground: string;
+  primaryButtonDisabledBackground: string;
+  maxButtonBackground: string;
+  maxButtonHoverBackground: string;
+}
+
 export {
   IWalletPlugin,
+  WidgetType,
   IPageBlockData,
   IDappContainerData,
   ICodeInfoFileContent,
   EVENT,
   IExtendedNetwork,
-  INetworkConfig
+  INetworkConfig,
+  ITheme
 }
