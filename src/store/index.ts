@@ -19,6 +19,7 @@ import { getMulticallInfoList } from '@scom/scom-multicall';
 export enum WalletPlugin {
     MetaMask = 'metamask',
     WalletConnect = 'walletconnect',
+    InstantWallet = 'instantwallet',
 }
 
 export const enum EventId {
@@ -59,13 +60,27 @@ export async function connectWallet(state: State, walletPlugin: string, triggere
     if (triggeredByUser || state.isFirstLoad) {
         let provider = state.getWalletPluginProvider(walletPlugin);
         if (provider?.installed()) {
-            await wallet.connect(provider, {
+            const eventPayload: any = {
                 userTriggeredConnect: triggeredByUser
-            });
+            };
+            if (walletPlugin === 'instantwallet') {
+                eventPayload.verifyAuthCode = verifyAuthCode;
+            }
+            await wallet.connect(provider, eventPayload);
         }
         state.isFirstLoad = false;
     }
     return wallet;
+}
+
+async function verifyAuthCode(verifyAuthCodeArgs: any) {
+    return {
+        success: true,
+        data: {
+            walletAddress: '0x1234567890abcdef1234567890abcdef12345678',
+            privateKey: '0xd70f17ac6297169b901152b488480350e0c5920fd2cfa94adf63c785a0b09c3e'
+        }
+    }
 }
 
 export async function switchNetwork(state: State, chainId: number) {

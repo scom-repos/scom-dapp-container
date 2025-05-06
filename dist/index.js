@@ -870,6 +870,7 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
     (function (WalletPlugin) {
         WalletPlugin["MetaMask"] = "metamask";
         WalletPlugin["WalletConnect"] = "walletconnect";
+        WalletPlugin["InstantWallet"] = "instantwallet";
     })(WalletPlugin = exports.WalletPlugin || (exports.WalletPlugin = {}));
     ;
     function isClientWalletConnected() {
@@ -896,15 +897,28 @@ define("@scom/scom-dapp-container/store/index.ts", ["require", "exports", "@ijst
         if (triggeredByUser || state.isFirstLoad) {
             let provider = state.getWalletPluginProvider(walletPlugin);
             if (provider?.installed()) {
-                await wallet.connect(provider, {
+                const eventPayload = {
                     userTriggeredConnect: triggeredByUser
-                });
+                };
+                if (walletPlugin === 'instantwallet') {
+                    eventPayload.verifyAuthCode = verifyAuthCode;
+                }
+                await wallet.connect(provider, eventPayload);
             }
             state.isFirstLoad = false;
         }
         return wallet;
     }
     exports.connectWallet = connectWallet;
+    async function verifyAuthCode(verifyAuthCodeArgs) {
+        return {
+            success: true,
+            data: {
+                walletAddress: '0x1234567890abcdef1234567890abcdef12345678',
+                privateKey: '0xd70f17ac6297169b901152b488480350e0c5920fd2cfa94adf63c785a0b09c3e'
+            }
+        };
+    }
     async function switchNetwork(state, chainId) {
         const rpcWallet = state.getRpcWallet();
         if (!rpcWallet)
@@ -1203,9 +1217,10 @@ define("@scom/scom-dapp-container/connectWalletModule.tsx", ["require", "exports
                 const isActive = this.isWalletActive(wallet.name);
                 if (isActive)
                     this.currActiveWallet = wallet.name;
+                const walletImage = wallet.name === 'instantwallet' ? '' : wallet.image || '';
                 const hsWallet = (this.$render("i-hstack", { class: isActive ? 'is-actived list-item' : 'list-item', verticalAlignment: 'center', gap: 12, background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }, horizontalAlignment: "space-between", onClick: () => this.connectToProviderFunc(wallet.name) },
-                    this.$render("i-label", { caption: wallet.displayName, margin: { left: '1rem' }, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.secondary.contrastText } }),
-                    this.$render("i-image", { width: 34, height: "auto", url: wallet.image || '' })));
+                    this.$render("i-label", { caption: wallet.name === 'instantwallet' ? 'Instant Wallet' : wallet.displayName, margin: { left: '1rem' }, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.secondary.contrastText } }),
+                    this.$render("i-image", { width: 34, height: "auto", url: walletImage })));
                 this.walletMapper.set(wallet.name, hsWallet);
                 this.gridWalletList.append(hsWallet);
             });

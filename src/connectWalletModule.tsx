@@ -69,6 +69,7 @@ export class ConnectWalletModule extends Module {
         walletList.forEach((wallet) => {
             const isActive = this.isWalletActive(wallet.name);
             if (isActive) this.currActiveWallet = wallet.name;
+            const walletImage = wallet.name === 'instantwallet' ? '' : wallet.image || '';
             const hsWallet = (
                 <i-hstack
                     class={isActive ? 'is-actived list-item' : 'list-item'}
@@ -81,12 +82,12 @@ export class ConnectWalletModule extends Module {
                     onClick={() => this.connectToProviderFunc(wallet.name)}
                 >
                     <i-label
-                        caption={wallet.displayName}
+                        caption={wallet.name === 'instantwallet' ? 'Instant Wallet' : wallet.displayName}
                         margin={{ left: '1rem' }}
                         wordBreak="break-word"
                         font={{ size: '.875rem', bold: true, color: Theme.colors.secondary.contrastText }}
                     />
-                    <i-image width={34} height="auto" url={wallet.image || ''} />
+                    <i-image width={34} height="auto" url={walletImage} />
                 </i-hstack>
             );
             this.walletMapper.set(wallet.name, hsWallet);

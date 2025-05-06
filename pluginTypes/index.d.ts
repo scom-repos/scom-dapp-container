@@ -381,7 +381,8 @@ declare module "@scom/scom-dapp-container/store/index.ts" {
     import { IDappContainerData, IExtendedNetwork, IWalletPlugin } from "@scom/scom-dapp-container/interface.ts";
     export enum WalletPlugin {
         MetaMask = "metamask",
-        WalletConnect = "walletconnect"
+        WalletConnect = "walletconnect",
+        InstantWallet = "instantwallet"
     }
     export const enum EventId {
         ConnectWallet = "connectWallet",
