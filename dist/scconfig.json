@@ -1,10 +1,12 @@
 {
     "name": "@scom/scom-dapp-container",
     "type": "widget",
-    "version": "0.1.21",
+    "hash": "sha256-OiaFj0XLOzAtVgFlNQeY/moirs20LYinqTfMWLJeKu4=",
+    "version": "0.1.22",
     "dependencies": [
         "@ijstech/components",
         "@ijstech/eth-wallet",
+        "@ijstech/eth-contract",
         "@scom/scom-network-list",
         "@scom/scom-multicall"
     ]
